@@ -24,35 +24,63 @@ termy_voice_off() {
     echo "Voice mode disabled."
 }
 
-# This function is used by TERMy to synthetize speech
+# Generate an ANSI clickable link for the terminal
 
+termy_link() {
+    printf "\e]8;;file://%s\e\\\\%s\e]8;;\e\\\\" "$1" "$2"
+}
+
+# This function is used by TERMy to synthetize speech
 termy_say() {
     local silent=false
+    local interpret_escapes=false
 
-    if [ "$1" = "--silent" ] || [ "$1" = "-s" ]; then
-        silent=true
-        shift
-    fi
+    # Parse incoming flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -s|--silent)
+                silent=true
+                shift
+                ;;
+            -e)
+                interpret_escapes=true
+                shift
+                ;;
+            *)
+                break
+                ;;
+        esac
+    done
     
     local raw_text="$1"
-    local text="${raw_text//[\"\']}"
 
-    # Try this instead of sed with hex escapes (more portable)
-    text=$(printf '%s' "$text" | tr '\n' ' ' | grep -o '[[:print:]]*')
-    
-    text="${text//  / }"
+    # 1. Preserve ANSI sequences for terminal use
+    local terminal_text="$raw_text"
 
+    # 2. Clean up text for the TTS
+    local tts_text="$raw_text"
+    tts_text="${tts_text//[\"\']}"
+    tts_text=$(printf '%s' "$tts_text" | sed -r 's/\x1B\[[0-9;]*[mK]//g' | sed -r 's/\x1B\]8;[^;]*;[^\x1B]*\x1B\\//g')
+    tts_text=$(printf '%s' "$tts_text" | tr '\n' ' ' | grep -o '[[:print:]]*')
+    tts_text="${tts_text//  / }" # <--- FIX: Corretto da $text a $tts_text
+
+    # Execute TTS
     local current_mode=$(termy_get_context "tts")
-
     if [ "$current_mode" = "on" ] && command -v espeak-ng >/dev/null 2>&1; then
         pkill espeak-ng >/dev/null 2>&1
-        espeak-ng "$text" >/dev/null 2>&1 &
+        espeak-ng "$tts_text" >/dev/null 2>&1 &
     fi
 
+    # Print in terminal
     if [ "$silent" = false ]; then
-        echo "$text"
+        if [ "$interpret_escapes" = true ]; then
+            printf "%b\n" "$terminal_text"
+        else
+            printf "%s\n" "$terminal_text"
+        fi
     fi
 }
+
 
 # Safely prompts the user via audio/terminal and stores 
 # the text response inside a variable reference.
@@ -181,3 +209,6 @@ termy_set_context() {
         return 1
     fi
 }
+
+export -f termy_link
+export -f termy_say
