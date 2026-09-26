@@ -54,29 +54,19 @@ termy_say() {
     
     local raw_text="$1"
 
-    # 1. Preserve ANSI sequences for terminal use
-    local terminal_text="$raw_text"
-
-    # 2. Clean up text for the TTS
-    local tts_text="$raw_text"
-    tts_text="${tts_text//[\"\']}"
-    tts_text=$(printf '%s' "$tts_text" | sed -r 's/\x1B\[[0-9;]*[mK]//g' | sed -r 's/\x1B\]8;[^;]*;[^\x1B]*\x1B\\//g')
-    tts_text=$(printf '%s' "$tts_text" | tr '\n' ' ' | grep -o '[[:print:]]*')
-    tts_text="${tts_text//  / }" # <--- FIX: Corretto da $text a $tts_text
-
     # Execute TTS
     local current_mode=$(termy_get_context "tts")
     if [ "$current_mode" = "on" ] && command -v espeak-ng >/dev/null 2>&1; then
         pkill espeak-ng >/dev/null 2>&1
-        espeak-ng "$tts_text" >/dev/null 2>&1 &
+        espeak-ng "$raw_text" >/dev/null 2>&1 &
     fi
 
     # Print in terminal
     if [ "$silent" = false ]; then
         if [ "$interpret_escapes" = true ]; then
-            printf "%b\n" "$terminal_text"
+            printf "%b\n" "$raw_text"
         else
-            printf "%s\n" "$terminal_text"
+            printf "%s\n" "$raw_text"
         fi
     fi
 }
