@@ -245,7 +245,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "echo '<||string||>' > '<||file||>' &&\ntermy_set_context 'active_file' '<||file||>' &&\ntermy_set_context 'active_content' '<||string||>'",
+                    "command": "echo '<||string||>' > '<||file||>' &&\ntermy_set_context 'active_file' '<||file||>' &&\ntermy_set_context 'active_content' '<||string||>' &&\nlink=$(termy_link '<||file||>' '<||file||>') &&\ntermy_say -e \"File created successfully at $link\"",
                     "explanation": "Writes <||string||> in file <||file||>.",
                     "goal": "File creation",
                     "mode": "sync"
@@ -324,6 +324,68 @@
         ]
     },
     {
+        "intent": "copy_file",
+        "category": "linux_files",
+        "type": "template",
+        "structure": [
+            [
+                {
+                    "tag": [
+                        "<||vocab_create||>",
+                        "<||vocab_make||>"
+                    ],
+                    "type": "vocab",
+                    "required": false
+                },
+                {
+                    "tag": "<||vocab_copy||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||vocab_about||>",
+                    "type": "vocab",
+                    "required": false
+                },
+                {
+                    "tag": "<||file||>",
+                    "type": "filename",
+                    "required": true
+                },
+                {
+                    "tag": [
+                        "<||vocab_to||>",
+                        "<||vocab_in||>"
+                    ],
+                    "type": "vocab",
+                    "required": false
+                },
+                {
+                    "tag": "<||path||>",
+                    "type": "filename",
+                    "required": true
+                }
+            ]
+        ],
+        "output": "<||completion||> I am ready to copy <||file||>.",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "cp -i -- '<||file||>' '<||path||>' &&\nif [ -d '<||path||>' ]; then\n termy_set_context active_file \"<||path||>/$(basename '<||file||>')\";\nelse\n termy_set_context active_file '<||path||>';\nfi",
+                    "explanation": "Copies <||file||> to <||path||>.",
+                    "goal": "File duplication",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask",
+        "thinking": [
+            "The user wants to duplicate the <||file||>, I will try not to mess it up this time...",
+            "I will use the cp command with the interactive flag to prevent accidental overwrites."
+        ]
+    },
+    {
         "intent": "search_file_content",
         "category": "developer_tools",
         "type": "template",
@@ -352,6 +414,33 @@
                 {
                     "tag": "<||word||>",
                     "type": "word",
+                    "required": true
+                }
+            ],
+            [
+                {
+                    "tag": "<||vocab_search||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||word||>",
+                    "type": "word",
+                    "required": true
+                },
+                {
+                    "tag": "<||vocab_in||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||vocab_file||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||file||>",
+                    "type": "filename",
                     "required": true
                 }
             ]
@@ -418,7 +507,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "checksum=$(sha256sum '<||file||>' | awk '{print $1}') &&\ntermy_set_context active_file '<||file||>' &&\ntermy_say \"Here is the checksum: $checksum\" &&\ntermy_set_context active_content \"$checksum\"",
+                    "command": "checksum=$(sha256sum '<||file||>' | awk '{print $1}') &&\ntermy_set_context active_file '<||file||>' &&\ntermy_say \"Here is the checksum: $checksum\" &&\ntermy_set_context 'active_content' \"$checksum\"",
                     "explanation": "Calculates the SHA-256 checksum of '<||file||>'.",
                     "goal": "Verify file integrity",
                     "mode": "sync"
@@ -464,7 +553,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "diff -u -- \"$(termy_get_context 'active_file')\" '<||target_file||>'",
+                    "command": "diff -u -- '<||file||>' '<||target_file||>'",
                     "explanation": "Shows the diff between the active file and the target file.",
                     "goal": "File comparison",
                     "mode": "sync"
@@ -479,6 +568,65 @@
     },
     {
         "intent": "move_file",
+        "category": "linux_files",
+        "type": "template",
+        "structure": [
+            [
+                {
+                    "tag": "<||vocab_move||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||file||>",
+                    "type": "filename",
+                    "required": true
+                },
+                {
+                    "tag": [
+                        "<||vocab_in||>",
+                        "<||vocab_to||>"
+                    ],
+                    "type": "vocab",
+                    "required": false
+                },
+                {
+                    "tag": [
+                        "<||vocab_dir||>"
+                    ],
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||path||>",
+                    "type": "path",
+                    "required": true
+                }
+            ]
+        ],
+        "output": [
+            "<||completion||> I am ready to move <||file||>."
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "mv -i -- '<||file||>' '<||path||>' &&\n\nif [ -d '<||path||>' ]; then\n termy_set_context active_file \"<||path||>/$(basename '<||file||>')\";\nelse\n termy_set_context active_file '<||path||>';\nfi",
+                    "explanation": "Moves <||file||> to <||path||>.",
+                    "goal": "File location update",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask",
+        "thinking": [
+            "I wonder what mv stands for... maybe Massively Vicious... or... Machine's Victory?",
+            "The user wants me to move <||file||>... mv will do the work for me...",
+            "That is something I can do faster than LLMs..."
+        ]
+    },
+    {
+        "intent": "move_active_file",
         "category": "linux_files",
         "type": "template",
         "structure": [
@@ -525,7 +673,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "active_file=\"$(termy_get_context 'active_file')\" &&\nmv -i -- \"$active_file\" '<||path||>' &&\n\nif [ -d '<||path||>' ]; then\n termy_set_context active_file \"<||path||>/$(basename \"$active_file\")\";\nelse\n termy_set_context active_file '<||path||>';\nfi",
+                    "command": "active_file=\"$(termy_get_context 'active_file')\" &&\nmv -i -- \"$active_file\" '<||path||>' &&\n\nif [ -d '<||path||>' ]; then\n termy_set_context active_file \"<||path||>/$(basename \"$active_file\")\";\nelse\n termy_set_context 'active_file' '<||path||>';\nfi",
                     "explanation": "Move the last active file to a new location.",
                     "goal": "File location update",
                     "mode": "sync"
@@ -537,6 +685,49 @@
             "I wonder what mv stands for... maybe Massively Vicious... or... Machine's Victory?",
             "The user wants me to move a file... thankfully mv will do the work for me...",
             "That is something I can do faster than LLMs..."
+        ]
+    },
+    {
+        "intent": "active_file_executable",
+        "category": "linux_files",
+        "type": "template",
+        "structure": [
+            [
+                {
+                    "tag": "<||vocab_make||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||file||>",
+                    "type": "filename",
+                    "required": true
+                },
+                {
+                    "tag": "<||vocab_executable||>",
+                    "type": "vocab",
+                    "required": true
+                }
+            ]
+        ],
+        "output": [
+            "<||completion||> I am ready make <||file||> executable."
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "chmod +x -- '<||file||>'",
+                    "explanation": "Makes <||file||> executable.",
+                    "goal": "File permissions update",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask",
+        "thinking": [
+            "The user wants me to make <||file||> executable, I should dig into the context...",
+            "That is something I can do better than LLMs..."
         ]
     },
     {
@@ -587,7 +778,7 @@
         ]
     },
     {
-        "intent": "execute_file",
+        "intent": "execute_active_file",
         "category": "linux_files",
         "type": "template",
         "structure": [
@@ -628,6 +819,44 @@
         ]
     },
     {
+        "intent": "execute_file",
+        "category": "linux_files",
+        "type": "template",
+        "structure": [
+            [
+                {
+                    "tag": "<||vocab_execute||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||file||>",
+                    "type": "filename",
+                    "required": true
+                }
+            ]
+        ],
+        "output": [
+            "<||completion||> I am ready to execute <||file||>."
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "termy_execute '<||file||>' &&\ntermy_set_context 'active_file' '<||file||>'",
+                    "explanation": "Executes <||file||>.",
+                    "goal": "Script execution",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask",
+        "thinking": [
+            "The user wants me to execute <||file||>, thankfully the termy_execute script will do the work for me...",
+            "That is something I can do faster than LLMs..."
+        ]
+    },
+    {
         "intent": "last_file_delete",
         "category": "linux_files",
         "type": "template",
@@ -655,7 +884,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "rm -f -- \"$(termy_get_context 'active_file')\"",
+                    "command": "rm -f -- \"$(termy_get_context 'active_file')\" && termy_set_context 'active_file' ''",
                     "explanation": "Deletes the last target.",
                     "goal": "File deletion",
                     "mode": "sync"
@@ -709,7 +938,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "file_path=\"$(termy_get_context 'active_file')\" && open_browser \"$file_path\"",
+                    "command": "file_path=\"$(termy_get_context 'active_file')\" &&\nopen_browser \"$file_path\"",
                     "explanation": "Opens the active file from context in the default browser.",
                     "goal": "Open webpage in browser",
                     "mode": "sync"
@@ -799,18 +1028,16 @@
                     "required": true
                 },
                 {
-                    "tag": "<||vocab_from||>",
+                    "tag": [
+                        "<||vocab_from||>",
+                        "<||vocab_in||>"
+                    ],
                     "type": "vocab",
                     "required": false
                 },
                 {
-                    "tag": "<||vocab_in||>",
-                    "type": "vocab",
-                    "required": false
-                },
-                {
-                    "tag": "<||string||>",
-                    "type": "filename",
+                    "tag": "<||path||>",
+                    "type": "path",
                     "required": true
                 }
             ]
@@ -820,9 +1047,9 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "termy_say \"Opening file in editor\" > /dev/null 2>&1 &&\nprintf '📝 Launching editor for: %s\\n' '<||string||>' &&\nescaped_path=$(printf '%s' '<||string||>' | sed \"s/'/'\\\\''/g\") &&\nopen_file_with_editor \"$escaped_path\" &&\nprintf ''",
-                    "explanation": "Detects available terminal or graphical text editors and invokes open_file_with_editor to modify the file <||string||>.",
-                    "goal": "Directory Allocation",
+                    "command": "termy_say \"Opening file in editor\" > /dev/null 2>&1 &&\nprintf '📝 Launching editor for: %s\\n' '<||path||>' &&\nescaped_path=$(printf '%s' '<||path||>' | sed \"s/'/'\\\\''/g\") &&\nopen_file_with_editor \"$escaped_path\" &&\nprintf ''",
+                    "explanation": "Detects available terminal or graphical text editors and invokes open_file_with_editor to modify the file <||path||>.",
+                    "goal": "Browse file in editor",
                     "mode": "sync"
                 }
             }
@@ -985,7 +1212,7 @@
                 },
                 {
                     "tag": "<||string||>",
-                    "type": "string",
+                    "type": "filename",
                     "required": true
                 }
             ]
@@ -1780,7 +2007,7 @@
                 {
                     "tag": "<||vocab_file||>",
                     "type": "vocab",
-                    "required": true
+                    "required": false
                 },
                 {
                     "tag": "<||file||>",
@@ -2248,7 +2475,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && if [ -e '<||file||>' ]; then termy_say \"File exists\" > /dev/null 2>&1 && printf '\\r\\n✅ File %s exists\\n' '<||file||>'; else termy_say \"File does not exist\" > /dev/null 2>&1 && printf '\\r\\n⛔ File %s does not exist\\n' '<||file||>'; fi && printf ''",
+                    "command": "if [ -e '<||file||>' ]; then termy_say \"File exists\" > /dev/null 2>&1 && printf '\\r\\n✅ File %s exists\\n' '<||file||>'; else termy_say \"File does not exist\" > /dev/null 2>&1 && printf '\\r\\n⛔ File %s does not exist\\n' '<||file||>'; fi && printf ''",
                     "explanation": "Checks whether <||file||> exists on the filesystem using a native test expression.",
                     "goal": "Verify file existence",
                     "mode": "sync"
@@ -2304,7 +2531,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && if [ ! -f -- '<||file||>' ]; then termy_say \"File does not exist\" > /dev/null 2>&1 && printf '\\r\\n⛔ Notice: File %s does not exist\\n' '<||file||>'; else termy_say \"Checking file size\" > /dev/null 2>&1 && du -h -- '<||file||>' 2>/dev/null && printf ''; fi",
+                    "command": "if [ ! -f -- '<||file||>' ]; then termy_say \"File does not exist\" > /dev/null 2>&1 && printf '\\r\\n⛔ Notice: File %s does not exist\\n' '<||file||>'; else termy_say \"Checking file size\" > /dev/null 2>&1 && du -h -- '<||file||>' 2>/dev/null && printf ''; fi",
                     "explanation": "Checks the size of <||file||> in a human-readable format using du -h.",
                     "goal": "File size check",
                     "mode": "sync"
@@ -2465,7 +2692,10 @@
         "structure": [
             [
                 {
-                    "tag": "<||vocab_parse||>",
+                    "tag": [
+                        "<||vocab_parse||>",
+                        "<||vocab_search||>"
+                    ],
                     "type": "vocab",
                     "required": true
                 },
@@ -2596,11 +2826,6 @@
                     "required": true
                 },
                 {
-                    "tag": "<||vocab_if||>",
-                    "type": "vocab",
-                    "required": true
-                },
-                {
                     "tag": "<||vocab_function||>",
                     "type": "vocab",
                     "required": true
@@ -2725,6 +2950,65 @@
         "thinking": [
             "Oh... <||interjection||>... but wait... what I was doing before this? I cannot remember?!",
             "Easy peasy... let's use the right bash magic word..."
+        ]
+    },
+    {
+        "intent": "nl2bash_search_files_extension_content",
+        "category": "linux_files_search",
+        "type": "template",
+        "structure": [
+            [
+                {
+                    "tag": "<||vocab_search||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||vocab_file||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": [
+                        "<||vocab_extension||>",
+                        "<||vocab_end||>"
+                    ],
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||extension||>",
+                    "type": "word",
+                    "required": true
+                },
+                {
+                    "tag": "<||vocab_contain||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||string||>",
+                    "type": "string",
+                    "required": true
+                }
+            ]
+        ],
+        "message": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "termy_set_context 'last_search_extension' '<||extension||>' &&\ntermy_set_context 'last_search' '<||string||>' &&\nfind . -name \\*.<||extension||> -type f -exec grep -Hn <||string||> {} \\+",
+                    "explanation": "Searches <||extension||> files containing <||string||>",
+                    "goal": "Find <||extension||> files containing <||string||>",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo",
+        "thinking": [
+            "Ok... <||interjection||> only <||extension||> files... ",
+            "Translating natural language to bash..."
         ]
     }
 ]
