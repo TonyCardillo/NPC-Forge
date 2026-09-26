@@ -17,7 +17,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && if ping -c 1 -W 2 1.1.1.1 > /dev/null 2>&1; then printf \"\\r\n🌐 Internet status: Online\\n\" && termy_say \"Yes, you are online\" > /dev/null 2>&1 && termy_set_context 'internet_status' 'online' & else printf \"\\r\n🌐 Internet status: Offline\\n\" && termy_say \"No, you are offline\" > /dev/null 2>&1 && termy_set_context 'internet_status' 'offline' & fi",
+                    "command": "if ping -c 1 -W 2 1.1.1.1 > /dev/null 2>&1; then printf \"\\r\n🌐 Internet status: Online\\n\" && termy_say \"Yes, you are online\" > /dev/null 2>&1 && termy_set_context 'internet_status' 'online' & else printf \"\\r\n🌐 Internet status: Offline\\n\" && termy_say \"No, you are offline\" > /dev/null 2>&1 && termy_set_context 'internet_status' 'offline' & fi",
                     "explanation": "Checks and caches internet connection status for task queuing.",
                     "goal": "Check internet connection",
                     "mode": "sync"
@@ -42,7 +42,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT=$(get_public_ip | grep -oE '[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}' | head -n 1) && tput cuu 1 && printf \"\\r\n🌐 Public IP: %s\\n\" \"$OUTPUT\" && termy_say \"Your public IP is $OUTPUT\" > /dev/null 2>&1 && termy_set_context 'current_external_ip' \"$OUTPUT\"",
+                    "command": "OUTPUT=$(get_public_ip | grep -oE '[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}' | head -n 1) && printf \"\\r\n🌐 Public IP: %s\\n\" \"$OUTPUT\" && termy_say \"Your public IP is $OUTPUT\" > /dev/null 2>&1 && termy_set_context 'current_external_ip' \"$OUTPUT\"",
                     "explanation": "Retrieves and caches public IP for VPN/geo-fencing workflows.",
                     "goal": "Display public IP address",
                     "mode": "sync"
@@ -67,7 +67,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT_TXT=$(ip a) && OUTPUT_VOICE=$(ip -br link show up | awk '{print $1}' | paste -sd, -) && tput cuu 1 && printf \"\\r\n🌐 Network interfaces:\\n%s\\n\\n\" \"$OUTPUT_TXT\" && termy_say \"Active network interfaces are $OUTPUT_VOICE\" > /dev/null 2>&1 && termy_set_context 'active_network_interfaces' \"$OUTPUT_VOICE\"",
+                    "command": "OUTPUT_TXT=$(ip a) && OUTPUT_VOICE=$(ip -br link show up | awk '{print $1}' | paste -sd, -) && printf \"\\r\n🌐 Network interfaces:\\n%s\\n\\n\" \"$OUTPUT_TXT\" && termy_say \"Active network interfaces are $OUTPUT_VOICE\" > /dev/null 2>&1 && termy_set_context 'active_network_interfaces' \"$OUTPUT_VOICE\"",
                     "explanation": "Displays and caches network interfaces for auto-switch workflows.",
                     "goal": "Display network interfaces",
                     "mode": "sync"
@@ -91,7 +91,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Please choose a network diagnostic option\" > /dev/null 2>&1 && printf \"\\r\\n1) 📡 Ping a Host\\n2) 🛣️ Trace Route\\n\\nSelect diagnostic 1-2: \" && read -r netchoice && case \"$netchoice\" in 1) termy_say \"Please enter the target host\" > /dev/null 2>&1 && printf \"Target host: \" && read -r host && if [ -n \"$host\" ]; then ping -c 3 \"$host\" && printf \"\\n\" && termy_say \"Ping completed\" > /dev/null 2>&1; else printf \"\\n⛔ Host cannot be empty.\\n\" && termy_say \"Operation cancelled\" > /dev/null 2>&1; fi ;; 2) termy_say \"Please enter the target host\" > /dev/null 2>&1 && printf \"Target host: \" && read -r host && if [ -n \"$host\" ]; then traceroute \"$host\" && printf \"\\n\" && termy_say \"Traceroute completed\" > /dev/null 2>&1; else printf \"\\n⛔ Host cannot be empty.\\n\" && termy_say \"Operation cancelled\" > /dev/null 2>&1; fi ;; *) printf \"\\n⛔ Invalid selection.\\n\" && termy_say \"Invalid selection\" > /dev/null 2>&1 ;; esac",
+                    "command": "termy_say \"Please choose a network diagnostic option\" > /dev/null 2>&1 && printf \"\\r\\n1) 📡 Ping a Host\\n2) 🛣️ Trace Route\\n\\nSelect diagnostic 1-2: \" && read -r netchoice && case \"$netchoice\" in 1) termy_say \"Please enter the target host\" > /dev/null 2>&1 && printf \"Target host: \" && read -r host && if [ -n \"$host\" ]; then ping -c 3 \"$host\" && printf \"\\n\" && termy_say \"Ping completed\" > /dev/null 2>&1; else printf \"\\n⛔ Host cannot be empty.\\n\" && termy_say \"Operation cancelled\" > /dev/null 2>&1; fi ;; 2) termy_say \"Please enter the target host\" > /dev/null 2>&1 && printf \"Target host: \" && read -r host && if [ -n \"$host\" ]; then traceroute \"$host\" && printf \"\\n\" && termy_say \"Traceroute completed\" > /dev/null 2>&1; else printf \"\\n⛔ Host cannot be empty.\\n\" && termy_say \"Operation cancelled\" > /dev/null 2>&1; fi ;; *) printf \"\\n⛔ Invalid selection.\\n\" && termy_say \"Invalid selection\" > /dev/null 2>&1 ;; esac",
                     "explanation": "Provides a menu for network diagnostics, allowing the user to ping a host or perform a traceroute.",
                     "goal": "Run network diagnostics",
                     "mode": "sync"
@@ -117,7 +117,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Please enter the port number\" > /dev/null 2>&1 && printf \"\\r\\n🌐 Enter port number: \" && read -r target_port && if [ -n \"$target_port\" ]; then printf \"\\nChecking port %s...\\n\" \"$target_port\" && if command -v ss > /dev/null 2>&1; then ss -lntp \"sport = :$target_port\"; else lsof -i :\"$target_port\"; fi && printf \"\\nAnalysis for port \\033[1m%s\\033[22m completed.\\n\" \"$target_port\" && termy_say \"Port analysis completed\" > /dev/null 2>&1; else printf \"\\n⛔ Port number cannot be empty.\\n\" && termy_say \"Operation cancelled\" > /dev/null 2>&1; fi",
+                    "command": "termy_say \"Please enter the port number\" > /dev/null 2>&1 && printf \"\\r\\n🌐 Enter port number: \" && read -r target_port && if [ -n \"$target_port\" ]; then printf \"\\nChecking port %s...\\n\" \"$target_port\" && if command -v ss > /dev/null 2>&1; then ss -lntp \"sport = :$target_port\"; else lsof -i :\"$target_port\"; fi && printf \"\\nAnalysis for port \\033[1m%s\\033[22m completed.\\n\" \"$target_port\" && termy_say \"Port analysis completed\" > /dev/null 2>&1; else printf \"\\n⛔ Port number cannot be empty.\\n\" && termy_say \"Operation cancelled\" > /dev/null 2>&1; fi",
                     "explanation": "Checks if a specified port is open and displays the process using it.",
                     "goal": "Check port status",
                     "mode": "sync"
@@ -139,7 +139,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT_TXT=$(ss -tuln | awk 'NR>1 {split($4, a, \":\"); print a[length(a)]}' | sort -nu | awk '{print \"- Port: \\033[1m\" $1 \"\\033[22m\"}') && COUNT=$(echo \"$OUTPUT_TXT\" | grep -c 'Port:') && tput cuu 1 && printf \"\\r\\n🌐 \\033[1mActive Listening Ports:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\" && termy_say \"Found $COUNT active listening ports\" > /dev/null 2>&1",
+                    "command": "OUTPUT_TXT=$(ss -tuln | awk 'NR>1 {split($4, a, \":\"); print a[length(a)]}' | sort -nu | awk '{print \"- Port: \\033[1m\" $1 \"\\033[22m\"}') && COUNT=$(echo \"$OUTPUT_TXT\" | grep -c 'Port:') && printf \"\\r\\n🌐 \\033[1mActive Listening Ports:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\" && termy_say \"Found $COUNT active listening ports\" > /dev/null 2>&1",
                     "explanation": "Displays a list of active listening network ports.",
                     "goal": "List active listening ports",
                     "mode": "sync"

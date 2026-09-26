@@ -13,7 +13,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && printf \"\\r\n📦 Updating composer packages...\\n\" && termy_say \"Updating composer dependencies\" > /dev/null 2>&1 && OUTPUT_TXT=$(composer update 2>&1) && printf \"%s\\n\\n\" \"$OUTPUT_TXT\" && if echo \"$OUTPUT_TXT\" | grep -q \"Nothing to modify\"; then termy_say \"All php packages are already up to date\" > /dev/null 2>&1; else termy_say \"Composer update completed\" > /dev/null 2>&1; fi",
+                    "command": "printf \"\\r\\n📦 Updating composer packages...\\n\" &&\ntermy_say -s \"Updating composer dependencies\" &&\nOUTPUT_TXT=$(composer update 2>&1) &&\nprintf \"%s\\n\\n\" \"$OUTPUT_TXT\" &&\nif echo \"$OUTPUT_TXT\" | grep -q \"Nothing to modify\"; then\n termy_say -s \"All php packages are already up to date\";\nelse\n termy_say -s \"Composer update completed\";\nfi",
                     "explanation": "Updates the composer packages.",
                     "goal": "Update composer packages",
                     "mode": "sync"

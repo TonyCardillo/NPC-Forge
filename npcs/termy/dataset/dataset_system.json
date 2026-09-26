@@ -19,7 +19,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say 'Reading motherboard info...' > /dev/null 2>&1 && printf '\\r\\nManufacturer: %s\\nModel: %s\\n' \"$(cat /sys/class/dmi/id/board_vendor 2>/dev/null || echo 'Unknown')\" \"$(cat /sys/class/dmi/id/board_name 2>/dev/null || echo 'Unknown')\" && printf ''",
+                    "command": "termy_say -s 'Reading motherboard info...' && printf 'Manufacturer: %s\nModel: %s\n' \"$(cat /sys/class/dmi/id/board_vendor 2>/dev/null || echo 'Unknown')\" \"$(cat /sys/class/dmi/id/board_name 2>/dev/null || echo 'Unknown')\" && printf ''",
                     "explanation": "Prints information about the motherboard.",
                     "goal": "Print motherboard info",
                     "mode": "sync"
@@ -386,7 +386,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT=$(uptime -p | sed 's/up //') && tput cuu 1 && printf \"⏱️ Uptime: %s\\n\" \"$OUTPUT\" | tee >(cat > /tmp/uptime_temp.txt) && termy_set_context active_content \"Uptime: $OUTPUT\" && termy_say \"The computer is on for $OUTPUT\" > /dev/null 2>&1 &",
+                    "command": "OUTPUT=$(uptime -p | sed 's/up //') && printf \"⏱️ Uptime: %s\\n\" \"$OUTPUT\" | tee >(cat > /tmp/uptime_temp.txt) && termy_set_context active_content \"Uptime: $OUTPUT\" && termy_say \"The computer is on for $OUTPUT\" > /dev/null 2>&1 &",
                     "explanation": "Displays the system uptime and saves to context.",
                     "goal": "Display uptime",
                     "mode": "sync"
@@ -412,7 +412,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT=$(uname -r) && tput cuu 1 && printf \"💻 Kernel info: %s\\n\" \"$OUTPUT\" | tee >(cat > /tmp/kernel_temp.txt) && termy_set_context active_content \"Kernel: $OUTPUT\" && termy_say \"The kernel version is $OUTPUT\" > /dev/null 2>&1 &",
+                    "command": "OUTPUT=$(uname -r) &&\nprintf \"💻 Kernel info: %s\n\" \"$OUTPUT\" |\ntee >(cat > /tmp/kernel_temp.txt) &&\ntermy_set_context active_content \"Kernel: $OUTPUT\" &&\ntermy_say -s \"The kernel version is $OUTPUT\"",
                     "explanation": "Displays the kernel information and saves to context.",
                     "goal": "Display kernel version",
                     "mode": "sync"
@@ -438,7 +438,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT_TXT=$(df -h) && OUTPUT_VOICE=$(df -h / | awk 'NR==2 {print $5}') && tput cuu 1 && printf \"💾 Disk usage:\n%s\n\" \"$OUTPUT_TXT\" | tee >(cat > /tmp/disk_temp.txt) && termy_set_context active_content \"$OUTPUT_TXT\" && termy_say \"Main disk usage is at $OUTPUT_VOICE\" > /dev/null 2>&1 &",
+                    "command": "OUTPUT_TXT=$(df -h) &&\nOUTPUT_VOICE=$(df -h / | awk 'NR==2 {print $5}') &&\nprintf \"💾 Disk usage:\n%s\n\" \"$OUTPUT_TXT\" |\ntee >(cat > /tmp/disk_temp.txt) &&\ntermy_set_context active_content \"$OUTPUT_TXT\" &&\ntermy_say -s \"Main disk usage is at $OUTPUT_VOICE\" &",
                     "explanation": "Displays the disk usage and saves to context.",
                     "goal": "Display disk usage",
                     "mode": "sync"
@@ -461,7 +461,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT=$(uname -srm) && tput cuu 1 && printf \"\\r\n💻 OS info: %s\\n\" \"$OUTPUT\" && termy_say \"Operating system information is $OUTPUT\" > /dev/null 2>&1",
+                    "command": "OUTPUT=$(uname -srm) &&\nprintf \"\\r\n💻 OS info: %s\\n\" \"$OUTPUT\" &&\ntermy_say -s \"Operating system information is $OUTPUT\"",
                     "explanation": "Displays the operating system information.",
                     "goal": "Display operating system information",
                     "mode": "sync"
@@ -483,7 +483,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT_TXT=$(free -h) && OUTPUT_VOICE=$(free -h | awk 'NR==2 {print $3}') && tput cuu 1 && printf \"\\r\n🧠 Memory usage:\\n%s\\n\" \"$OUTPUT_TXT\" && termy_say \"Used memory is $OUTPUT_VOICE\" > /dev/null 2>&1",
+                    "command": "OUTPUT_TXT=$(free -h) &&\nOUTPUT_VOICE=$(free -h | awk 'NR==2 {print $3}') &&\nprintf \"\\r\n🧠 Memory usage:\\n%s\\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Used memory is $OUTPUT_VOICE\"",
                     "explanation": "Displays the memory usage of the system.",
                     "goal": "Display memory usage",
                     "mode": "sync"
@@ -509,7 +509,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "if command -v nvidia-smi > /dev/null 2>&1; then OUTPUT_TXT=$(nvidia-smi) && OUTPUT_VOICE=$(nvidia-smi --query-gpu=name --format=csv,noheader); else OUTPUT_TXT=$(lspci -vnn | grep -A 12 -i vga) && OUTPUT_VOICE=$(lspci | grep -i vga | cut -d: -f3 | xargs); fi && tput cuu 1 && printf \"\\r\n🖥️ GPU information:\\n%s\\n\" \"$OUTPUT_TXT\" && termy_say \"Graphics card detected is $OUTPUT_VOICE\" > /dev/null 2>&1",
+                    "command": "if command -v nvidia-smi > /dev/null 2>&1; then\n OUTPUT_TXT=$(nvidia-smi) &&\n OUTPUT_VOICE=$(nvidia-smi --query-gpu=name --format=csv,noheader)\nelse\n OUTPUT_TXT=$(lspci -vnn | grep -A 12 -i vga) &&\n OUTPUT_VOICE=$(lspci | grep -i vga | cut -d: -f3 | xargs)\nfi &&\nprintf \"\\r\n🖥️ GPU information:\\n%s\\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Graphics card detected is $OUTPUT_VOICE\"",
                     "explanation": "Displays the GPU information using nvidia-smi if available, otherwise falls back to lspci for AMD/Intel.",
                     "goal": "Display GPU information",
                     "mode": "sync"
@@ -531,7 +531,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "COUNT=$(ps -ef | wc -l) && tput cuu 1 && printf \"\\r🧠 Process monitor: Starting htop...\\n\\n\" && termy_say \"Opening process monitor. There are currently $COUNT active processes\" > /dev/null 2>&1 && htop",
+                    "command": "COUNT=$(ps -ef | wc -l) &&\nprintf \"\\r🧠 Process monitor: Starting htop...\\n\\n\" &&\ntermy_say -s \"Opening process monitor. There are currently $COUNT active processes\" &&\nhtop",
                     "explanation": "Displays the running processes using htop.",
                     "goal": "Display running processes",
                     "mode": "sync"
@@ -556,7 +556,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && printf \"\\r\n📦 Updating apt packages...\\n\" && termy_say \"Updating package list, password may be required\" > /dev/null 2>&1 && OUTPUT_TXT=$(sudo apt update 2>&1) && printf \"\\n%s\\n\\n\" \"$OUTPUT_TXT\" && if echo \"$OUTPUT_TXT\" | grep -q \"can be upgraded\"; then COUNT=$(echo \"$OUTPUT_TXT\" | grep \"can be upgraded\" | awk '{print $1}') && termy_say \"Package list refreshed. You have $COUNT packages available for upgrade\" > /dev/null 2>&1; else termy_say \"System packages are already up to date\" > /dev/null 2>&1; fi",
+                    "command": "printf \"\\r\n📦 Updating apt packages...\\n\" &&\ntermy_say -s \"Updating package list, password may be required\" &&\nOUTPUT_TXT=$(sudo apt update 2>&1) &&\nprintf \"\\n%s\\n\\n\" \"$OUTPUT_TXT\" &&\nif echo \"$OUTPUT_TXT\" | grep -q \"can be upgraded\"; then\n COUNT=$(echo \"$OUTPUT_TXT\" | grep \"can be upgraded\" | awk '{print $1}') &&\n termy_say -s \"Package list refreshed. You have $COUNT packages available for upgrade\";\nelse\n termy_say -s \"System packages are already up to date\";\nfi",
                     "explanation": "Updates apt package lists.",
                     "goal": "Update apt packages",
                     "mode": "sync"
@@ -579,7 +579,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Please enter the process name to kill\" > /dev/null 2>&1 && printf \"\\r\\n⛔ Process name to kill: \" && read -r procname && if [ -n \"$procname\" ]; then if pkill -f \"$procname\"; then printf \"\\nSent termination signal to \\033[1m%s\\033[22m.\\n\" \"$procname\" && termy_say \"Termination signal sent\" > /dev/null 2>&1; else printf \"\\n⛔ No process found with that name.\\n\" && termy_say \"Process not found\" > /dev/null 2>&1; fi; else printf \"\\n⛔ Operation cancelled.\\n\" && termy_say \"Operation cancelled\" > /dev/null 2>&1; fi",
+                    "command": "termy_say -s \"Please enter the process name to kill\" &&\nprintf \"\\r\\n⛔ Process name to kill: \" &&\nread -r procname &&\nif [ -n \"$procname\" ]; then\n if pkill -f \"$procname\"; then\n  printf \"\\nSent termination signal to \\033[1m%s\\033[22m.\\n\" \"$procname\" &&\n  termy_say -s \"Termination signal sent\";\n else\n  printf \"\\n⛔ No process found with that name.\\n\" &&\n  termy_say -s \"Process not found\";\n fi;\nelse\n printf \"\\n⛔ Operation cancelled.\\n\" &&\n termy_say -s \"Operation cancelled\";\nfi",
                     "explanation": "Kills a process by its name after prompting for the process string.",
                     "goal": "Kill a process by name",
                     "mode": "sync"
@@ -601,7 +601,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Please enter the search term for history\" > /dev/null 2>&1 && printf \"\\r\\n🔍 Search term for history: \" && read -r hist_term && if [ -n \"$hist_term\" ]; then printf \"\\nRecent matches for %s:\\n\" \"$hist_term\" && grep \"$hist_term\" \"$HOME/.bash_history\" | tail -n 10 && printf \"\\nSearch finished for \\033[1m%s\\033[22m\\n\" \"$hist_term\" && termy_say \"History search completed\" > /dev/null 2>&1; else printf \"\\n⛔ Search term cannot be empty.\\n\" && termy_say \"Operation cancelled\" > /dev/null 2>&1; fi",
+                    "command": "termy_say -s \"Please enter the search term for history\" &&\nprintf \"\\r\\n🔍 Search term for history: \" &&\nread -r hist_term &&\nif [ -n \"$hist_term\" ]; then\n printf \"\\nRecent matches for %s:\\n\" \"$hist_term\" &&\n grep \"$hist_term\" \"$HOME/.bash_history\" | tail -n 10 &&\n printf \"\\nSearch finished for \\033[1m%s\\033[22m\\n\" \"$hist_term\" &&\n termy_say -s \"History search completed\";\nelse\n printf \"\\n⛔ Search term cannot be empty.\\n\" &&\n termy_say -s \"Operation cancelled\";\nfi",
                     "explanation": "Searches the command history for a specific term and displays recent matches.",
                     "goal": "Search command history",
                     "mode": "sync"
@@ -623,7 +623,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "HEADER=$(printf \"\\033[1m%-15s %-10s %-10s %-5s\\033[22m\" \"Drive\" \"Used\" \"Available\" \"Use%\") && BODY=$(df -h --local | awk 'NR>1 {printf \"%-15s %-10s %-10s %-5s\\n\", $1, $3, $4, \"\\033[1m\" $5 \"\\033[22m\"}') && MAIN_USAGE=$(df -h / | awk 'NR==2 {print $5}') && tput cuu 1 && printf \"\\r\\n💾 %s\\n%s\\n\" \"$HEADER\" \"$BODY\" && termy_say \"Main drive usage is at $MAIN_USAGE\" > /dev/null 2>&1",
+                    "command": "HEADER=$(printf \"\\033[1m%-15s %-10s %-10s %-5s\\033[22m\" \"Drive\" \"Used\" \"Available\" \"Use%\") &&\nBODY=$(df -h --local | awk 'NR>1 {printf \"%-15s %-10s %-10s %-5s\\n\", $1, $3, $4, \"\\033[1m\" $5 \"\\033[22m\"}') &&\nMAIN_USAGE=$(df -h / | awk 'NR==2 {print $5}') &&\nprintf \"\\r\\n💾 %s\\n%s\\n\" \"$HEADER\" \"$BODY\" &&\ntermy_say -s \"Main drive usage is at $MAIN_USAGE\"",
                     "explanation": "Displays detailed information about disk usage, including drive names, used space, available space, and usage percentage.",
                     "goal": "Display disk space details",
                     "mode": "sync"
@@ -648,7 +648,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT_TXT=$(if command -v lsusb > /dev/null 2>&1; then lsusb | awk '{for(i=7;i<=NF;i++) printf \"%s \", $i; print \"\"}' | sed '/^$/d' | awk '{print \"- \\033[1m\" $0 \"\\033[22m\"}'; else printf \"- \\033[1mlsusb command not available\\033[22m\\n\"; fi) && COUNT=$(printf \"%s\\n\" \"$OUTPUT_TXT\" | grep -c '^- ') && tput cuu 1 && printf \"\\r\\n🔌 \\033[1mConnected USB Devices:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\" && termy_say \"Found $COUNT connected U S B devices\" > /dev/null 2>&1",
+                    "command": "OUTPUT_TXT=$(\n if command -v lsusb > /dev/null 2>&1; then\n  lsusb | awk '{for(i=7;i<=NF;i++) printf \"%s \", $i; print \"\"}' | sed '/^$/d' | awk '{print \"- \\033[1m\" $0 \"\\033[22m\"}';\n else\n  printf \"- \\033[1mlsusb command not available\\033[22m\\n\";\n fi\n) &&\nCOUNT=$(printf \"%s\\n\" \"$OUTPUT_TXT\" | grep -c '^- ') &&\nprintf \"\\r\\n🔌 \\033[1mConnected USB Devices:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Found $COUNT connected U S B devices\"",
                     "explanation": "Displays a list of connected USB devices with their details.",
                     "goal": "List connected USB devices",
                     "mode": "sync"
@@ -672,7 +672,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Displaying system logs, password may be required\" > /dev/null 2>&1 && OUTPUT_TXT=$(sudo journalctl -p 3 -n 20 --no-pager 2>&1 || sudo tail -n 20 /var/log/syslog 2>&1) && printf \"\\r\\n📋 \\033[1mRecent System Errors:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\"",
+                    "command": "termy_say -s \"Displaying system logs, password may be required\" &&\nOUTPUT_TXT=$(sudo journalctl -p 3 -n 20 --no-pager 2>&1 || sudo tail -n 20 /var/log/syslog 2>&1) &&\nprintf \"\\r\\n📋 \\033[1mRecent System Errors:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\"",
                     "explanation": "Displays the last 20 error logs from the system journal or syslog using sudo privileges.",
                     "goal": "Display system logs",
                     "mode": "sync"
@@ -696,7 +696,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Displaying kernel logs, password may be required\" > /dev/null 2>&1 && OUTPUT_TXT=$(sudo dmesg | tail -n 20 2>&1 || sudo journalctl -k -n 20 --no-pager 2>&1) && printf \"\\r\\n🧠 \\033[1mRecent Kernel Logs:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\"",
+                    "command": "termy_say -s \"Displaying kernel logs, password may be required\" &&\nOUTPUT_TXT=$(sudo dmesg | tail -n 20 2>&1 || sudo journalctl -k -n 20 --no-pager 2>&1) &&\nprintf \"\\r\\n🧠 \\033[1mRecent Kernel Logs:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\"",
                     "explanation": "Displays the last 20 kernel logs using sudo privileges.",
                     "goal": "Display kernel logs",
                     "mode": "sync"
@@ -720,7 +720,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Displaying authentication logs, password may be required\" > /dev/null 2>&1 && OUTPUT_TXT=$(sudo tail -n 20 /var/log/auth.log 2>&1 || sudo journalctl -u ssh -n 20 --no-pager 2>&1) && printf \"\\r\\n🔐 \\033[1mRecent Auth Logs:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\"",
+                    "command": "termy_say -s \"Displaying authentication logs, password may be required\" &&\nOUTPUT_TXT=$(sudo tail -n 20 /var/log/auth.log 2>&1 || sudo journalctl -u ssh -n 20 --no-pager 2>&1) &&\nprintf \"\\r\\n🔐 \\033[1mRecent Auth Logs:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\"",
                     "explanation": "Displays the last 20 authentication logs from the system auth log or journal using sudo privileges.",
                     "goal": "Display auth logs",
                     "mode": "sync"
@@ -750,7 +750,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "MODEL=$(lscpu | grep 'Model name' | sed 's/Model name:[[:space:]]*//') && CORES=$(lscpu | grep -E '^CPU\\(s\\):' | awk '{print $2}') && DETAILS=$(lscpu | grep -E \"Core\\(s\\) per socket|Thread\\(s\\) per core|L[1-4] cache\") && tput cuu 1 && if [ -n \"$MODEL\" ]; then printf \"\\r\\n💻 \\033[1mModel:\\033[22m %s\\n💻 \\033[1mCores:\\033[22m %s\\n%s\\n\" \"$MODEL\" \"$CORES\" \"$DETAILS\" && termy_say \"CPU model is $MODEL with $CORES cores\" > /dev/null 2>&1; else printf \"\\r\\n⛔ CPU information not readable on this system.\\n\" && termy_say \"CPU information not readable\" > /dev/null 2>&1; fi",
+                    "command": "MODEL=$(lscpu | grep 'Model name' | sed 's/Model name:[[:space:]]*//' | xargs) &&\nCORES=$(lscpu | grep -E '^CPU\\(s\\):' | awk '{print $2}') &&\nDETAILS=$(lscpu | grep -E \"Core\\(s\\) per socket|Thread\\(s\\) per core|L[1-4] cache\" | sed 's/[[:space:]]*:[[:space:]]*/: /') &&\nif [ -n \"$MODEL\" ]; then\n printf \"\\033[1mModel:\\033[22m %s\\n\\033[1mCores:\\033[22m %s\\n%s\\n\" \"$MODEL\" \"$CORES\" \"$DETAILS\" &&\n termy_say -s \"CPU model is $MODEL with $CORES cores\";\nelse\n printf \"\\r\\n⛔ CPU information not readable on this system.\\n\" &&\n termy_say -s \"CPU information not readable\";\nfi",
                     "explanation": "Displays the CPU information using lscpu.",
                     "goal": "Output CPU information",
                     "mode": "sync"
@@ -783,7 +783,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT=$(sensors 2>/dev/null | awk '/Core 0/ {print $3}' | tr -d '+') && if [ -z \"$OUTPUT\" ] && [ -f /sys/class/thermal/thermal_zone0/temp ]; then OUTPUT=$(awk '{print $1/1000 \"°C\"}' /sys/class/thermal/thermal_zone0/temp); fi && tput cuu 1 && if [ -n \"$OUTPUT\" ]; then printf \"\\r\\n🌡️ CPU Temperature: \\033[1m%s\\033[22m\\n\" \"$OUTPUT\" && termy_say \"CPU temperature is $OUTPUT\" > /dev/null 2>&1; else printf \"\\r\\n⛔ Thermal sensors not readable on this system.\\n\" && termy_say \"Thermal sensors not readable\" > /dev/null 2>&1; fi",
+                    "command": "OUTPUT=$(sensors 2>/dev/null | awk '/Core 0/ {print $3}' | tr -d '+') &&\nif [ -z \"$OUTPUT\" ] && [ -f /sys/class/thermal/thermal_zone0/temp ]; then\n OUTPUT=$(awk '{print $1/1000 \"°C\"}' /sys/class/thermal/thermal_zone0/temp)\nfi &&\nif [ -n \"$OUTPUT\" ]; then\n printf \"CPU Temperature: \\033[1m%s\\033[22m\\n\" \"$OUTPUT\" &&\n termy_say -s \"CPU temperature is $OUTPUT\";\nelse\n printf \"\\r\\n⛔ Thermal sensors not readable on this system.\\n\" &&\n termy_say -s \"Thermal sensors not readable\";\nfi",
                     "explanation": "Displays the current internal temperature of the CPU using lm-sensors or sysfs thermal zones.",
                     "goal": "Check CPU temperature",
                     "mode": "sync"
@@ -809,7 +809,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "BODY=$(ps aux --sort=-%mem | head -n 6 | awk 'NR>1 {printf \"PID: %-7s RAM: \\033[1m%-5s\\033[22m Command: %s\\n\", $2, $4\"%\", $11}') && TOP_PROC=$(ps aux --sort=-%mem | head -n 2 | awk 'NR>1 {print $11}' | awk -F/ '{print $NF}') && tput cuu 1 && printf \"\\r\\n🐏 \\033[1mTop 5 RAM Consuming Processes:\\033[22m\\n%s\\n\" \"$BODY\" && termy_say \"Top memory consuming process is $TOP_PROC\" > /dev/null 2>&1",
+                    "command": "BODY=$(ps aux --sort=-%mem | head -n 6 | awk 'NR>1 {printf \"PID: %-7s RAM: \\033[1m%-5s\\033[22m Command: %s\\n\", $2, $4\"%\", $11}') &&\nTOP_PROC=$(ps aux --sort=-%mem | head -n 2 | awk 'NR>1 {print $11}' | awk -F/ '{print $NF}') &&\nprintf \"\\r\\n🐏 \\033[1mTop 5 RAM Consuming Processes:\\033[22m\\n%s\\n\" \"$BODY\" &&\ntermy_say -s \"Top memory consuming process is $TOP_PROC\"",
                     "explanation": "Displays the top 5 processes consuming the most RAM, including their PID, RAM usage percentage, and command name.",
                     "goal": "Display top memory consuming processes",
                     "mode": "sync"
@@ -1359,7 +1359,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Checking battery status\" > /dev/null 2>&1 && printf \"\\r\\nResult: \\n\" && (upower -e 2>/dev/null | grep -A 5 \"battery\" || acpi -b 2>/dev/null || cat /sys/class/power_supply/BAT*/uevent 2>/dev/null | grep -E \"ENERGY|CAPACITY\" | awk -F= '{print $2}') && printf \"\"",
+                    "command": "termy_say -s \"Checking battery status\" &&\nprintf \"\\r\\nResult: \\n\" &&\n(\n upower -e 2>/dev/null | grep -A 5 \"battery\" ||\n acpi -b 2>/dev/null ||\n cat /sys/class/power_supply/BAT*/uevent 2>/dev/null |\n grep -E \"ENERGY|CAPACITY\" |\n awk -F= '{print $2}'\n) &&\nprintf \"\"",
                     "explanation": "Queries upower, acpi, or sysfs to retrieve and display the current battery percentage and charging status.",
                     "goal": "Display the current battery status and power statistics",
                     "mode": "sync"
@@ -1389,7 +1389,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Displaying distribution details\" > /dev/null 2>&1 && printf \"\\r\\n\" && cat /etc/*_ver* /etc/*-rel* 2>/dev/null && printf \"\"",
+                    "command": "termy_say -s \"Displaying distribution details\" &&\nprintf \"\\r\\n\" &&\ncat /etc/*_ver* /etc/*-rel* 2>/dev/null &&\nprintf \"\"",
                     "explanation": "Reads and displays the content of release and version files inside /etc to provide detailed information about the running Linux distribution.",
                     "goal": "Display detailed Linux distribution and release information",
                     "mode": "sync"
@@ -1416,7 +1416,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Monitoring USB ports\" > /dev/null 2>&1 && printf \"\\r\\n\" && udevadm monitor --udev --subsystem-match=usb | gawk '/add/ { system(\"termy_say \\\"USB device attached\\\" > /dev/null 2>&1\") }' && printf \"\"",
+                    "command": "termy_say -s \"Monitoring USB ports\" &&\nprintf \"\\r\\n\" &&\nudevadm monitor --udev --subsystem-match=usb |\ngawk '/add/ { system(\"termy_say -s \\\"USB device attached\\\"\") }' &&\nprintf \"\"",
                     "explanation": "Monitors the udev subsystem for newly attached USB devices and uses termy_say to announce the insertion aloud.",
                     "goal": "Monitor USB insertions and trigger vocal alerts",
                     "mode": "sync"
@@ -1445,7 +1445,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Analyzing kernel module dependencies\" > /dev/null 2>&1 && printf \"\\r\\n\" && lsmod | awk 'NR>1 && $4!=\"-\" {print $1; split($4,a,\",\"); for(i in a) print \" -> used by:\", a[i]; print \"\"}' && printf \"\"",
+                    "command": "termy_say -s \"Analyzing kernel module dependencies\" &&\nprintf \"\\r\\n\" &&\nlsmod |\nawk 'NR>1 && $4!=\"-\" {print $1; split($4,a,\",\"); for(i in a) print \" -> used by:\", a[i]; print \"\"}' &&\nprintf \"\"",
                     "explanation": "Parses the lsmod output using awk to identify loaded kernel modules with active dependencies, displaying them in a clean, hierarchical format.",
                     "goal": "Display loaded kernel modules and their dependency tree",
                     "mode": "sync"
@@ -1472,7 +1472,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Analyzing memory usage per user\" > /dev/null 2>&1 && printf \"\\r\\n\" && ps aux | awk '{arr[$1]+=$4}; END {for (i in arr) {print i,arr[i]}}' | sort -hk2 | tail -10 && printf \"\"",
+                    "command": "termy_say -s \"Analyzing memory usage per user\" &&\nprintf \"\\r\\n\" &&\nps aux |\nawk '{arr[$1]+=$4}; END {for (i in arr) {print i,arr[i]}}' |\nsort -hk2 |\ntail -10 &&\nprintf \"\"",
                     "explanation": "Aggregates memory usage percentages from ps aux for each active user using awk, then sorts and displays the top 10 consumers.",
                     "goal": "Summarize and sort RAM consumption by system user",
                     "mode": "sync"
@@ -1499,7 +1499,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Displaying system reboot history\" > /dev/null 2>&1 && printf \"\\r\\n\" && journalctl --list-boots && printf \"\"",
+                    "command": "termy_say -s \"Displaying system reboot history\" &&\nprintf \"\\r\\n\" &&\njournalctl --list-boots &&\nprintf \"\"",
                     "explanation": "Uses journalctl to query the system logs and displays a chronological list of all recorded system boots and reboots.",
                     "goal": "List past system boots and reboot times",
                     "mode": "sync"
@@ -1522,7 +1522,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "read -p \"🔌 Port to free: \" port && pid=$(lsof -ti :\"$port\") && tput cuu 1 && if [ -n \"$pid\" ]; then termy_say \"Freeing port $port\" > /dev/null 2>&1 && printf \"\\r\\n\" && kill -9 $pid && echo -e \"✅ Killed process $pid on port \\033[1m$port\\033[22m\"; else termy_say \"No process found on port $port\" > /dev/null 2>&1 && printf \"\\r\\nNo process found on port $port\"; fi && printf \"\"",
+                    "command": "read -p \"🔌 Port to free: \" port &&\npid=$(lsof -ti :\"$port\") &&\nif [ -n \"$pid\" ]; then\n termy_say -s \"Freeing port $port\" &&\n printf \"\\r\\n\" &&\n kill -9 $pid &&\n echo -e \"✅ Killed process $pid on port \\033[1m$port\\033[22m\";\nelse\n termy_say -s \"No process found on port $port\" &&\n printf \"\\r\\nNo process found on port $port\";\nfi &&\nprintf \"\"",
                     "explanation": "Prompts for a port number, identifies the listening process PID using lsof, and terminates it using kill -9.",
                     "goal": "Terminate the process listening on a specific port",
                     "mode": "sync"
@@ -1545,7 +1545,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "read -p \"⌨️  Command to watch: \" cmd && tput cuu 1 && termy_say \"Monitoring command\" > /dev/null 2>&1 && printf \"\\r\\n\" && watch -n 2 \"$cmd\" && printf \"\"",
+                    "command": "read -p \"⌨️  Command to watch: \" cmd &&\ntermy_say \"Monitoring command\" -s &&\nprintf \"\\r\\n\" &&\nwatch -n 2 \"$cmd\" &&\nprintf \"\"",
                     "explanation": "Prompts the user for a command and uses the watch utility to run it repeatedly every 2 seconds.",
                     "goal": "Monitor a command output in real time",
                     "mode": "sync"
@@ -1568,7 +1568,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Displaying PATH entries\" > /dev/null 2>&1 && printf \"\\r\\n\" && echo \"$PATH\" | tr ':' '\\n' && printf \"\"",
+                    "command": "termy_say -s \"Displaying PATH entries\" &&\nprintf \"\\r\\n\" &&\necho \"$PATH\" |\ntr ':' '\\n' &&\nprintf \"\"",
                     "explanation": "Splits the PATH environment variable by colons and prints each directory on a new line.",
                     "goal": "List PATH directories line by line",
                     "mode": "sync"

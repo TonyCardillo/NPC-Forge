@@ -12,7 +12,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Please enter the directory name\" > /dev/null 2>&1 && printf \"\\r\n📁 Directory name: \" && read -r dirname && if [ -n \"$dirname\" ]; then mkdir -p \"$dirname\" && printf \"\\nFolder \\033[1m%s\\033[22m created successfully.\\n\" \"$dirname\" && termy_say \"Folder $dirname created successfully\" > /dev/null 2>&1; else printf \"\\n⛔ Operation cancelled.\\n\" && termy_say \"Operation cancelled\" > /dev/null 2>&1; fi",
+                    "command": "termy_say -s \"Please enter the directory name\" &&\nprintf \"\\r\n📁 Directory name: \" &&\nread -r dirname &&\nif [ -n \"$dirname\" ]; then\n mkdir -p \"$dirname\" &&\n printf \"\\nFolder \\033[1m%s\\033[22m created successfully.\\n\" \"$dirname\" &&\n termy_say -s \"Folder $dirname created successfully\";\nelse\n printf \"\\n⛔ Operation cancelled.\\n\" &&\n termy_say -s \"Operation cancelled\";\nfi",
                     "explanation": "Creates a new directory after prompting for the folder name.",
                     "goal": "Create a new folder",
                     "mode": "sync"
@@ -35,29 +35,13 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Please enter the directory name to delete\" > /dev/null 2>&1 && printf \"\\r\\n📁 Enter the directory name to delete: \" && read -r dname && if [ -d \"$dname\" ]; then rm -rf \"$dname\" && printf \"\\nDirectory \\033[1m%s\\033[22m has been recursively deleted.\\n\" \"$dname\" && termy_say \"Directory deleted successfully\" > /dev/null 2>&1; else printf \"\\n⛔ Directory does not exist.\\n\" && termy_say \"Directory not found\" > /dev/null 2>&1; fi",
+                    "command": "termy_say -s \"Please enter the directory name to delete\" &&\nprintf \"\\r\\n📁 Enter the directory name to delete: \" &&\nread -r dname &&\nif [ -d \"$dname\" ]; then\n rm -rf \"$dname\" &&\n printf \"\\nDirectory \\033[1m%s\\033[22m has been recursively deleted.\\n\" \"$dname\" &&\n termy_say -s \"Directory deleted successfully\";\nelse\n printf \"\\n⛔ Directory does not exist.\\n\" &&\n termy_say -s \"Directory not found\";\nfi",
                     "explanation": "Deletes a directory after prompting for the folder name and verifying its existence.",
                     "goal": "Delete a folder",
                     "mode": "sync"
                 }
             }
         ],
-        "permission": "yolo"
-    },
-    {
-        "category": "linux_directories_folders",
-        "input": [
-            "i want to delete a directory in this location",
-            "i want to remove a directory in this dir",
-            "i want to delete a folder in this dir",
-            "i want to remove a folder in this location",
-            "delete a directory from here",
-            "remove a directory from here",
-            "delete a folder from here",
-            "remove a folder from here"
-        ],
-        "description": "Deletes a directory in the current location.",
-        "output": "echo -e \"📁 \\nAvailable directories:\"; select dname in */; do if [ -n \"$dname\" ] && [ -d \"$dname\" ]; then rm -rf \"$dname\" && echo -e \"Directory \\033[1m${dname%/}\\033[22m recursively deleted.\" && break; else echo \"Invalid choice or not a directory.\"; break; fi; done",
         "permission": "yolo"
     },
     {
@@ -140,45 +124,6 @@
     {
         "category": "linux_directories_folders",
         "input": [
-            "i want to move in a different directory",
-            "i want to change directory",
-            "move to another folder",
-            "move in another directory",
-            "change directory",
-            "go to a folder",
-            "navigate to directory",
-            "cd to folder",
-            "move to another directory"
-        ],
-        "description": "Moves to a different directory.",
-        "output": "read -p \"📁 Enter the directory name to move to: \" dname && echo \"cd \\\"$dname\\\"\"",
-        "permission": "yolo"
-    },
-    {
-        "category": "linux_files",
-        "input": [
-            "search for a specific word inside a file",
-            "find a word in a file",
-            "look for a word in a file",
-            "find word inside a file",
-            "find something in a file"
-        ],
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Please enter the word to find\" > /dev/null 2>&1 && printf \"\\r\\n🔍 Word to find: \" && read -r word && if [ -n \"$word\" ]; then termy_say \"Please enter the target file path\" > /dev/null 2>&1 && printf \"📄 Target file: \" && read -r targetfile && if [ -f \"$targetfile\" ]; then printf \"\\nMatches for \\033[1m%s\\033[22m:\\n\" \"$word\" && grep -n \"$word\" \"$targetfile\" && printf \"\\n\" && termy_say \"Search completed\" > /dev/null 2>&1; else printf \"\\n⛔ Target file does not exist.\\n\" && termy_say \"File not found\" > /dev/null 2>&1; fi; else printf \"\\n⛔ Search word cannot be empty.\\n\" && termy_say \"Operation cancelled\" > /dev/null 2>&1; fi",
-                    "explanation": "Searches for a specific word inside a file and displays the matching lines with line numbers.",
-                    "goal": "Search word in a file",
-                    "mode": "sync"
-                }
-            }
-        ],
-        "permission": "yolo"
-    },
-    {
-        "category": "linux_directories_folders",
-        "input": [
             "compress a directory",
             "zip a directory",
             "compress a directory into an archive",
@@ -195,7 +140,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Please enter the directory to compress\" > /dev/null 2>&1 && printf \"\\r\\n📁 Directory to compress: \" && read -r source_dir && if [ -d \"$source_dir\" ]; then termy_say \"Please choose an archive format\" > /dev/null 2>&1 && printf \"\\n1) TAR.GZ - Linux standard\\n2) ZIP - Cross platform\\n\\nChoose format 1-2: \" && read -r arch_choice; case \"$arch_choice\" in 1) tar -czf \"$source_dir.tar.gz\" \"$source_dir\" && printf \"\\nArchive \\033[1m%s.tar.gz\\033[22m created.\\n\" \"$source_dir\" && termy_say \"Archive created successfully\" > /dev/null 2>&1 ;; 2) zip -r \"$source_dir.zip\" \"$source_dir\" && printf \"\\nArchive \\033[1m%s.zip\\033[22m created.\\n\" \"$source_dir\" && termy_say \"Archive created successfully\" > /dev/null 2>&1 ;; *) printf \"\\n⛔ Invalid choice.\\n\" && termy_say \"Invalid selection\" > /dev/null 2>&1 ;; esac; else printf \"\\n⛔ Directory does not exist.\\n\" && termy_say \"Directory not found\" > /dev/null 2>&1; fi",
+                    "command": "termy_question \"Please enter the directory to compress\" source_dir &&\nif [ -d \"$source_dir\" ]; then\n termy_question \"Please choose an archive format:\n\n1) TAR.GZ - Linux standard\n2) ZIP - Cross platform\n\nChoose format 1-2\" arch_choice\n case \"$arch_choice\" in\n  1)\n   tar -czf \"$source_dir.tar.gz\" \"$source_dir\" &&\n   printf \"\\nArchive \\033[1m%s.tar.gz\\033[22m created.\\n\" \"$source_dir\" &&\n   termy_say -s \"Archive created successfully\"\n  ;;\n  2)\n   zip -r \"$source_dir.zip\" \"$source_dir\" &&\n   printf \"\\nArchive \\033[1m%s.zip\\033[22m created.\\n\" \"$source_dir\" &&\n   termy_say -s \"Archive created successfully\"\n  ;;\n  *)\n   printf \"\\n⛔ Invalid choice.\\n\" &&\n   termy_say -s \"Invalid selection\"\n  ;;\n esac;\nelse\n printf \"\\n⛔ Directory does not exist.\\n\" &&\n termy_say -s \"Directory not found\";\nfi",
                     "explanation": "Compresses a directory into either a TAR.GZ or ZIP archive based on user choice.",
                     "goal": "Compress a directory",
                     "mode": "sync"
@@ -223,7 +168,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Counting all files recursively\" > /dev/null 2>&1 && printf \"\\r\\nResult: \" && find . -type f 2>/dev/null | wc -l && printf \"\"",
+                    "command": "termy_say -s \"Counting all files recursively\" &&\nprintf \"\\r\\nResult: \" &&\nfind . -type f 2>/dev/null |\nwc -l &&\nprintf \"\"",
                     "explanation": "Recursively finds all files in the current directory tree and counts them using the wc utility.",
                     "goal": "Count all files in the current directory and its subfolders",
                     "mode": "sync"
@@ -246,7 +191,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 && termy_say \"Analyzing folder sizes\" > /dev/null 2>&1 && printf \"\\r\\n\" && du -sh -- */ 2>/dev/null | sort -rh | head -15 && printf \"\"",
+                    "command": "termy_say -s \"Analyzing folder sizes\" &&\nprintf \"\\r\\n\" &&\ndu -sh -- */ 2>/dev/null |\nsort -rh |\nhead -15 &&\nprintf \"\"",
                     "explanation": "Calculates the disk usage of all top-level subdirectories, sorts them from largest to smallest, and displays the top 15.",
                     "goal": "Show largest subdirectories by size",
                     "mode": "sync"

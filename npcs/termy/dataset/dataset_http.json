@@ -74,7 +74,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "printf '🌐 URL: ' &&\nread -r url &&\n[ ! -z \"$url\" ] &&\nprintf '📤 Method (GET/POST/PUT, default GET): ' &&\nread -r method &&\nmethod=${method:-GET} &&\ntput cuu 2 &&\ntermy_say 'Testing endpoint' > /dev/null 2>&1 &&\nprintf '\\r\\n' &&\nsafe_url=\"${url//\\'/\\'\\\\\\'\\'}\" &&\nsafe_method=\"${method//\\'/\\'\\\\\\'\\'}\" &&\nresponse=$(eval \"curl -s -w '\\\\n%{http_code}' --max-time 10 -H 'User-Agent: DevTerminal/1.0' -X '$safe_method' -- '$safe_url'\") &&\nstatus=$(echo \"$response\" | tail -1) &&\nbody=$(echo \"$response\" | head -n-1) &&\nsafe_status=\"${status//\\'/\\'\\\\\\'\\'}\" &&\neval \"printf '📊 HTTP Status: %s\\\\n\\\\n📋 Response:\\\\n' '$safe_status'\" &&\n(\n echo \"$body\" | python3 -m json.tool 2>/dev/null ||\n (\n  safe_body=\"${body//\\'/\\'\\\\\\'\\'}\" &&\n  eval \"printf '%s\\\\n' '$safe_body'\"\n )\n)",
+                    "command": "termy_question 'Insert URL' url &&\n[ ! -z \"$url\" ] &&\ntermy_question 'Method (GET/POST/PUT, default GET)' method &&\nmethod=${method:-GET} &&\ntermy_say -s 'Testing endpoint' &&\nprintf '\\r\\n' &&\nsafe_url=\"${url//\\'/\\'\\\\\\'\\'}\" &&\nsafe_method=\"${method//\\'/\\'\\\\\\'\\'}\" &&\nresponse=$(eval \"curl -s -w '\\\\n%{http_code}' --max-time 10 -H 'User-Agent: DevTerminal/1.0' -X '$safe_method' -- '$safe_url'\") &&\nstatus=$(echo \"$response\" | tail -1) &&\nbody=$(echo \"$response\" | head -n-1) &&\nsafe_status=\"${status//\\'/\\'\\\\\\'\\'}\" &&\neval \"printf 'HTTP Status: %s\\\\n\\\\nResponse:\\\\n' '$safe_status'\" &&\n(\n echo \"$body\" | python3 -m json.tool 2>/dev/null ||\n (\n  safe_body=\"${body//\\'/\\'\\\\\\'\\'}\" &&\n  eval \"printf '%s\\\\n' '$safe_body'\"\n )\n)",
                     "explanation": "Sends an HTTP request to a URL, displays the status code, and attempts to format JSON response for readability.",
                     "goal": "Test API endpoints and inspect responses with one command",
                     "mode": "sync"
@@ -102,7 +102,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "tput cuu 1 &&\ntermy_say \"Please enter the download URL\" > /dev/null 2>&1 &&\nprintf \"\\r\\n🌐 Download URL: \" &&\nread -r url &&\nif [ -n \"$url\" ]; then\n termy_say \"Please enter the destination filename\" > /dev/null 2>&1 &&\n printf \"📄 Save as filename: \" &&\n read -r outputname &&\n if [ -n \"$outputname\" ]; then\n  curl -L \"$url\" -o \"$outputname\" &&\n  printf \"\\n\\033[1m%s\\033[22m downloaded successfully.\\n\" \"$outputname\" &&\n  termy_say \"Download completed successfully\" > /dev/null 2>&1\n else\n  printf \"\\n⛔ Output filename cannot be empty.\\n\" &&\n  termy_say \"Operation cancelled\" > /dev/null 2>&1\n fi\nelse\n printf \"\\n⛔ URL cannot be empty.\\n\" &&\n termy_say \"Operation cancelled\" > /dev/null 2>&1\nfi",
+                    "command": "termy_say -s \"Please enter the download URL\" &&\nprintf \"\\r\\n🌐 Download URL: \" &&\nread -r url &&\nif [ -n \"$url\" ]; then\n termy_say -s \"Please enter the destination filename\" &&\n printf \"📄 Save as filename: \" &&\n read -r outputname &&\n if [ -n \"$outputname\" ]; then\n  curl -L \"$url\" -o \"$outputname\" &&\n  printf \"\\n\\033[1m%s\\033[22m downloaded successfully.\\n\" \"$outputname\" &&\n  termy_say -s \"Download completed successfully\";\n else\n  printf \"\\n⛔ Output filename cannot be empty.\\n\" &&\n  termy_say -s \"Operation cancelled\";\n fi\nelse\n printf \"\\n⛔ URL cannot be empty.\\n\" &&\n termy_say -s \"Operation cancelled\";\nfi",
                     "explanation": "Downloads a file from a specified URL and saves it with a given filename.",
                     "goal": "Download a file from URL",
                     "mode": "sync"
@@ -126,7 +126,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT=$(get_country | grep 'Country Name' | cut -d: -f2 | xargs) &&\ntput cuu 1 &&\nprintf \"\\r\n🌍 Country: %s\\n\" \"$OUTPUT\" &&\ntermy_say \"You are in $OUTPUT\" > /dev/null 2>&1",
+                    "command": "OUTPUT=$(get_country | grep 'Country Name' | cut -d: -f2 | xargs) &&\nprintf \"\\r\n🌍 Country: %s\\n\" \"$OUTPUT\" &&\ntermy_say -s \"You are in $OUTPUT\"",
                     "explanation": "Retrieves the current country based on the public IP address.",
                     "goal": "Display current country",
                     "mode": "sync"
@@ -156,7 +156,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "read -p \"🔗 YouTube Link: \" ytlink &&\ntput cuu 1 &&\nif ! command -v yt-dlp >/dev/null 2>&1; then\n termy_say \"Installing missing package\" > /dev/null 2>&1 &&\n printf \"\\r\\n📦 Installing yt-dlp, please wait...\\n\" &&\n sudo apt update -y >/dev/null 2>&1 &&\n sudo apt install -y yt-dlp >/dev/null 2>&1\nfi &&\ntermy_say \"Downloading YouTube audio\" > /dev/null 2>&1 &&\nprintf \"\\r\\n\" &&\nyt-dlp --extract-audio --audio-format mp3 --audio-quality 0 -o \"%(title)s.%(ext)s\" \"$ytlink\" &&\nprintf \"\"",
+                    "command": "read -p \"🔗 YouTube Link: \" ytlink &&\nif ! command -v yt-dlp >/dev/null 2>&1; then\n termy_say -s \"Installing missing package\" &&\n printf \"\\r\\n📦 Installing yt-dlp, please wait...\\n\" &&\n sudo apt update -y >/dev/null 2>&1 &&\n sudo apt install -y yt-dlp >/dev/null 2>&1\nfi &&\ntermy_say -s \"Downloading YouTube audio\" &&\nprintf \"\\r\\n\" &&\nyt-dlp --extract-audio --audio-format mp3 --audio-quality 0 -o \"%(title)s.%(ext)s\" \"$ytlink\" &&\nprintf \"\"",
                     "explanation": "Prompts for a YouTube URL, automatically installs yt-dlp via apt if it is missing from the system, and then extracts the high-quality MP3 track.",
                     "goal": "Install yt-dlp if missing and download YouTube video as MP3",
                     "mode": "sync"
@@ -179,7 +179,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "activity_text=$(curl -s -L --max-time 5 'https://bored-api.appbrewery.com/random' | jq -r '.activity // empty') &&\n[ ! -z \"$activity_text\" ] &&\ntermy_set_context active_content \"$activity_text\" &&\nsafe_text=\"${activity_text//\\'/\\'\\\\\\'\\'}\" &&\neval \"termy_say '$safe_text'\"",
+                    "command": "activity_text=$(curl -s -L --max-time 5 'https://bored-api.appbrewery.com/random' | jq -r '.activity // empty') &&\n[ ! -z \"$activity_text\" ] &&\ntermy_set_context active_content \"$activity_text\" &&\nsafe_text=\"${activity_text//\\'/\\'\\\\\\'\\'}\" &&\neval \"termy_say -s '$safe_text'\"",
                     "explanation": "Fetches a random activity suggestion from the Bored API and saves to context.",
                     "goal": "Display activity suggestion",
                     "mode": "sync"
@@ -622,7 +622,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "printf '🌐 URL to scrape: ' && read -r url && [ ! -z \"$url\" ] && tput cuu 1 && termy_say 'Scraping webpage content' > /dev/null 2>&1 && printf '\\r\\n' && scraper_main scrape \"$url\" txt 2>&1",
+                    "command": "printf '🌐 URL to scrape: ' && read -r url && [ ! -z \"$url\" ] && termy_say 'Scraping webpage content' > /dev/null 2>&1 && printf '\\r\\n' && scraper_main scrape \"$url\" txt 2>&1",
                     "explanation": "Extracts the main content from a webpage URL using trafilatura (installed on first use)",
                     "goal": "Scrape and display main content from a website",
                     "mode": "sync"
@@ -647,7 +647,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "printf '🌐 URL: ' && read -r url && [ ! -z \"$url\" ] && tput cuu 1 && termy_say 'Scraping to JSON format' > /dev/null 2>&1 && printf '\\r\\n' && scraper_main scrape \"$url\" json 2>&1",
+                    "command": "printf '🌐 URL: ' && read -r url && [ ! -z \"$url\" ] && termy_say 'Scraping to JSON format' > /dev/null 2>&1 && printf '\\r\\n' && scraper_main scrape \"$url\" json 2>&1",
                     "explanation": "Extracts content from a webpage and returns it in structured JSON format",
                     "goal": "Scrape webpage and return as JSON",
                     "mode": "sync"
