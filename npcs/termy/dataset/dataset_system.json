@@ -1576,5 +1576,309 @@
             }
         ],
         "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Show the kernel routing table numerically."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "netstat -rn",
+                    "explanation": "The command 'netstat -rn' displays the kernel routing table in a numeric format, showing each route with its destination, interface, and metric.",
+                    "goal": "Display the kernel routing table numerically using netstat -rn",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Display all processes as a hierarchy."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "pstree",
+                    "explanation": "The pstree command displays all processes in a hierarchical tree format, showing parent-child relationships between processes.",
+                    "goal": "Display all processes as a hierarchy.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "How much RAM is free right now?"
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "free -h",
+                    "explanation": "The command 'free -h' displays the current amount of free RAM in a human-readable format.",
+                    "goal": "Provide the user with the current free RAM amount as reported by the 'free -h' command.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Show all journal entries since the last boot."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "journalctl -b",
+                    "explanation": "The command journalctl -b shows all journal entries since the last boot.",
+                    "goal": "Display journal entries from the current boot session back to the previous boot.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Show memory usage in gigabytes."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "free -g",
+                    "explanation": "The command 'free -g' displays memory usage in gigabytes.",
+                    "goal": "Show memory usage in gigabytes.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Show only kernel error-level messages."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "dmesg -l err",
+                    "explanation": "The command dmesg -l err displays kernel messages of level err or higher, filtering out less severe messages.",
+                    "goal": "Show only kernel error-level messages.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Show me how full each mounted filesystem is, worst first."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "df -h | awk 'NR>1 {print $5, $6}' | sort -rn",
+                    "explanation": "The command uses df -h to display disk usage in human-readable format, then awk filters lines starting from the second line (excluding the header) to extract the filesystem usage percentage (column 5) and the filesystem size (column 6). Finally, sort -rn sorts the output numerically in reverse order, showing the most full filesystems first.",
+                    "goal": "Show full mounted filesystem usage sorted from worst (most full) to best (least full) in human-readable format.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Print the percentage of memory currently in use."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "free | awk '/Mem/ {printf \"%.1f%%\\n\", $3/$2*100}'",
+                    "explanation": "The command uses 'free' to display memory statistics, then 'awk' processes the output to calculate the percentage of memory currently in use by dividing the used memory (field $3) by total memory (field $2) and multiplying by 100, formatting the result to one decimal place.",
+                    "goal": "Print the percentage of memory currently in use.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Display kernel messages from the journal with priority error or worse."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "journalctl -k -p err",
+                    "explanation": "The command journalctl -k -p err filters kernel journal messages with priority error or worse.",
+                    "goal": "Display kernel messages from the journal with priority error or worse.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Show the process tree."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "pstree",
+                    "explanation": "The pstree command displays the process tree, showing how processes are organized hierarchically.",
+                    "goal": "Display the current process tree structure.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Display all filesystems and their disk usage."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "df",
+                    "explanation": "The df command displays the file system disk space usage for each mounted filesystem, showing total space, used space, and available space.",
+                    "goal": "Display all filesystems and their disk usage",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "How many users are currently logged in?"
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "w -h | wc -l",
+                    "explanation": "The command 'w -h | wc -l' runs the 'w' command to display a listing of currently logged-in users, pipes the output to 'wc -l' which counts the number of lines, and thus returns the total number of users currently logged in.",
+                    "goal": "Count the number of currently logged-in users on the system.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Flush all pending write operations on all disks."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "sync",
+                    "explanation": "The 'sync' command forces the kernel to flush all pending write operations on all disks to ensure data is written to storage before returning control to the user.",
+                    "goal": "Flush all pending write operations on all disks",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Show kernel ring buffer messages with human-readable timestamps."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "dmesg -T",
+                    "explanation": "The command dmesg -T displays kernel ring buffer messages with human-readable timestamps.",
+                    "goal": "Show kernel ring buffer messages with human-readable timestamps.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Follow new kernel messages as they arrive."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "dmesg -w",
+                    "explanation": "The command dmesg -w continuously displays kernel messages as they are generated.",
+                    "goal": "Monitor real-time kernel messages as they arrive.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Print the current user UID."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "id -u",
+                    "explanation": "The command 'id -u' prints the current user's numeric UID.",
+                    "goal": "Print the current user's numeric UID.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
     }
 ]

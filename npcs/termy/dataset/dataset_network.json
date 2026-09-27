@@ -1,5 +1,4 @@
 [
-   
     {
         "category": "network_connection",
         "input": [
@@ -17,7 +16,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "if ping -c 1 -W 2 1.1.1.1 > /dev/null 2>&1; then printf \"\\r\n🌐 Internet status: Online\\n\" && termy_say \"Yes, you are online\" > /dev/null 2>&1 && termy_set_context 'internet_status' 'online' & else printf \"\\r\n🌐 Internet status: Offline\\n\" && termy_say \"No, you are offline\" > /dev/null 2>&1 && termy_set_context 'internet_status' 'offline' & fi",
+                    "command": "if ping -c 1 -W 3 www.google.com > /dev/null 2>&1; then\n printf \"🌐 Internet status: Online\\n\" &&\n termy_say -s \"Yes, you are online\" &&\n termy_set_context 'internet_status' 'online'\nelse\n printf \"🌐 Internet status: Offline\\n\" &&\n termy_say -s \"No, you are offline\" &&\n termy_set_context 'internet_status' 'offline'\nfi",
                     "explanation": "Checks and caches internet connection status for task queuing.",
                     "goal": "Check internet connection",
                     "mode": "sync"
@@ -42,7 +41,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT=$(get_public_ip | grep -oE '[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}' | head -n 1) && printf \"\\r\n🌐 Public IP: %s\\n\" \"$OUTPUT\" && termy_say \"Your public IP is $OUTPUT\" > /dev/null 2>&1 && termy_set_context 'current_external_ip' \"$OUTPUT\"",
+                    "command": "OUTPUT=$(get_public_ip | grep -oE '[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}' | head -n 1) &&\nprintf \"🌐 Public IP: %s\\n\" \"$OUTPUT\" &&\ntermy_say -s \"Your public IP is $OUTPUT\" &&\ntermy_set_context 'current_external_ip' \"$OUTPUT\"",
                     "explanation": "Retrieves and caches public IP for VPN/geo-fencing workflows.",
                     "goal": "Display public IP address",
                     "mode": "sync"
@@ -67,7 +66,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT_TXT=$(ip a) && OUTPUT_VOICE=$(ip -br link show up | awk '{print $1}' | paste -sd, -) && printf \"\\r\n🌐 Network interfaces:\\n%s\\n\\n\" \"$OUTPUT_TXT\" && termy_say \"Active network interfaces are $OUTPUT_VOICE\" > /dev/null 2>&1 && termy_set_context 'active_network_interfaces' \"$OUTPUT_VOICE\"",
+                    "command": "OUTPUT_TXT=$(ip a) &&\nOUTPUT_VOICE=$(ip -br link show up | awk '{print $1}' | paste -sd, -) &&\nprintf \"🌐 Network interfaces:\n\n%s\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Active network interfaces are $OUTPUT_VOICE\" &&\ntermy_set_context 'active_network_interfaces' \"$OUTPUT_VOICE\"",
                     "explanation": "Displays and caches network interfaces for auto-switch workflows.",
                     "goal": "Display network interfaces",
                     "mode": "sync"
@@ -91,7 +90,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "termy_say \"Please choose a network diagnostic option\" > /dev/null 2>&1 && printf \"\\r\\n1) 📡 Ping a Host\\n2) 🛣️ Trace Route\\n\\nSelect diagnostic 1-2: \" && read -r netchoice && case \"$netchoice\" in 1) termy_say \"Please enter the target host\" > /dev/null 2>&1 && printf \"Target host: \" && read -r host && if [ -n \"$host\" ]; then ping -c 3 \"$host\" && printf \"\\n\" && termy_say \"Ping completed\" > /dev/null 2>&1; else printf \"\\n⛔ Host cannot be empty.\\n\" && termy_say \"Operation cancelled\" > /dev/null 2>&1; fi ;; 2) termy_say \"Please enter the target host\" > /dev/null 2>&1 && printf \"Target host: \" && read -r host && if [ -n \"$host\" ]; then traceroute \"$host\" && printf \"\\n\" && termy_say \"Traceroute completed\" > /dev/null 2>&1; else printf \"\\n⛔ Host cannot be empty.\\n\" && termy_say \"Operation cancelled\" > /dev/null 2>&1; fi ;; *) printf \"\\n⛔ Invalid selection.\\n\" && termy_say \"Invalid selection\" > /dev/null 2>&1 ;; esac",
+                    "command": "termy_say -s 'Please choose a network diagnostic option' ;\nprintf '\n1) 📡 Ping a Host\n2) 🛣️ Trace Route\n\nSelect diagnostic 1-2: ' ;\nread -r netchoice ;\ncase \"$netchoice\" in\n  1)\n    termy_say -s 'Please enter the target host' ;\n    printf 'Target host: ' ;\n    read -r host ;\n    if [ -n \"$host\" ]; then\n      ping -c 3 \"$host\" && termy_say -s 'Ping completed' ;\n    else\n      printf '\n⛔ Host cannot be empty.\n' && termy_say -s 'Operation cancelled' ;\n    fi\n    ;;\n  2)\n    termy_say -s 'Please enter the target host' ;\n    printf 'Target host: ' ;\n    read -r host ;\n    if [ -n \"$host\" ]; then\n      traceroute \"$host\" && termy_say -s 'Traceroute completed' ;\n    else\n      printf '\n⛔ Host cannot be empty.\n' && termy_say -s 'Operation cancelled' ;\n    fi\n    ;;\n  *)\n    printf '\n⛔ Invalid selection.\n' && termy_say -s 'Invalid selection' ;\n    ;;\nesac",
                     "explanation": "Provides a menu for network diagnostics, allowing the user to ping a host or perform a traceroute.",
                     "goal": "Run network diagnostics",
                     "mode": "sync"
@@ -117,7 +116,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "termy_say \"Please enter the port number\" > /dev/null 2>&1 && printf \"\\r\\n🌐 Enter port number: \" && read -r target_port && if [ -n \"$target_port\" ]; then printf \"\\nChecking port %s...\\n\" \"$target_port\" && if command -v ss > /dev/null 2>&1; then ss -lntp \"sport = :$target_port\"; else lsof -i :\"$target_port\"; fi && printf \"\\nAnalysis for port \\033[1m%s\\033[22m completed.\\n\" \"$target_port\" && termy_say \"Port analysis completed\" > /dev/null 2>&1; else printf \"\\n⛔ Port number cannot be empty.\\n\" && termy_say \"Operation cancelled\" > /dev/null 2>&1; fi",
+                    "command": "termy_say -s \"Please enter the port number\" &&\nprintf \"🌐 Enter port number: \" &&\nread -r target_port &&\nif [ -n \"$target_port\" ]; then\n printf \"\nChecking port %s...\n\n\" \"$target_port\" &&\n if command -v ss > /dev/null 2>&1; then\n  ss -lntp \"sport = :$target_port\";\n else\n  lsof -i :\"$target_port\";\n fi &&\n printf \"\\nAnalysis for port \\033[1m%s\\033[22m completed.\\n\" \"$target_port\" &&\n termy_say -s \"Port analysis completed\";\nelse\n printf \"⛔ Port number cannot be empty.\\n\" &&\n termy_say -s \"Operation cancelled\";\nfi",
                     "explanation": "Checks if a specified port is open and displays the process using it.",
                     "goal": "Check port status",
                     "mode": "sync"
@@ -131,17 +130,283 @@
         "input": [
             "which ports are currently listening",
             "show active listening ports",
-            "list open ports",
             "display listening ports",
-            "show network ports in use"
+            "list active ports",
+            "show active network ports"
         ],
         "tools": [
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT_TXT=$(ss -tuln | awk 'NR>1 {split($4, a, \":\"); print a[length(a)]}' | sort -nu | awk '{print \"- Port: \\033[1m\" $1 \"\\033[22m\"}') && COUNT=$(echo \"$OUTPUT_TXT\" | grep -c 'Port:') && printf \"\\r\\n🌐 \\033[1mActive Listening Ports:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\" && termy_say \"Found $COUNT active listening ports\" > /dev/null 2>&1",
+                    "command": "OUTPUT_TXT=$(ss -tuln | awk 'NR>1 {split($4, a, \":\");\nprint a[length(a)]}' | sort -nu | awk '{print \"- Port: \\033[1m\" $1 \"\\033[22m\"}') &&\nCOUNT=$(echo \"$OUTPUT_TXT\" | grep -c 'Port:') &&\nprintf \"🌐 \\033[1mActive Listening Ports:\n\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Found $COUNT active listening ports\"",
                     "explanation": "Displays a list of active listening network ports.",
                     "goal": "List active listening ports",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Show every network socket in use."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "lsof -i",
+                    "explanation": "The command lsof -i lists all network sockets currently in use on the system.",
+                    "goal": "Show every network socket in use.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Show network interface statistics."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "netstat -i",
+                    "explanation": "The command 'netstat -i' displays network interface statistics such as in-use and out-of-use packets, errors, and drops for each network interface.",
+                    "goal": "Show network interface statistics.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Show established TCP connections numerically."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "netstat -tn",
+                    "explanation": "Shows the number of established TCP connections using the netstat command with the -t option for TCP and -n for numeric output.",
+                    "goal": "Display the count of active TCP connections in a numeric format.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "What's listening on this machine and on which ports?"
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "netstat -tulpn",
+                    "explanation": "The command 'netstat -tulpn' displays listening network connections and their associated ports on the machine.",
+                    "goal": "Show which services are listening on the machine and on which ports.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Show TCP sockets currently in use."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "lsof -i tcp",
+                    "explanation": "The command 'lsof -i tcp' lists all TCP sockets currently in use on the system.",
+                    "goal": "Display the list of TCP sockets currently in use.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Show summary statistics for each protocol."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "netstat -s",
+                    "explanation": "The command 'netstat -s' displays summary statistics for each protocol (TCP, UDP, ICMP, etc.) on the system.",
+                    "goal": "Provide summary statistics for each protocol as reported by netstat -s.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Show every listening socket and its process."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "netstat -tunlp",
+                    "explanation": "The command netstat -tunlp lists all listening TCP sockets along with the associated process ID and program name.",
+                    "goal": "Display every listening socket and its corresponding process.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Display per-interface counters."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "netstat -i",
+                    "explanation": "The command 'netstat -i' displays per-interface network statistics including interface-specific counters such as packets sent, received, errors, and drops.",
+                    "goal": "Show per-interface counters for network interfaces.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "List connections stuck in TIME-WAIT."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "ss -tp state time-wait",
+                    "explanation": "The command ss -tp state time-wait lists all network connections that are in the TIME-WAIT state, which is a TCP state used after a connection is closed.",
+                    "goal": "List connections stuck in TIME-WAIT.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "List all open TCP connections."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "lsof -i tcp",
+                    "explanation": "The command 'lsof -i tcp' lists all open TCP connections on the system using the lsof (list open files) utility, filtering for TCP-based connections.",
+                    "goal": "List all open TCP connections on the system.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "List all listening TCP and UDP sockets with programs."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "ss -tulnp",
+                    "explanation": "The command 'ss -tulnp' lists all listening TCP and UDP sockets along with the associated program (process) names.",
+                    "goal": "Display the listening TCP and UDP sockets and their corresponding programs.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "linux_files",
+        "input": [
+            "Show all TCP listeners numerically via lsof."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "lsof -nP -iTCP -sTCP:LISTEN",
+                    "explanation": "The command lsof -nP -iTCP -sTCP:LISTEN lists all TCP listeners numerically by showing the process IDs and other details for each listener.",
+                    "goal": "Show all TCP listeners numerically via lsof.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+        {
+        "category": "linux_files",
+        "input": [
+            "Print all the IP addresses assigned to this host."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "hostname -I",
+                    "explanation": "The command 'hostname -I' prints all the IP addresses assigned to the current host.",
+                    "goal": "Print all the IP addresses assigned to this host.",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+        {
+        "category": "linux_files",
+        "input": [
+            "List all listening ports with the owning programs."
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "netstat -tulpn",
+                    "explanation": "The command 'netstat -tulpn' lists all listening network ports along with the owning processes (programs).",
+                    "goal": "Show which programs are listening on which ports.",
                     "mode": "sync"
                 }
             }
