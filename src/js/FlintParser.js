@@ -1,22 +1,9 @@
+
 /**
  * FlintParser - Natural Language Understanding Engine
  * Giovanni Blu Mitolo 2026
- *
- * Ports the deterministic behavior, token filtering, 
- * similarity metrics, and slot extraction of the Python implementation.
  */
 class FlintParser {
-    /**
-     * Initializes FlintParser with vocabulary, templates, and intents.
-     *
-     * @param {string} name - Identifier used for logging
-     * @param {Object} vocabulary - Vocabulary containing stop_words and sentiment indicators
-     * @param {Array} templates - Structural definitions of templates
-     * @param {Object} templates_vocabulary - Synonym mapping for template tokens
-     * @param {Object} variable_types - Regex patterns for parameter extraction (<||type||>)
-     * @param {string} [log_level='INFO'] - Logging level threshold
-     * @param {Array} [intents=null] - Intent dataset used for computing auto IDF weights
-     */
     constructor(
         name, vocabulary, templates, templates_vocabulary,
         variable_types, log_level = "INFO", intents = null
@@ -25,15 +12,50 @@ class FlintParser {
         this.variable_types = variable_types;
         this.vocabulary = vocabulary;
         this.templates = templates;
-        this.templates_vocabulary = templates_vocabulary;
+        this.templates_vocabulary = templates_vocabulary || {};
         this.log_info = `[${name}][nlp.js]`;
         this.weights = this.calculate_auto_weights(intents || []);
+        
+        this._compiled_paths = this._compile_templates(templates);
+        
+        this._synonym_map = {};
+        if (this.templates_vocabulary) {
+            for (const [tag, synonyms] of Object.entries(this.templates_vocabulary)) {
+                const normalized_tag = String(tag).toLowerCase().trim();
+                this._synonym_map[normalized_tag] = normalized_tag;
+                for (const syn of synonyms) {
+                    this._synonym_map[String(syn).toLowerCase().trim()] = normalized_tag;
+                }
+            }
+        }
     }
 
-    /**
-     * Checks if a target value matches a specific template tag.
-     * Supports both single strings and arrays of acceptable tags.
-     */
+    _compile_templates(templates) {
+        const compiled = [];
+        if (!templates) return compiled;
+            
+        for (const b of templates) {
+            if (!b || !b.structure) continue;
+            for (const path of b.structure) {
+                const required_count = path.reduce((count, node) => count + (node.required !== false ? 1 : 0), 0);
+                const total_length = path.length;
+                compiled.push({
+                    template: b,
+                    path: path,
+                    required_count: required_count,
+                    total_length: total_length
+                });
+            }
+        }
+        
+        compiled.sort((a, b) => {
+            if (b.total_length !== a.total_length) return b.total_length - a.total_length;
+            return b.required_count - a.required_count;
+        });
+        
+        return compiled;
+    }
+
     tag_matches(value, tag) {
         if (Array.isArray(tag)) {
             return tag.includes(value);
@@ -41,10 +63,6 @@ class FlintParser {
         return value === tag;
     }
 
-    /**
-     * Computes IDF (Inverse Document Frequency) for every unique word across the intent dataset.
-     * Normalized so that the maximum possible weight is scaled to 1.0.
-     */
     calculate_auto_weights(intents) {
         const totalIntents = intents.length;
         if (!totalIntents) return {};
@@ -80,9 +98,6 @@ class FlintParser {
         return normalizedWeights;
     }
 
-    /**
-     * Extracts the token with the highest IDF weight (the rarest/most specific word) from a prompt.
-     */
     get_rarest_word(prompt) {
         if (!prompt || !this.weights) return null;
         const tokens = String(prompt).toLowerCase().split(/\s+/).filter(Boolean);
@@ -102,19 +117,12 @@ class FlintParser {
         return maxWeight > 0.0 ? rarest : null;
     }
 
-    /**
-     * Sanitization utility that strips specific vocabulary words outside strings and tags.
-     * Uses a regex-callback atomic replacement pattern to avoid Javascript infinite loops.
-     */
     strip_and_count(text, words_list) {
         if (!words_list || words_list.length === 0) {
             return [String(text).trim(), 0];
         }
 
-        // Split text preventing removal of tags or literal strings content
         const tokens = String(text).split(/(<\|\|.*?\|\|>|".*?"|'.*?')/g);
-
-        // Escape dictionary tokens to align with raw structure structures safely
         const escapedWords = words_list.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
         const anywherePattern = new RegExp(`\\s*\\b(?:${escapedWords})\\b\\s*`, 'gi');
         let totalRemoved = 0;
@@ -126,14 +134,12 @@ class FlintParser {
                 continue;
             }
 
-            // Skip protected format chunks
             if ((t.startsWith("<||") && t.endsWith("||>")) ||
                 (t.startsWith('"') && t.endsWith('"')) ||
                 (t.startsWith("'") && t.endsWith("'"))) {
                 continue;
             }
 
-            // Atomic recursive substitution simulation tracking execution counts
             t = t.replace(anywherePattern, () => {
                 totalRemoved++;
                 return " ";
@@ -141,15 +147,11 @@ class FlintParser {
             tokens[idx] = t;
         }
 
-        // Reconstruct string structure layout normalizing spaces
         let cleanedText = tokens.join("").trim();
         cleanedText = cleanedText.replace(/\s+/g, ' ');
         return [cleanedText, totalRemoved];
     }
 
-    /**
-     * Processes user prompt extracting custom categorical metrics matching vocabulary keys.
-     */
     strip_and_sentiment(user_prompt, sentiment_json, current_sentiment, target_categories = null) {
         const category_mapping = {
             "expletives": "expletives",
@@ -174,21 +176,16 @@ class FlintParser {
             }
         }
 
-        // Emulates string.punctuation stripping behavior from Python
         const punctuationPattern = /^[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/;
         while (current_prompt && punctuationPattern.test(current_prompt)) {
             current_prompt = current_prompt.substring(1);
         }
 
-        // Normalize layout whitespaces immediately preceding standard punctuation marks
         const cleaned_prompt = current_prompt.replace(/\s+([,.!?;])/g, '$1');
 
         return [cleaned_prompt, current_sentiment];
     }
 
-    /**
-     * Generates a structural cynical face emoji mapped matching target emotion densities.
-     */
     sentiment_emoji(sentiment) {
         if (!sentiment || typeof sentiment !== 'object') {
             return "😑";
@@ -233,10 +230,6 @@ class FlintParser {
         return "😑";
     }
 
-    /**
-     * Computes optimized Levenshtein distance similarity with rows vector strategy and early-exit.
-     * Fixes row min calculation initialization to ensure precise bounds metrics.
-     */
     levenshtein_similarity(s1, s2, threshold = 0.0) {
         s1 = String(s1).toLowerCase().trim();
         s2 = String(s2).toLowerCase().trim();
@@ -244,11 +237,9 @@ class FlintParser {
         let max_len = Math.max(len1, len2);
         if (max_len === 0) return 1.0;
 
-        // Pre-calculate maximum possible structural score bounds
         let max_possible_score = 1.0 - (Math.abs(len1 - len2) / max_len);
         if (max_possible_score < threshold) return 0.0;
 
-        // Enforce s1 to represent the longest string item
         if (len1 < len2) {
             [s1, s2] = [s2, s1];
             [len1, len2] = [len2, len1];
@@ -260,7 +251,7 @@ class FlintParser {
         for (let i = 1; i <= len1; i++) {
             let prev_cell = i;
             let c1 = s1[i - 1];
-            let min_row_dist = Infinity; // Corrected initialization to capture accurate matrix row values minimums
+            let min_row_dist = Infinity;
 
             for (let j = 1; j <= len2; j++) {
                 let substitutions = current_row[j - 1] + (c1 !== s2[j - 1] ? 1 : 0);
@@ -278,16 +269,12 @@ class FlintParser {
 
             current_row[len2] = prev_cell;
 
-            // Trigger early-exit evaluations safely against true active minima bounds
             if (min_row_dist > max_dist) return 0.0;
         }
 
         return 1.0 - (current_row[len2] / max_len);
     }
 
-    /**
-     * Computes an asymmetric, order-independent sentence similarity score weighted by IDF specificity.
-     */
     sentence_similarity(s1, s2, threshold = 0.0) {
         const anchor_tokens = String(s2).toLowerCase().trim().split(/\s+/).filter(Boolean);
         const query_tokens = String(s1).toLowerCase().trim().split(/\s+/).filter(Boolean);
@@ -325,6 +312,14 @@ class FlintParser {
                     break;
                 }
 
+                const anchor_tag = this._synonym_map[t_anchor];
+                const query_tag = this._synonym_map[t_query];
+                if (anchor_tag && query_tag && anchor_tag === query_tag) {
+                    best_word_sim = 1.0;
+                    best_match_idx = idx;
+                    break;
+                }
+
                 const sim = this.levenshtein_similarity(t_anchor, t_query, threshold);
                 if (sim > best_word_sim) {
                     best_word_sim = sim;
@@ -340,22 +335,19 @@ class FlintParser {
             }
         }
 
-        // Penalize unmatched query tokens absent from vocabulary
         for (const t_query of query_tokens) {
             if (t_query.length >= 3 && !(t_query in this.weights)) {
-                max_possible_score += 0.5;
+                if (!(t_query in this._synonym_map)) {
+                    max_possible_score += 0.5;
+                }
             }
         }
 
         return max_possible_score ? total_score / max_possible_score : 0.0;
     }
-    /**
-     * Resolves upcoming structural slots using step inspection paths across template criteria.
-     * Aligns with match_structure to prevent index locking on vocabulary tokens.
-     */
+
     find_candidates(structure, candidates) {
-        // FIX: Track all structural tokens (both vocabs and variables) to properly advance the path pointer
-        const clean_user = structure;
+        const clean_user = structure.filter(tag => typeof tag === 'string' && tag.startsWith("<||"));
         const u_len = clean_user.length;
 
         for (const template of this.templates) {
@@ -412,10 +404,6 @@ class FlintParser {
         }
     }
 
-
-    /**
-     * Resolves matching template vocabulary keys exploiting Levenshtein text evaluations.
-     */
     find_template(token, threshold) {
         if (!this.templates_vocabulary) return null;
         let match = null;
@@ -446,10 +434,6 @@ class FlintParser {
         return match;
     }
     
-    /**
-     * Transforms text arrays streams into parsed semantic tokens structure mappings.
-     * Ensures strict compliance with Python's vocabulary validation logic.
-     */
     parse_structure(sub_prompt, threshold) {
         const log_info = `${this.log_info}[abstract_input]`;
 
@@ -495,7 +479,6 @@ class FlintParser {
                             type === "vocab" && this.tag_matches(possible_match, tag)
                         );
 
-                        // Preserves accurate matching fallback sequence mapping from Python
                         match = possible_match;
                         if (structure.length > 0 && expects_variable && !expects_this_vocab) {
                             match = null;
@@ -510,7 +493,7 @@ class FlintParser {
                 continue;
             }
 
-                        let matched_variable = false;
+            let matched_variable = false;
             for (const [type, tag] of candidates) {
                 if (type === "vocab") continue;
                 const rgxp = `<||${type}||>`;
@@ -531,7 +514,6 @@ class FlintParser {
                             remainder = remainder.replace(/'/g, "'\\''");
                             slots[slot_name] = remainder;
                             
-                            // FORZA L'USCITA IMMEDIATA DAL WHILE ESTERNO
                             i = working_tokens.length; 
                             matched_variable = true;
                             break; 
@@ -549,13 +531,12 @@ class FlintParser {
                 }
             }
 
-                      // Se abbiamo estratto una stringa e impostato i alla fine, usciamo dal while
             if (i >= working_tokens.length) {
                 break;
             }
 
             if (matched_variable) {
-                continue; // Ora è posizionato correttamente dentro l'iterazione del while
+                continue; 
             }
             
             i++;
@@ -565,42 +546,46 @@ class FlintParser {
         return [structure, slots];
     }
 
-    /**
-     * Compares structural parsing tokens against listed intent path configurations.
-     */
     match_structure(templates, structure) {
-        let match = null;
-        for (const b of templates) {
-            if (!b || !b.structure) continue;
-            for (const path of b.structure) {
-                let prompt_i = 0;
-                let template_i = 0;
-                let template_match = true;
-
-                while (template_i < path.length) {
-                    const node = path[template_i];
-                    const is_required = node.required !== undefined ? node.required : true;
-                    if (
-                        prompt_i < structure.length &&
-                        this.tag_matches(structure[prompt_i], node.tag)
-                    ) {
-                        prompt_i++;
-                        template_i++;
-                    } else if (!is_required) {
-                        template_i++;
-                    } else {
-                        template_match = false;
-                        break;
+        const struct_len = structure.length;
+        const compiledPaths = (templates === this.templates && this._compiled_paths) 
+            ? this._compiled_paths 
+            : this._compile_templates(templates);
+        
+        for (const item of compiledPaths) {
+            if (item.required_count > struct_len) continue;
+                
+            const path = item.path;
+            let prompt_i = 0;
+            let template_i = 0;
+            let template_match = true;
+            
+            while (template_i < path.length) {
+                const node = path[template_i];
+                const tag = node.tag;
+                const is_required = node.required !== false;
+                
+                if (prompt_i < struct_len) {
+                    const struct_tag = structure[prompt_i];
+                    if (this.tag_matches(struct_tag, tag)) {
+                        prompt_i += 1;
+                        template_i += 1;
+                        continue;
                     }
                 }
-
-                if (template_match && prompt_i === structure.length) {
-                    match = b;
+                
+                if (!is_required) {
+                    template_i += 1; 
+                } else {
+                    template_match = false;
                     break;
                 }
             }
-            if (match) break;
+            
+            if (template_match && prompt_i === struct_len) {
+                return item.template;
+            }
         }
-        return match;
+        return null;
     }
 }

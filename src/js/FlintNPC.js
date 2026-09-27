@@ -3,6 +3,7 @@
  * Giovanni Blu Mitolo 2026
  *
  * Engine deterministico ad alta efficienza per agenti locali NLU.
+ * Allineato alla ground-truth Python (NDF 0.0).
  */
 class FlintNPC {
     /**
@@ -48,7 +49,7 @@ class FlintNPC {
         };
         
         this.rejection = {
-            "message": ["<||unknown||>"],
+            "output": ["<||unknown||>"],
             "permission": "yolo"
         };
         
@@ -66,6 +67,8 @@ class FlintNPC {
             this.log_level,
             [...this.dataset, ...this.personality].filter(block => block && typeof block === 'object' && "input" in block)
         );
+        
+        this._build_intent_signatures();
     }
 
     /**
@@ -97,6 +100,8 @@ class FlintNPC {
             this.log_level,
             [...this.dataset, ...this.personality].filter(block => block && typeof block === 'object' && "input" in block)
         );
+        
+        this._build_intent_signatures();
     }
 
     /**
@@ -123,7 +128,7 @@ class FlintNPC {
         for (const block of allBlocks) {
             if (block && typeof block === 'object' && !Array.isArray(block)) {
                 for (const [k, v] of Object.entries(block)) {
-                    if (k !== "input" && k !== "message") {
+                    if (k !== "input") {
                         this.metadata[k] = v;
                     }
                 }
@@ -131,7 +136,7 @@ class FlintNPC {
         }
 
         Object.assign(this.metadata, {
-            "username": "user",
+            "username": typeof process !== 'undefined' && process.env ? (process.env.USER || "user") : "user",
             "npc_name": String(this.config.npc_name || "NPC"),
             "response_classes": String(allBlocks.length),
             "computer_name": "LocalContext",
@@ -140,8 +145,6 @@ class FlintNPC {
         });
 
         // Mappa delle varianti dei prompt per l'exact match deterministico
-        // I blocchi di contesto NON vengono aggiunti qui; vengono caricati dinamicamente
-        // in active_context_map a runtime quando il loro genitore viene matchato.
         for (const block of allBlocks) {
             if (block && block.input && Array.isArray(block.input)) {
                 for (const inp of block.input) {
@@ -156,14 +159,106 @@ class FlintNPC {
     }
 
     /**
+     * Pre-calcola le signature degli intenti per la valutazione fuzzy O(1) / O(N).
+     */
+    _build_intent_signatures() {
+        this._precomputed_intents = {};
+        const merged_map = this._get_merged_match_map();
+
+        for (const [target_input, block] of Object.entries(merged_map)) {
+            const tokens = target_input.toLowerCase().split(/\s+/).filter(Boolean);
+            const anchor_info = [];
+            let max_score = 0.0;
+            const token_set = new Set(tokens);
+            const tag_set = new Set();
+
+            for (const t of tokens) {
+                const t_len = t.length;
+                let weight = t_len < 3 
+                    ? (t in this.nlp.weights ? this.nlp.weights[t] : 0.05)
+                    : (t in this.nlp.weights ? this.nlp.weights[t] : 1.0);
+                
+                if (t_len === 3) weight *= 1.5;
+                
+                anchor_info.push([t, weight, t_len]);
+                max_score += weight;
+                
+                const tag = this.nlp._synonym_map[t];
+                if (tag) tag_set.add(tag);
+            }
+
+            this._precomputed_intents[target_input] = {
+                block: block,
+                token_set: token_set,
+                tag_set: tag_set,
+                anchor_info: anchor_info,
+                max_score: max_score
+            };
+        }
+    }
+
+    /**
+     * Calcolo del punteggio fuzzy ottimizzato per intents precompilati.
+     */
+    _fast_score_calculation(query, data, threshold) {
+        let total_score = 0.0;
+        const matched_indices = new Array(query.length).fill(false);
+        let effective_max_score = data.max_score;
+
+        for (const [t_anchor, anchor_weight, t_anchor_len] of data.anchor_info) {
+            let best_word_sim = 0.0;
+            let best_match_idx = -1;
+            const max_diff = Math.floor(Math.max(t_anchor_len, 10) * (1.0 - threshold)) + 2;
+
+            for (let idx = 0; idx < query.length; idx++) {
+                if (matched_indices[idx]) continue;
+                const t_query = query[idx];
+
+                if (t_anchor === t_query) {
+                    best_word_sim = 1.0;
+                    best_match_idx = idx;
+                    break;
+                }
+
+                const anchor_tag = this.nlp._synonym_map[t_anchor];
+                const query_tag = this.nlp._synonym_map[t_query];
+                if (anchor_tag && query_tag && anchor_tag === query_tag) {
+                    best_word_sim = 1.0;
+                    best_match_idx = idx;
+                    break;
+                }
+
+                if (Math.abs(t_anchor_len - t_query.length) > max_diff) continue;
+
+                const sim = this.nlp.levenshtein_similarity(t_anchor, t_query, threshold);
+                if (sim > best_word_sim) {
+                    best_word_sim = sim;
+                    best_match_idx = idx;
+                }
+            }
+
+            if (best_word_sim >= threshold) {
+                total_score += best_word_sim * anchor_weight;
+                if (best_match_idx !== -1) {
+                    matched_indices[best_match_idx] = true;
+                }
+            }
+        }
+
+        for (let idx = 0; idx < query.length; idx++) {
+            const t_query = query[idx];
+            if (!matched_indices[idx] && t_query.length >= 3) {
+                if (!(t_query in this.nlp.weights) && !(t_query in this.nlp._synonym_map)) {
+                    effective_max_score += 0.5;
+                }
+            }
+        }
+
+        return effective_max_score ? total_score / effective_max_score : 0.0;
+    }
+
+    /**
      * Updates the active conversational context.
-     * 
-     * - "context": [...]  -> overwrites active context with new entries
-     * - "context": []     -> explicitly clears the context
-     * - no "context" key  -> context persists unchanged
-     * 
-     * This allows sibling context entries to remain active after one is consumed,
-     * enabling flows like: "create dir" -> "move it" -> "delete it".
      */
     update_context(block) {
         if ("context" in block) {
@@ -208,7 +303,6 @@ class FlintNPC {
             return this.generate_response(this.rejection, {}, 0.0, "rejected");
         }
         
-        // Pulisce imprecazioni e interiezioni per ottimizzare l'exact match
         let [stripped, newSentiment] = this.nlp.strip_and_sentiment(
             user_prompt,
             this.vocabulary,
@@ -266,13 +360,7 @@ class FlintNPC {
             console.log(`[chatbot.js][${this.name}][process_message] NLP fallback: ${user_prompt}`);
         }
 
-        // --- 3. UNIFIED PROBABILISTIC MATCH (Context + Dataset) ---
-        let best_block = null;
-        let best_score = -1.0;
-        const related_intents = [];
-        const seen_categories = new Set();
-        
-        // Pulisce il prompt dai connettivi sintattici non salienti
+        // --- 3. PROBABILISTIC MATCH ---
         let [sentiment_cleaned, probSentiment] = this.nlp.strip_and_sentiment(
             stripped, 
             this.vocabulary,
@@ -281,51 +369,71 @@ class FlintNPC {
         );
         this.sentiment = probSentiment;
 
-        // Regolazione lineare della soglia d'errore per stringhe ultra-brevi
-        const tokenCount = sentiment_cleaned.split(/\s+/).filter(Boolean).length;
+        const query_tokens = sentiment_cleaned.toLowerCase().split(/\s+/).filter(Boolean);
+        const tokenCount = query_tokens.length;
         const threshold = tokenCount <= 3 ? this.word_threshold : this.sentence_threshold;
-        
+
+        // First: try fuzzy match against ACTIVE CONTEXT
+        let best_context_block = null;
+        let best_context_score = -1.0;
+        for (const [inp, block] of Object.entries(this.active_context_map)) {
+            const score = this.nlp.sentence_similarity(sentiment_cleaned, inp, threshold);
+            if (score > best_context_score) {
+                best_context_score = score;
+                best_context_block = block;
+            }
+        }
+
+        if (best_context_score >= this.sentence_threshold) {
+            this.update_context(best_context_block);
+            return this.generate_response(best_context_block, {}, best_context_score, "probabilistic match");
+        }
+
+        let best_block = null;
+        let best_score = -1.0;
+        const related_intents = [];
+        const seen_categories = new Set();
         const maxSuggestions = parseInt(this.config.suggestions ?? 5, 10);
 
-        // Itera sulla mappa unificata: il contesto sovrascrive il dataset in caso di collisione
-        for (const [target_input, block] of Object.entries(merged_map)) {
-            const score = this.nlp.sentence_similarity(
-                sentiment_cleaned, 
-                target_input, 
-                Math.max(threshold, best_score)
+        for (const [target_input, precomputed] of Object.entries(this._precomputed_intents)) {
+            if (rarest_word) {
+                if (!precomputed.token_set.has(rarest_word)) {
+                    const rarest_tag = this.nlp._synonym_map[rarest_word];
+                    if (!rarest_tag || !precomputed.tag_set.has(rarest_tag)) {
+                        continue;
+                    }
+                }
+            }
+
+            const score = this._fast_score_calculation(
+                query_tokens, precomputed, Math.max(threshold, best_score)
             );
+
             if (score > best_score) {
                 best_score = score;
-                best_block = block;
+                best_block = precomputed.block;
             }
-                
-            if (related_intents.length < maxSuggestions && rarest_word && block && typeof block === 'object') {
-                const category = block.category || "";
+
+            if (related_intents.length < maxSuggestions && rarest_word && precomputed.block && typeof precomputed.block === 'object') {
+                const category = precomputed.block.category || "";
                 let found_match = false;
                 
-                if (category.split("_").includes(rarest_word) || category.toLowerCase().includes(rarest_word)) {
+                if (category.split("_").includes(rarest_word)) {
                     found_match = true;
-                }
-            
-                if (!found_match) {
-                    const inputs = block.input || [];
+                } else {
+                    const inputs = precomputed.block.input || [];
                     if (Array.isArray(inputs) && inputs[0]) {
-                        const input_words = String(inputs[0]).toLowerCase().split(/\s+/);
-                        if (input_words.includes(rarest_word)) {
+                        if (String(inputs[0]).toLowerCase().includes(rarest_word)) {
                             found_match = true;
                         }
                     }
                 }
                 
                 if (found_match && !seen_categories.has(category)) {
-                    related_intents.push(block);
+                    related_intents.push(precomputed.block);
                     seen_categories.add(category);
                 }
             }
-        }
-            
-        if (this.log_level === "INFO") {
-            console.log(`[chatbot.js][${this.name}][process_message] Best score: ${best_score}`);
         }
 
         if (best_score >= this.sentence_threshold && best_block) {
@@ -334,7 +442,6 @@ class FlintNPC {
         }
 
         // --- 4. REJECTION ---
-        // Pulisce il contesto in caso di rigetto per prevenire follow-up obsoleti
         this.active_context_map = {};
         
         return this.generate_response(this.rejection, {}, 0.0, "rejected", related_intents);
@@ -383,12 +490,7 @@ class FlintNPC {
             }
 
             if ("response" in res) responses_list.push(res.response);
-            
-            // Mantiene la struttura a lista di liste (come .append in Python) e previene crash
-            if ("tools" in res && Array.isArray(res.tools)) {
-                tools_list.push(res.tools);
-            }
-            
+            if ("tools" in res && Array.isArray(res.tools)) tools_list.push(res.tools);
             if ("description" in res) desc_list.push(res.description);
             if ("status" in res) status_list.push(res.status);
             
@@ -401,7 +503,7 @@ class FlintNPC {
         }
 
         const concatenated_response = responses_list.join(" ");
-        const concatenated_description = responses_list.join(" ");
+        const concatenated_description = desc_list.join(" "); 
         const concatenated_status = (status_list.length > 0 && status_list.every(s => s === status_list[0])) 
             ? status_list[0] 
             : status_list.join(", ");
@@ -441,7 +543,6 @@ class FlintNPC {
             return item;
         };
             
-        // Renderizzatore ricorsivo dei segnaposto <||tag||>
         const render_tags = (text) => {
             if (!text) return "";
             text = String(text);
@@ -452,7 +553,7 @@ class FlintNPC {
             for (const rawTag of current_tags) {
                 const tag = rawTag.replace(/<\|\||\|\|>/g, "");
                 
-                for (const type of ["completion", "unknown"]) {    
+                for (const type of ["completion", "unknown", "related"]) {    
                     if (tag === type && !(type in slots)) {
                         if (this.metadata[type]) {
                             slots[type] = _choice(this.metadata[type]);
@@ -474,7 +575,6 @@ class FlintNPC {
             return text.match(/<\|\|(.*?)\|\|>/) ? render_tags(text) : text;
         };
         
-        // Mappatura ricorsiva profonda per la struttura degli strumenti (Tools Schema Engine)
         const render_all_tags = (data) => {
             if (data && typeof data === 'object' && !Array.isArray(data)) {
                 const resObj = {};
@@ -490,8 +590,14 @@ class FlintNPC {
             return data;
         };
 
-        const output_data = block.message !== undefined ? block.message : (block.output !== undefined ? block.output : "");
-        const final_output = render_tags(_choice(output_data));
+        let output_data = block.output !== undefined ? block.output : "";
+        let raw_output = _choice(output_data);
+
+        if (related && related.length > 0 && status === "rejected") { 
+            raw_output = "<||related||>";
+        }
+        
+        const final_output = render_tags(raw_output);
         const thinking_data = block.thinking;        
         let thinking = _choice(thinking_data);
         if (thinking) {
@@ -501,7 +607,7 @@ class FlintNPC {
         const payload = {
             "confidence": confidence, 
             "response": final_output,
-            "related" : related,
+            "related": related,
             "permission": block.permission || "ask", 
             "sentiment": Object.assign({}, this.sentiment),
             "emoji": this.nlp.sentiment_emoji(this.sentiment),
