@@ -26,4 +26,4 @@ The paraphrases generation was done using [granite-4.1 3B](https://www.ibm.com/g
 
 The [dataset_Tested-143k-Python-Alpaca-80.json](npcs/termy/dataset/Tested-143k-Python-Alpaca-80/dataset_Tested-143k-Python-Alpaca-80.json) file is licensed under [AGPL-3.0](LICENSE).
 
-Apache license 2.0 published by [Vezora](https://huggingface.co/Vezora) on [Huggingface](https://huggingface.co/datasets/Vezora/Tested-143k-Python-Alpaca).
+The original source dataset is licensed under Apache license 2.0 published by [Vezora](https://huggingface.co/Vezora) on [Huggingface](https://huggingface.co/datasets/Vezora/Tested-143k-Python-Alpaca).
