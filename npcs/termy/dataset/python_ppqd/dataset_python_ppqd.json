@@ -2498,27 +2498,6 @@
     },
     {
         "input": [
-            "create a python function that sorts a list of strings alphabetically",
-            "make a python function to alphabetically sort a list of strings",
-            "create a python function to alphabetically sort a list of strings",
-            "write a python function to alphabetically sort a list of strings"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef sort_strings(list_of_strings):\n    sorted_list = sorted(list_of_strings, key=lambda str: str.lower())\n    return sorted_list\n\nresult = sort_strings(['apple', 'orange', 'pear'])\nprint(result)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "create a python 3 script to generate a list of integers from 0 to 100.",
             "write a python 3 script that generates a list containing integers from 0 to 100.",
             "write a python 3 script that produces a list containing integers from 0 through 100",
@@ -3220,28 +3199,6 @@
     },
     {
         "input": [
-            "create a function to convert fahrenheit temperatures to celsius in python.",
-            "write a python function that converts fahrenheit temperatures to celsius",
-            "create a python function that converts fahrenheit temperatures to celsius",
-            "write a python function to convert fahrenheit temperatures to celsius",
-            "develop a python function that converts a list of fahrenheit temperatures to celsius"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef fahrenheit_to_celsius(fahrenheit):\n    celsius = (fahrenheit - 32) * (5/9)\n    return celsius\n    \nif __name__ == \"__main__\":\n    fahrenheit  = 32\n    celsius = fahrenheit_to_celsius(fahrenheit)\n    print(\"Fahrenheit to Celsius: {} degrees F = {} degrees C\".format(fahrenheit, celsius))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write a python program to check whether a sentence contains all the alphabets of the english language",
             "write a python program that determines if a given sentence includes every letter in the english alphabet",
             "develop a python script that determines if a given sentence includes every letter in the english alphabet"
@@ -3507,28 +3464,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef is_prime(num):\n    if num > 1: \n        for i in range(2,num):\n            if (num % i) == 0: \n                return False\n        return True \n    else: \n        return False\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "generate a python code to fit a regression line",
-            "write a python script to perform linear regression",
-            "create python code for linear regression fitting",
-            "create python code for linear regression",
-            "write python code for linear regression fitting"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport numpy as np\nfrom sklearn.linear_model import LinearRegression\n\ndef line_fit(x, y):\n    x = np.array(x).reshape((-1, 1))\n    y = np.array(y).reshape((-1, 1))\n    reg = LinearRegression().fit(x, y)\n    return reg.coef_[0][0], reg.intercept_[0]\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -7397,27 +7332,6 @@
     },
     {
         "input": [
-            "build a python program to tokenize a string into separate words.",
-            "write a python program that splits a string into individual words",
-            "create a python program that splits an input string into individual words",
-            "create a python program that splits a string into individual words"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef tokenize(string):\n    words = string.split(\" \")\n    return words\n\ntokenized_str = tokenize(\"Hello, World!\")\nprint(tokenized_str)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write a python program to print out the factorial of a number.",
             "write a python program that outputs the factorial of a given number"
         ],
@@ -8503,26 +8417,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef unique_strings(strings):\n    unique_strings = []\n    for string in strings:\n        if string not in unique_strings:\n            unique_strings.append(string)\n    return unique_strings\n\nstrings = [\"Hello\", \"World\", \"Hello\", \"Python\"]\nresult = unique_strings(strings)\nprint(result)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "write a python program to convert an array of objects into an array of json string.",
-            "convert array of objects to array of json strings in python",
-            "convert python array of objects to array of json strings"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport json\n\ndef array_obj_to_json(arr):\n    json_arr = []\n    for obj in arr:\n        json_arr.append(json.dumps(obj))\n    return json_arr\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -11821,25 +11715,6 @@
     },
     {
         "input": [
-            "can you write a python script to sort a list of strings alphabetically?",
-            "write a python script that sorts a list of strings alphabetically"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nstrings = [\"Hello\", \"Yes\", \"No\", \"World\"]\n\nstrings.sort()\n\nprint(strings)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write a python function to find all possible n-letter words from a given list of letters.",
             "write a python function that generates all possible n-letter words using a provided list of letters.",
             "create a python function that generates all possible n-letter words using a provided list of letters",
@@ -13062,27 +12937,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport matplotlib.pyplot as plt\n\ndef generateHistogram(data):\n    plt.hist(data, bins='auto')\n    plt.title(\"Histogram\")\n    plt.xlabel('Values')\n    plt.ylabel('Number of Occurrences')\n    plt.show()\n\ngenerateHistogram(data)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "develop a python program that sorts a given list of words in lexicographic order.",
-            "write a python program to sort a list of words alphabetically",
-            "create a python program to sort a list of words alphabetically",
-            "write a python program to arrange a list of words alphabetically"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\n# Sort a list of words in lexicographic order\nwords = [\"apple\", \"bike\", \"dog\", \"cat\"]\n\n# Sort the list\nwords.sort()\n\n# Print the list\nprint(words)\n\n# Output:\n# ['apple', 'bike', 'cat', 'dog']\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -14407,26 +14261,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef count_list(input_list): \n    return len(input_list)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "design a class in python to represent a grocery store.",
-            "create a python class to model a grocery store",
-            "design a python class to model a grocery store"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nclass GroceryStore: \n    def __init__(self, name, products, location): \n        self.name = name \n        self.products = products\n        self.location = location \n    \n    def get_all_products(self): \n        return self.products\n    \n    def get_location(self): \n        return self.location\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -17194,28 +17028,6 @@
     },
     {
         "input": [
-            "using python, can you calculate the sum of all numbers in a list?",
-            "calculate the sum of numbers in a list using python",
-            "create a python function to compute the sum of elements in a list",
-            "write a python function to compute the total of numbers in a list",
-            "write a python function that accepts a list and returns its numbers sum"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nsum = 0\nfor num in [1, 3, 5, 7, 9]:\n    sum += num\n\nprint(sum) # 25\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "create a function in python to print pascal's triangle of a given number of rows.",
             "make a python function that displays pascal's triangle for a specified number of rows.",
             "create a python function that generates and prints pascal's triangle for a specified number of rows",
@@ -17549,26 +17361,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef max_key(dict):\n    max_key = -1\n    max_val = -1\n    for key, val in dict.items():\n        if key > max_key and val > max_val:\n            max_key = key\n            max_val = val\n    return max_key\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "design a class to represent a car in python.",
-            "make a python class to model a car",
-            "create a python class to model a car"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nclass Car:\n    def __init__(self, make, model, year):\n        self.make = make\n        self.model = model \n        self.year = year\n        self.speed = 0\n\n    def accelerate(self):\n        self.speed += 10\n\n    def brake(self):\n        self.speed -= 10\n\n    def get_speed(self):\n        return self.speed\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -22326,28 +22118,6 @@
     },
     {
         "input": [
-            "create a program in python that has the following purpose: to determine if a given string is a palindrome",
-            "make a python program to check if an input string is a palindrome",
-            "develop a python program to check if an input string is a palindrome",
-            "write a python program that checks if an input string is a palindrome",
-            "write a python program to check if an input string is a palindrome"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef check_palindrome(inputStr): \n     \n    revStr = reversed(inputStr)\n    \n    if list(inputStr) == list(revStr): \n        return True\n    else: \n        return False\n      \nuserInput = \"radar\"\n\nif(check_palindrome(userInput)): \n    print(\"Yes\") \nelse: \n    print(\"No\")\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "create a program in python to edit a given text by removing unwanted characters.",
             "write a python program to modify a text string by eliminating undesired characters",
             "develop a python program that processes input text to eliminate specified unwanted characters",
@@ -24238,28 +24008,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nlist_of_dicts = [ \n    {\n        \"name\": \"John\",\n        \"age\": 32,\n        \"country\": \"USA\"\n    },\n    {\n        \"name\": \"Peter\",\n        \"age\": 28,\n        \"country\": \"Australia\"\n    },\n    {\n        \"name\": \"David\",\n        \"age\": 30,\n        \"country\": \"Canada\"\n    }\n]\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "design a python program to sort a list of dictionaries by a given field.",
-            "write a python program that sorts a list of dictionaries based on a specified field",
-            "write a python program that sorts a list of dictionaries based on a specified key",
-            "write a python program to sort a list of dictionaries by a given key",
-            "create a python program that sorts a list of dictionaries based on a specified key"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef sort_dicts_by_field(dict_list, field):\n    sorted_list = sorted(dict_list, key=lambda k: k[field])\n    return sorted_list\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -26566,28 +26314,6 @@
     },
     {
         "input": [
-            "write python code to remove all the vowels from a given string.",
-            "write a python function that takes a string and returns it with all vowels removed",
-            "write python code that removes vowels from a provided string",
-            "write python code to eliminate vowels from a string input",
-            "write python code that takes a string and returns it without vowels"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef remove_vowels(string):\n    # Replace all the vowels with empty string\n    without_vowels = string.replace('a', '').replace('e', '').replace('i', '').replace('o', '').replace('u', '') \n    return without_vowels\n\nif __name__ == '__main__':\n    print(remove_vowels('Hello World!'))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "generate a code in python to measure the loading time of a website.",
             "write a python script to measure a website's loading time",
             "create a python script to calculate website loading time",
@@ -27619,27 +27345,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ncustomer = {\n    'name': '',\n    'address': '',\n    'email': ''\n}\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "write a python script to perform linear regression on a given dataset.",
-            "write a python script that implements linear regression on a provided dataset",
-            "write a python script that implements linear regression for a provided dataset",
-            "write a python script that implements linear regression on the provided dataset"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport numpy as np\nfrom sklearn.linear_model import LinearRegression\n\nx = np.array([[5, 6], [3, 4], [7, 9], [4, 5]])\ny = np.array([7, 5, 11, 7])\n\nmodel = LinearRegression().fit(x, y)\n\nprint(model.coef_)\nprint(model.intercept_)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -29339,28 +29044,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef calcTotalCost(quantity, price):\n    totalCost = quantity * price\n    return totalCost\n\nresult = calcTotalCost(5, 10)\nprint(result)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "generate an optimized python code for finding the maximum element in a list of numbers.",
-            "write python code to efficiently find the maximum value in a list of numbers",
-            "write optimized python code to find maximum in a numbers list",
-            "write python code to efficiently find the largest number in a list",
-            "write python code to efficiently determine the largest number in a list"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef find_max(l):\n    max_elmt = l[0]\n    for x in l:\n        if x > max_elmt:\n            max_elmt = x\n    return max_elmt\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -34799,26 +34482,6 @@
     },
     {
         "input": [
-            "develop an algorithm in python for inserting an element into a given sorted array.",
-            "write a python algorithm to insert an element into a sorted array",
-            "create a python algorithm to insert an element into a sorted array"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef insertSort(sortedArray, x): \n    n = len(sortedArray) \n    sortedArray.append(x) \n    for i in range(n-1, -1, -1): \n        if sortedArray[i] > x: \n            sortedArray[i + 1] = sortedArray[i] \n            sortedArray[i] = x \n    return sortedArray\n\nprint(insertSort(sortedArray, x))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "generate a python program to print out all divisible numbers between 0 and a given number",
             "write a python program that outputs all divisible numbers from 0 up to a specified integer",
             "create a python program that outputs all numbers divisible by a specified integer from 0 up to that number",
@@ -38690,27 +38353,6 @@
     },
     {
         "input": [
-            "create a python program that can convert temperatures between celsius and fahrenheit.",
-            "write a python program to convert temperatures between celsius and fahrenheit",
-            "develop a python program to convert temperatures between celsius and fahrenheit",
-            "develop a python program to convert temperatures from celsius to fahrenheit and vice versa"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef celsius_to_fahrenheit(temp):\n    fahrenheit = temp * 9/5 + 32\n    return fahrenheit\n\ndef fahrenheit_to_celsius(temp):\n    celsius = (temp - 32) * 5/9\n    return celsius\n\nprint(\"Fahrenheit to Celsius:\", fahrenheit_to_celsius(59))\nprint(\"Celsius to Fahrenheit:\", celsius_to_fahrenheit(15))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "develop a python program that targets a specific element in a dictionary.",
             "write a python program to access a particular value within a dictionary"
         ],
@@ -39103,26 +38745,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef calculate_average(numbers):\n    total = 0\n    for number in numbers:\n        total = total + number\n    return total / len(numbers)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "design an object-oriented python class to represent a vehicle.",
-            "create a python class to model a vehicle",
-            "create a python class to model a vehicle using object-oriented principles"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nclass Vehicle:\n    def __init__(self, make, model, year):\n        self.make = make\n        self.model = model\n        self.year = year\n    \n    def getMake(self):\n        return self.make\n    \n    def getModel(self):\n        return self.model\n    \n    def getYear(self):\n        return self.year\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -40544,27 +40166,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport random\n\nlist = [\"apple\", \"banana\", \"orange\", \"strawberry\", \"grape\"]\nrandom.shuffle(list)\n\nfor item in list[:3]:\n    print(item)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "generate a python program to fetch data from a website.",
-            "write a python program to retrieve data from a website",
-            "create a python script to retrieve data from a web page",
-            "write a python script to retrieve data from a web page"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport requests\n\ndef main():\n    url = 'https://www.example.com'\n    \n    r = requests.get(url)\n    if r.status_code == 200:\n        content = r.content\n        print(content)\n    else:\n        print(\"Failed to fetch data.\")\n\nif __name__ == \"__main__\":\n    main()\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -44026,27 +43627,6 @@
     },
     {
         "input": [
-            "implement a python script to split a string into a list of words.",
-            "write a python script that divides a string into a list of words",
-            "write a python script that converts a string into a list of words",
-            "write a python script for splitting a given string into a list of words."
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef split_string(string): \n    return string.split() \n\nprint(split_string(\"Hello, World!\")) # [\"Hello,\", \"World!\"]\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "generate a list of prime numbers from 1 to 1000 using a python program",
             "write a python program to generate prime numbers between 1 and 1000",
             "create a python program that outputs prime numbers between 1 and 1000"
@@ -44564,27 +44144,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nlist = [5, 2, 8, 1]\nlist.sort() \nprint(list)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "write a script in python to sort the given list of numbers in non-decreasing order",
-            "write a python script that sorts a list of numbers in non-decreasing order",
-            "write a python script that sorts a list of numbers in ascending order",
-            "write a python script that sorts the provided list of numbers in ascending order"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef sortNumbers(nums): \n    for i in range(len(nums)-1): \n        minPos = i \n        for j in range(i+1,len(nums)): \n            if nums[minPos] > nums[j]: \n                minPos = j \n        nums[i],nums[minPos] = nums[minPos],nums[i] \n\nnums = [3, 2, 7, 1, 9, 5]\nsortNumbers(nums) \nprint(nums)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -45603,26 +45162,6 @@
     },
     {
         "input": [
-            "develop a program in python to detect the outliers of a given dataset.",
-            "write a python program to identify outliers in a dataset",
-            "create a python program to identify outliers in a dataset"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport numpy as np \n\n# Load dataset \ndata = np.genfromtxt(\"data.csv\", delimiter=\",\") \n\n# Calculate interquartile range \nQ1 = np.percentile(data, 25) \nQ3 = np.percentile(data, 75) \n\n# Interquartile range \nIQR = Q3 - Q1 \n\n# Remove outliers \noutliers = (data < (Q1 - 1.5 * IQR)) | (data > (Q3 + 1.5 * IQR))\n\n# Print outliers \nprint(data[outliers])\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write a function in python that converts a given date-time string into a specified timestamp format.",
             "write a python function to convert a date-time string into a desired timestamp format",
             "create a python function to convert a date-time string into a desired timestamp format"
@@ -46070,26 +45609,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nmax_value = lambda num_list: max(num_list)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "write a python program that can generate all permutations of a given list.",
-            "write a python program to generate all permutations of a given list",
-            "create a python program that produces all permutations from a provided list"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef generate_permutations(list_a):\n    import itertools \n    return list(itertools.permutations(list_a))\n    \ngenerate_permutations(list_a)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -48441,28 +47960,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport string \n\ndef encode_base_62(n): \n    base62 = string.digits + string.ascii_uppercase + string.ascii_lowercase\n    output = \"\" \n    while n > 0:\n        output = base62[n%62] + output\n        n //= 62\n    return output\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "generate code to prompt user input using python.",
-            "make a python script to request user input",
-            "write a python script to request user input",
-            "write python code to get user input",
-            "write python code to request user input"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nname = input('What is your name? ')\nprint('Hello', name, '!')\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -52648,27 +52145,6 @@
     },
     {
         "input": [
-            "how could you remove duplicates from a list in python?",
-            "remove list duplicates in python",
-            "write a python method to eliminate repeated elements from a list",
-            "remove duplicate elements from a python list"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\n\"\"\"\nRemove duplicates from a list in Python\n\"\"\"\n\n# Input list \nlst = [1, 1, 2, 3, 3, 4, 5, 5]\n\n# Create a new list by converting the existing list to set \nnew_lst = list(set(lst))\n\n# Print the new list \nprint(new_lst)  # Output: [1, 2, 3, 4, 5]\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "generate a machine learning model in python to classify emails into spam and non-spam.",
             "create a python machine learning model for classifying emails as spam or non-spam",
             "create a python ml model for spam vs non-spam email classification",
@@ -52851,27 +52327,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nfrom math import radians, sin, cos, acos\ndef distance_lat_long(slat,slon,elat,elon):\n    dist = 6371.01 * acos(sin(slat)*sin(elat) + cos(slat)*cos(elat)*cos(slon - elon))\n    return dist\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "in python, create an algorithm to find the k most frequent strings in a given list.",
-            "write a python algorithm that identifies the k most frequent strings within a list",
-            "create a python algorithm that identifies the k strings with highest frequency within a provided list",
-            "develop a python algorithm that identifies the k strings with highest frequency within a provided list"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nfrom collections import Counter\n\nlist = [\"Cat\", \"Dog\", \"Bird\", \"Bird\", \"Bird\", \"Fish\"]\n\ncount = Counter(list)\nk = 3\n\nmostFrequent = count.most_common(k)\n\nprint(mostFrequent)  # Output: [('Bird', 3), ('Cat', 1), ('Dog', 1)]\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -53417,26 +52872,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nfor key,val in dictionary.items():\n    print(f\"{key}: {val}\")\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "reverse the elements of a given array in python.",
-            "write a python function to reverse an array's elements",
-            "write a python function to reverse the order of elements in an array"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef reverse_array(arr):\n    n = len(arr) \n\nfor i in range(n // 2): \n\tarr[i], arr[n - i - 1] = arr[n - i - 1], arr[i] \n\nreturn arr\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -56851,25 +56286,6 @@
     },
     {
         "input": [
-            "develop a function in python to delete all the vowels in a string.",
-            "create a python function that removes all vowels from a given string"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef remove_vowels(string):\n    vowels = 'aeiou'\n    new_string = ''\n\n    for c in string:\n        if c.lower() not in vowels:\n            new_string += c\n    \n    return new_string\n\nif __name__ == '__main__':\n    string = \"Beau tiful\"\n    print(remove_vowels(string))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "construct a program to filter out empty strings from a given list.",
             "write a program that removes empty strings from a list",
             "write a program that removes empty strings from a provided list",
@@ -57948,26 +57364,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\narr = [12, 15, 8, 10]\narr[:] = [x for x in arr if x % 3 != 0]\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "develop an algorithm in python to find the middle element of a given linked list.",
-            "write a python algorithm to determine the middle element of a linked list",
-            "write a python algorithm that identifies the middle element of a provided linked list"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\n# Function to get the middle of the linked list \ndef getmiddle(head): \n    if(head == None): \n        return head \n    \n    slow_ptr = head \n    fast_ptr = head \n    \n    while(fast_ptr != None and fast_ptr.next != None): \n        slow_ptr = slow_ptr.next\n        fast_ptr = fast_ptr.next.next\n    \n    return slow_ptr\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -68480,27 +67876,6 @@
     },
     {
         "input": [
-            "write a script in python to crawl a web page",
-            "write a python script to crawl a web page",
-            "write a python script to scrape a webpage",
-            "write a python script to retrieve a web page content"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport requests\nurl = 'http://www.example.com'\nresponse = requests.get(url)\nif response.status_code == 200:\n    html_contents = response.content\n    # Parse the html_contents and store the data\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write a function to find numbers divisible by m and n from a list of numbers using lambda function.",
             "create a lambda function that filters numbers divisible by m and n from a given list",
             "write a lambda function that filters a list of numbers returning those divisible by both m and n",
@@ -70946,28 +70321,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport random\n\n# Function to get five random numbers \ndef getRandomNumbers(lower, upper):\n    numbers = []\n    # Generate 5 numbers\n    for _ in range(5):\n        numbers.append(random.randint(lower, upper))\n    return numbers\n\n# Generate five random numbers between -100 to 100\nrandomNumbers = getRandomNumbers(-100, 100)\nprint('Random Numbers = ', randomNumbers)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "write a python script to extract the text of all comments from a given html page.",
-            "write a python script to extract comments text from an html page",
-            "write a python script that extracts comment text from an html page",
-            "write a python script that retrieves all comment text from an html page",
-            "write a python script that parses a provided html page and retrieves all comment text content"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nfrom bs4 import BeautifulSoup \n\n# Get the page contents \nwith open('example.html', 'r') as html_file:\n\tsoup = BeautifulSoup(html_file, 'lxml')\n\n# Extract the comments \ncomments = soup.find_all(\"div\", class_=\"comment\")\n\n# Print the extracted comments\nfor comment in comments:\n\tprint(comment.text)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -73719,27 +73072,6 @@
     },
     {
         "input": [
-            "convert a string to lowercase using python.",
-            "write a python function that converts a given string to lowercase",
-            "write a python function to transform a given string into lowercase",
-            "write a python function to transform a string into lowercase"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nstr = \"HELLO WORLD!\"\nlowerCaseStr = str.lower()\nprint(lowerCaseStr)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "create a python script to calculate the sum of all the even numbers between 1 and 1000.",
             "write a python script that computes the sum of all even numbers from 1 to 1000",
             "write a python script that computes the sum of all even integers from 1 to 1000"
@@ -75556,26 +74888,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef generate_table(num):\n    # print the table heading\n    print(\"MULTIPLICATION TABLE FOR {}\".format(num))\n    # generate the table\n    for i in range(1, 11):\n        print(\"{} x {} = {}\".format(num, i, num*i))\n\n# generate table for 9\ngenerate_table(9)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "generate a python script to classify the given data points according to their label.",
-            "write a python script for classifying data points by their labels",
-            "create a python script for classifying data points by their labels"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef classify_data_points(data_points, labels):\n    classified_data_points = []\n    for data_point in data_points:\n        if data_point[0] == data_point[1]:\n            classified_data_points.append((data_point, labels[0]))\n        else:\n            classified_data_points.append((data_point, labels[1]))\n    return classified_data_points\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -80078,27 +79390,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef sort_tuples_by_second(tuples):\n    tuple_order = sorted(tuples, key=lambda x: x[1])\n    return tuple_order\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "come up with a python program to find the longest common prefix in a list of strings.",
-            "write a python program that determines the longest common prefix among a list of strings.",
-            "write a python program that determines the longest common prefix among a list of strings",
-            "write a python program that identifies the longest common prefix among a list of strings"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef longest_common_prefix(strings):\n    if len(strings) == 0: \n        return ''\n\n    prefix = strings[0]\n    for s in strings:\n        i = 0 \n        while i < len(prefix) and i < len(s) and s[i] == prefix[i]: \n            i += 1 \n        prefix = prefix[:i] \n    return prefix \n\nprint(longest_common_prefix([\"hello\", \"hey\", \"hi\", \"have\"]))  # Output: h\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -84989,28 +84280,6 @@
     },
     {
         "input": [
-            "create a python program that finds the longest common prefix strings among an array of strings.",
-            "write a python program to determine the longest common prefix in a string array",
-            "develop a python program to determine the longest common prefix across a list of strings",
-            "write a python program to determine the longest common prefix in a list of strings",
-            "write a python program to determine the longest common prefix among a list of strings"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef lcp(arr):\n    if len(arr) == 0:\n        return \"\"\n    elif len(arr) == 1:\n        return arr[0]\n    else:\n        prefix = arr[0]\n        for i in range(1, len(arr)):\n            while arr[i].find(prefix) != 0:\n                prefix = prefix[:-1]\n        return prefix\n\nresult = lcp([\"flower\",\"flow\",\"flight\"])\nprint(result)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "generate a python script that prints out the first n fibonacci numbers.",
             "write a python script that outputs the initial n numbers of the fibonacci sequence",
             "create a python script to output the initial n numbers in the fibonacci sequence",
@@ -88595,26 +87864,6 @@
     },
     {
         "input": [
-            "create a function in python that checks whether a given string is a palindrome.",
-            "write a python function to determine if an input string is a palindrome",
-            "create a python function to determine if a string is a palindrome"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef is_palindrome(string):\n    # convert the string to lowercase\n    str = string.lower()\n    # reverse the string\n    revStr = str[::-1]\n    # check for the condition\n    if str == revStr:\n        return True\n    return False\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "create a scoring system for a trivia game in python. the system should take two inputs - the correct answer and user response - and return a single score value.",
             "make a python scoring function that accepts correct answer and user response, returning a single score.",
             "develop python function comparing correct answer and user response to output score",
@@ -90501,28 +89750,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef most_frequent(list1): \n\treturn max(set(list1), key = list1.count) \n\nlist1 = [1, 2, 3, 4, 4, 3, 3, 3]\nprint(\"Number that occurs the most in the list is : \", most_frequent(list1))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "design a graphical user interface (gui) in python with a label and a button.",
-            "make a python gui with a label and a button",
-            "design a python gui containing a label and a button",
-            "create a python gui with a label and a button",
-            "create a python gui containing a label and a button"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport tkinter as tk\n\nroot = tk.Tk()\nroot.title('My App')\n\n# Create a label\nlabel = tk.Label(root, text=\"Hello, World!\")\nlabel.pack()\n\n# Create a button\nbutton = tk.Button(root, text = \"Click Me!\")\nbutton.pack()\n\nroot.mainloop()\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -93887,27 +93114,6 @@
     },
     {
         "input": [
-            "write a python script that normalizes the given text.",
-            "make a python script to normalize provided text",
-            "write a python script to normalize text",
-            "create a python script to normalize provided text"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport re\n\ndef normalize_text(text):\n    return re.sub(r'[^\\w\\s]','',text.lower())\n\ntext = \"The cat and rat chAsEd eAch other\"\nprint(normalize_text(text))\n\n# Output: the cat and rat chased each other\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "create a python function that takes a dictionary as an argument, and returns the value with maximum frequency in that dictionary.",
             "make a python function that accepts a dictionary and returns the most frequent value",
             "create a python function that accepts a dictionary and returns the most frequent value",
@@ -94547,27 +93753,6 @@
     },
     {
         "input": [
-            "create a function in python to calculate the power of a number.",
-            "write a python function to compute the power of a given number",
-            "create a python function that computes the power of a given number",
-            "create a python function to compute the power of a given number"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef power(num, pow):\n    return num**pow\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "create a function in python which takes a given string and returns a dictionary containing the frequency of each word in the string.",
             "make a python function that accepts a string and outputs a dictionary with each word's frequency",
             "create a python function that accepts a string and returns a dictionary with each word's frequency",
@@ -94876,26 +94061,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nlist1 = [1,2,3,4]\nlist2 = [3,4,5,6] \n\ndef check_common(list1, list2): \n    result = False\n    for x in list1: \n        for y in list2: \n            if x == y: \n                result = True\n                return result  \n    return result \n    \nprint(check_common(list1, list2))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "develop a python program that checks if a given word is consonant or not.",
-            "write a python program to determine if a provided word is a consonant",
-            "write a python program to determine if a provided word consists solely of consonants"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef is_consonant(word): \n    # List containing all consonants \n    consonants = [\"b\",\"c\",\"d\",\"f\",\"g\",\"h\",\"j\",\"k\",\"l\",\"m\",\"n\",\"p\",\"q\",\"r\",\"s\",\"t\",\"v\",\"x\",\"z\"] \n    for char in word: \n        if char in consonants: \n            return True\n    return False\n\n# Example\nprint (is_consonant(\"hello\")) # False\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -97432,27 +96597,6 @@
     },
     {
         "input": [
-            "create a python script that finds the most frequent words in a passage.",
-            "write a python script to determine the most frequent words in a given passage",
-            "write a python script to identify the most frequent words in a given text",
-            "write a python script to identify the most common words in a given text"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nfrom collections import Counter\n\ndef most_frequent_words(passage):\n    word_list = passage.split() \n    word_freq = Counter(word_list) \n    \n    most_freq_word = word_freq.most_common(1) \n    return most_freq_word\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "build a program in python using the pandas library to calculate the mean, median, and mode of a given series.",
             "make a python program utilizing pandas to compute mean, median, and mode for a provided series",
             "create a python program with pandas to compute mean, median, and mode of a series",
@@ -97903,25 +97047,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef probability(p): \n    return p \n    \nprint(f\"The probability of the event occurring is {probability(p)}\")\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "develop a python script to find the element that appears most often in a given list.",
-            "write a python script that identifies the most frequent element in a list"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nfrom collections import Counter\n\nmylist = [2, 3, 4, 5, 2, 3, 2, 5, 6, 7]\nfreq = Counter(mylist)\nmost_common_element = freq.most_common(1)[0][0]\nprint(\"The most common element is %d\" %most_common_element)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -102079,26 +101204,6 @@
     },
     {
         "input": [
-            "create a python program to sort the list of colors in alphabetical order.",
-            "write a python program that sorts a list of colors alphabetically",
-            "write a python script that sorts a list of color names alphabetically"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ncolors = [\"red\", \"green\", \"blue\"]\n\n#sorting in ascending order\ndesc_colors = sorted(colors)\n\nprint(\"Colors in alphabetical order:\", desc_colors)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "design a dynamic python list to hold a series of ip addresses.",
             "create a dynamic python list to store ip addresses",
             "create a python list to store ip addresses dynamically",
@@ -102684,27 +101789,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef remove_duplicates(lst): \n    final_list = [] \n    for num in lst: \n        if num not in final_list: \n            final_list.append(num) \n    return final_list \n    \nlst = [1, 1, 2, 3, 4, 4, 5] \nprint(remove_duplicates(lst))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "code a python function to split a sentence into an array of words.",
-            "write a python function that divides a sentence into a list of words",
-            "create a python function that converts a sentence into a list of words",
-            "write a python function that converts a sentence into a list of words"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef splitSentence(sentence):\n    words = sentence.split()\n    return words\n\n# Usage\nsentence = \"Split a sentence into an array of words\"\nwords = splitSentence(sentence)\nprint(words) # ['Split', 'a', 'sentence', 'into', 'an', 'array', 'of', 'words']\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -103765,27 +102849,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef longest(str1, str2):\n    if len(str1) > len(str2):\n        return str1\n    elif len(str2) > len(str1):\n        return str2\n    else:\n        return 'Strings are equal length.'\n\nstr1 = 'Hello'\nstr2 = 'World'\n\nprint(longest(str1, str2))\n# Output: World\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "construct a program in python which reverses each word of a given sentence.",
-            "write a python program that reverses each word in a provided sentence",
-            "write a python program that takes a sentence and outputs the sentence with each word reversed",
-            "write a python program that takes a sentence and returns the sentence with each word reversed"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\n# Function to reverse each word\ndef word_reverse(s) : \n    # Splitting each word\n    words = s.split() \n    rev_str = \"\" \n    for word in words: \n        # Reversing each word\n        rev_str += word[::-1] + \" \"\n    return rev_str\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -106974,26 +106037,6 @@
     },
     {
         "input": [
-            "write a script in python to send an email using the gmail smtp service.",
-            "write a python script to send email via gmail smtp",
-            "write a python script that utilizes gmail smtp to send an email"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport smtplib\n\nsender_email = \"sender@gmail.com\"\nreceiver_email = \"receiver@example.com\"\npassword = 'password'\n\nmessage = \"\"\"\\\nSubject: Hi There\n\nThis is an email to test the Gmail SMTP service.\n\"\"\"\n\nserver = smtplib.SMTP('smtp.gmail.com', 587)\nserver.ehlo()\nserver.starttls()\n\nserver.login(sender_email, password)\nserver.sendmail(sender_email, receiver_email, message)\n\nserver.quit()\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "create a python class which will contain all the necessary methods to implement the str method.",
             "make a python class with required methods to implement the __str__ method",
             "create a python class with methods to implement the __str__ method",
@@ -109206,26 +108249,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef fibonacci(n):\n    a, b = 0, 1\n    while a < n:\n        print(a, end=' ')\n        a, b = b, a+b\n    print()\n\nfibonacci(15)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "generate code to connect to an oracle database using a python program.",
-            "write a python script to establish a connection to an oracle database",
-            "write python code to establish connection with oracle database"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\n# Import the library\nimport cx_Oracle\n\n# Connect to the database\nconnection = cx_Oracle.connect('<username>', '<password>', '<database_url>')\n\n# Create a cursor\ncursor = connection.cursor()\n\n# Execute a query\ncursor.execute('SELECT * FROM my_table')\n\n# Get the results\nresult = cursor.fetchall()\n\n# Close the connection\nconnection.close()\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -114400,26 +113423,6 @@
     },
     {
         "input": [
-            "create a python script to scrape a given website.",
-            "write a python script to extract content from a specified website",
-            "write a python script for web scraping a specified site"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport requests\nfrom bs4 import BeautifulSoup\n\nurl = '<your website url>'\npage = requests.get(url)\nsoup = BeautifulSoup(page.text, 'html.parser')\n\n# Scraping code goes here....\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "create a binomial tree in python",
             "make a binomial tree implementation in python",
             "implement binomial tree in python",
@@ -114814,27 +113817,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef common_elements(list1, list2): \n    common_list=[]\n    for element in list1: \n        if element in list2: \n            common_list.append(element) \n    return common_list\n    \nlist1 = [1, 2, 3, 4, 8] \nlist2 = [2, 6, 8, 10]\n\ncommon_list = common_elements(list1, list2) \n\nprint(common_list)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "write a python program to convert a given string to list of words",
-            "write a python program that transforms an input string into a list of words",
-            "write a python script that transforms an input string into a list of words",
-            "write a python program that transforms an input string into a list of individual words"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef convert_to_list(s):\n    return s.split()\n\nstring = 'Hello world'\nresult = convert_to_list(string)\nprint(result)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -123569,25 +122551,6 @@
     },
     {
         "input": [
-            "create a python script that finds the longest word in a given sentence.",
-            "write a python script to determine the longest word in a provided sentence"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef find_longest_word(sentence):\n    words = sentence.split(\" \")\n    longest_word = \"\"\n    for word in words:\n        if len(word) > len(longest_word):\n            longest_word = word\n    return longest_word\n\nresult = find_longest_word(\"This is a sample sentence\")\nprint(result)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "convert the given string to all capital letters using an algorithm and python.",
             "write a python algorithm to transform a string into uppercase letters",
             "write a python function that converts an input string to uppercase using an algorithm"
@@ -123727,28 +122690,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef find_anagrams(strings):\n    anagrams = []\n\n    for string in strings:\n        temp = [string]\n        for s in strings:\n            if sorted(string) == sorted(s) and string != s:\n                temp.append(s)\n        anagrams.append(temp)\n    \n    return anagrams\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "construct a python script that deletes all the characters in a given string except for the vowels.",
-            "make a python script that retains only vowels from a provided string",
-            "write a python script to remove consonants from a string, keeping only vowels",
-            "write a python script to remove non-vowel characters from an input string",
-            "write a python script that filters a string to retain only vowels"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\n# Get the input string\nstring = \"Hello World!\"\n\n# Modify the string\nvowels = \"aeiou\"\nnew_string = \"\"\nfor char in string:\n    if char in vowels:\n        new_string += char\n\n# Print the string\nprint(new_string)\n# prints \"eoo\"\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -126381,27 +125322,6 @@
     },
     {
         "input": [
-            "generate a python script to shuffle the elements in a list.",
-            "make a python script that randomizes the order of elements in a list",
-            "write a python script that randomizes the order of elements in a list",
-            "create a python script that randomizes the order of elements in a list"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport random\n\nlist = [5, 2, 7, 1, 8]\nrandom.shuffle(list)\n\nprint(list) # Output -> [1, 8, 5, 2, 7]\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write a python function to insert an element in a given list after a given index.",
             "make a python function that inserts an element into a list at a specified index",
             "create a python function that inserts an element into a list at a specified index",
@@ -128332,28 +127252,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport pandas as pd\nfrom sklearn.cluster import KMeans\n\ndataset = pd.read_csv('data.csv')\n\nX = dataset[['sepal_length', 'sepal_width']]\n\nkmeans = KMeans(n_clusters=3, random_state=0).fit(X)\n\npredictions = kmeans.predict(X)\n\ndataset['species'] = predictions\n\nprint(dataset)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "generate python code to remove all punctuation in a given string.",
-            "write a python function that takes a string and returns it without any punctuation characters",
-            "create python code to eliminate punctuation from a string",
-            "create python code to strip punctuation from a string",
-            "write a python function that processes a string and returns it without any punctuation characters"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport string\n\ndef remove_all_punctuation(string):\n    \"\"\"\n    Remove all punctuation from a given string.\n    string: string to be modified \n    \"\"\"\n    punctuations = string.maketrans('', '', string.punctuation)\n    no_punct = string.translate(punctuations) \n    return no_punct\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -132604,28 +131502,6 @@
     },
     {
         "input": [
-            "write a python script that generates a histogram given a list of numbers.",
-            "create a python script to generate a histogram from a list of numbers",
-            "write a python script to create a histogram from a list of numbers",
-            "create a python script to plot a histogram from a list of numbers",
-            "create a python script that plots a histogram from a list of numbers"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport matplotlib.pyplot as plt \n    \n# x-axis values \nx = [1,2,3,4,5,4,3,2,1] \n    \n# Y-axis values \ny = [1,2,3,4,5,4,3,2,1] \n    \n# Function to plot the histogram \nplt.hist(x, y, histtype = 'bar', rwidth = 0.8) \n    \n# Deifne labels and titles \nplt.xlabel('x') \nplt.ylabel('y') \nplt.title('Histogram') \n    \n# Function to show the plot \nplt.show()\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "create a python script to format a string into a list",
             "make a python script that converts a string into a list",
             "write a python script that converts a given string into a list of characters",
@@ -133098,26 +131974,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport requests \nfrom bs4 import BeautifulSoup \n    \ndef extract_links_from_url(url): \n    \n    # make a request to the URL  \n    r = requests.get(url) \n    \n    # create a beautiful soup object  \n    soup = BeautifulSoup(r.content,'html5lib') \n    \n    # find and return hyperlinks(a tags)  \n    return [link['href'] for link in soup.find_all('a', href=True)]\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "can you find the smallest number in a given list using python?",
-            "find the minimum value in a list using python",
-            "write a python function to determine the minimum value in a list"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef smallest_num(lst):\n    min_num = lst[0]\n    \n    for num in lst:\n       if num < min_num:\n           min_num = num\n           \n    return min_num\n\nlst = [4, 5, 6, 7, 8, 1, 2]\n\nprint(smallest_num(lst))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -140741,28 +139597,6 @@
     },
     {
         "input": [
-            "design a python program that prints “hello world” when the program is run.",
-            "write a python program that displays \"hello world\" when executed",
-            "write a python program that outputs hello world when executed",
-            "create a python program that outputs hello world when executed",
-            "write a python program that outputs “hello world” when executed"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nif __name__ == '__main__':\n    print('Hello World')\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write a python program to predict the class label for a given data sample.",
             "write a python program that predicts the class label for a specific data sample",
             "develop a python script to classify the label of a specific data sample",
@@ -143354,27 +142188,6 @@
     },
     {
         "input": [
-            "create a python script to remove all the vowels from the given string.",
-            "write a python script that eliminates vowels from an input string",
-            "write a python script that processes a string and outputs it without vowels",
-            "write a python script that accepts a string and outputs it with all vowels removed"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport re\n\ndef remove_vowels(string):\n    \"\"\"Remove all the vowels from the given string.\"\"\"\n    return re.sub(r'[aeiouAEIOU]', '', string)\n\n# Usage Example\nstring = \"Hello World!\"\nremoved_vowels = remove_vowels(string)\nprint(removed_vowels)  # Hll Wrld!\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write a python script to generate random passwords with a desired length.",
             "write a python script that generates random passwords of specified length",
             "create a python script that generates random passwords of a specified length"
@@ -145217,28 +144030,6 @@
     },
     {
         "input": [
-            "write a python program to convert a string of lower case characters to upper case characters.",
-            "write a python program that transforms a lowercase string into uppercase",
-            "write a python program that converts a lowercase string to uppercase",
-            "write a python script that transforms a lowercase string into uppercase",
-            "write a python program that takes a string of lower case characters and returns the upper case version of that string"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nstring = \"Hello World\"\n\n# convert to upper case\nstring = string.upper()\n\n# print result\nprint(string) # prints \"HELLO WORLD\"\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write a function to check whether the given number is undulating or not.",
             "write a function that determines if a given number is undulating",
             "create a function that determines if a given number is undulating"
@@ -146824,27 +145615,6 @@
     },
     {
         "input": [
-            "create a program in python that will find the smallest number in a list of numbers.",
-            "write a python program to determine the minimum value in a list of numbers.",
-            "write a python program to determine the minimum value in a list of numbers",
-            "write a python program to determine the minimum number in a list"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef find_smallest_number(numbers):\n    smallest = numbers[0] \n    for num in numbers:\n        if num < smallest:\n            smallest = num\n    return smallest\n\nprint(find_smallest_number([5, 4, 12, 17, 9]))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write a python program to generate a n -by- n matrix of ones and zeros, with the ones in the diagonal and the rest set to zero.",
             "create a python program that generates an n-by-n matrix with ones on the diagonal and zeros elsewhere"
         ],
@@ -148233,26 +147003,6 @@
     },
     {
         "input": [
-            "write a code to fetch the contents of a website using python",
-            "write a python script to retrieve a website's content",
-            "write python code to retrieve a website's content"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\n# Import the necessary packages \nimport requests \n    \n# Make an API call and store the response \nurl = 'https://example.com/'\nr = requests.get(url) \n    \n# Extract the content of the response \nhtml_content = r.content \n    \n# Print the response \nprint(html_content)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write a function to get the length of a complex number.",
             "create a function that calculates the magnitude of a complex number"
         ],
@@ -148410,26 +147160,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport datetime\n    \ndef get_day_name(date):\n    day_name = datetime.datetime.strptime(date, '%Y-%m-%d').strftime('%A')\n    return day_name\n    \nif __name__ == '__main__':\n    date = '2021-04-19'\n    print(get_day_name(date))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "write a function in python to find the top k words in a given document.",
-            "write a python function to identify the top k words in a provided document",
-            "create a python function that identifies the k most frequent words in a provided text document"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nfrom collections import Counter    \n\ndef topKWords(doc, k):\n    words = doc.split()\n    counts = Counter(words).most_common(k)\n    return [word for word,_ in counts]\n\ndoc = \"This is a document it contains some words and a lot of phrases.\"\nk = 2\nprint(topKWords(doc, k))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -153234,26 +151964,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nlist_odd = [] \nfor num in [3, 5, 7, 4, 8, 10]:\n    if num %2 != 0:\n        list_odd.append(num)\n        \nprint(list_odd)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "create a function in python to convert a string to a list of words.",
-            "write a python function that transforms a string into a list of words",
-            "create a python function that converts a string into a list of words"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef convert_to_list(string):\n    return string.split()\n\nstring = \"Hello, World!\"\nwords_list = convert_to_list(string)\nprint(words_list)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -162569,27 +161279,6 @@
     },
     {
         "input": [
-            "program a function in python that creates all substrings of a given string.",
-            "create a python function that generates all substrings from a provided string",
-            "write a python function to generate all substrings from a provided string",
-            "write a python function that generates all substrings from a provided string"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef createSubstrings(string): \n    length = len(string) \n    subString = []\n    \n    # Loops through the string  \n    # and the length of substring to be formed \n    for i in range(length): \n        for j in range(i + 1, length + 1): \n            subString.append(string[i:j]) \n    \n    return subString\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "create a program in python that takes a website url as input, scrapes all the links on the page, and prints out the urls of the links on the page.",
             "write a python program that accepts a website url, extracts all links from the page, and displays those link urls.",
             "write a python program that accepts a website url, extracts all links from the page, and displays the links.",
@@ -164411,27 +163100,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef find_sequence(list_a, pattern):\n    result = []\n    for i in range(len(list_a)-len(pattern)+1):\n        if list_a[i:i+len(pattern)] == pattern:\n            result.append(i)\n    return result\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "create a python code to traverse a binary tree in depth-first search order.",
-            "write a python function to perform depth-first traversal on a binary tree",
-            "implement a python function to perform depth-first traversal on a binary tree",
-            "write python code to perform depth-first traversal on a binary tree"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef dfs(root): \n    if root is not None: \n        print(root.data) \n        dfs(root.left) \n        dfs(root.right)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -166328,28 +164996,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef unique_characters(string):\n    unique_chars = {}\n    for char in string:\n        if char in unique_chars:\n            continue\n        else:\n            unique_chars[char] = True\n    return unique_chars\n\nresult = unique_characters('missisippi')\nprint(result) # Output: {'m': True, 'i': True, 's': True, 'p': True}\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "design a code for clustering data using python and the k-means algorithm.",
-            "write a python implementation of the k-means clustering algorithm",
-            "implement python k-means clustering code",
-            "implement python k-means clustering algorithm",
-            "implement a python program that applies the k-means algorithm to cluster given data points"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport numpy as np\nfrom sklearn.cluster import KMeans\n\n# Load the data\ndata = np.loadtxt('data.txt')\n\n#Train Clustering Model\nkmeans = KMeans(n_clusters=3, random_state=0)\nkmeans.fit(data)\n\n#Make Predictions\nlabels = kmeans.predict(data)\n\n#Print the labels\nprint(labels)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -169950,26 +168596,6 @@
     },
     {
         "input": [
-            "generate a python script to sort a list of numbers.",
-            "create a python script that sorts a list of numbers",
-            "write a python script that sorts a list of numbers"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef sort_numbers(nums):\n    for i in range(len(nums)-1):\n        for j in range(i+1, len(nums)):\n            if nums[i] > nums[j]:\n                temp = nums[i]\n                nums[i] = nums[j]\n                nums[j] = temp\n    return nums\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "convert a given text into speech using python",
             "make a python script to convert text into speech",
             "write a python program that converts text to speech",
@@ -173028,27 +171654,6 @@
     },
     {
         "input": [
-            "write a python code to compute the greatest common divisor of two numbers.",
-            "write a python function to calculate the greatest common divisor of two numbers",
-            "write python code to calculate the greatest common divisor of two numbers",
-            "write python code to calculate the greatest common divisor between two numbers"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef gcd(x, y): \n    while(y): \n        x, y = y, x % y \n    \n    return x\n\na = int(input(\"Enter the first number: \"))\nb = int(input(\"Enter the second number: \"))\nprint(gcd(a, b))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write a function to find the n’th carol number.",
             "write a function that calculates the n’th carol number.",
             "write a function that calculates the n’th carol number",
@@ -174075,27 +172680,6 @@
     },
     {
         "input": [
-            "create a function in python to detect cycles in a given linked list.",
-            "write a python function to detect cycles in a linked list",
-            "create a python function that detects cycles in a linked list",
-            "write a python function to detect cycles within a linked list"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef detect_cycle(head): \n    slow_p = head \n    fast_p = head \n    while(slow_p and fast_p): \n        slow_p = slow_p.next\n        fast_p = fast_p.next.next\n        if slow_p == fast_p: \n            return True\n    return False\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "generate an algorithm in python to remove an element from a given array at a given index.",
             "write a python function to delete an element from a specified array at a given index",
             "create a python algorithm that deletes an element from a specified array at a given index",
@@ -174576,26 +173160,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef largest_element(x):\n    max_element = x[0]\n    for number in x:\n        if number > max_element:\n            max_element = number\n    return max_element\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "generate a python script which sorts a series of numbers from lowest to highest.",
-            "create a python script that sorts a list of numbers in ascending order",
-            "create a python script to sort numbers in ascending order"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nunsorted_list = [7, 2, 5, 1, 3]\ndef bubblesort(unsorted_list):\n    length = len(unsorted_list)\n    for i in range(length):\n        for j in range(length - i - 1):\n            if unsorted_list[j] > unsorted_list[j + 1]:\n                unsorted_list[j], unsorted_list[j + 1] = unsorted_list[j + 1], unsorted_list[j]\n    return unsorted_list\nprint(bubblesort(unsorted_list))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -177260,26 +175824,6 @@
     },
     {
         "input": [
-            "develop a python program to find the most common word in a sentence",
-            "write a python program that determines the most frequent word in a given sentence",
-            "write a python program that identifies the most frequent word in a given sentence"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef frequency(sentence):\n    words = sentence.split()\n    frequency = {}\n    for word in words:\n        if word in frequency:\n            frequency[word] += 1\n        else:\n            frequency[word] = 1\n    \n    most_common_word, frequency = max(frequency.items(), key=lambda x: x[1])\n    return most_common_word, frequency\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write python code to print the following at the end of the code.",
             "write python code that outputs the specified text at the end of the script",
             "generate python code that outputs the specified text at the end of the script",
@@ -177617,26 +176161,6 @@
     },
     {
         "input": [
-            "write a python code for converting a given sentence into pig latin.",
-            "write a python function to convert an input sentence into pig latin",
-            "write python code to transform a sentence into pig latin"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef convert_string_to_pig_latin(sentence):\n    words = sentence.split()\n    pig_latin_words = []\n    for word in words:\n        if word[0] in 'aeiou':\n            pig_word = word + 'way'\n        else:\n            pig_word = word[1:] + word[0] + 'ay'\n        pig_latin_words.append(pig_word)\n    return ' '.join(pig_latin_words)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "can you create a function in python that prints all permutations of a given word?",
             "make a python function that outputs all permutations of a specified word",
             "create a python function that outputs all permutations of an input word",
@@ -177932,27 +176456,6 @@
     },
     {
         "input": [
-            "write a python program to parse a json object.",
-            "write a python program that parses a json object",
-            "write a python script to parse a json object",
-            "write a python script to parse json object"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport json\n\ndata = {\n    \"name\": \"John Doe\",\n    \"age\": 45,\n    \"city\": \"New York\"\n}\n\ndata_parsed = json.loads(json.dumps(data))\n\nname = data_parsed['name']\nage = data_parsed['age']\ncity = data_parsed['city']\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write a function in python that takes a sentence as an input and prints out the words in reverse order.",
             "write a python function that accepts a sentence and prints its words in reversed order",
             "create a python function that accepts a sentence and outputs its words in reverse order",
@@ -178093,30 +176596,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\nimport random\nimport string\n\n\ndef generate_password(length=12):\n    password_characters = string.ascii_letters + string.digits + string.punctuation\n    return ''.join(random.choice(password_characters) for i in range(length))\n\n\nif __name__ == '__main__':\n    password = generate_password()\n    print(f'Your randomly generated password is:\\n{password}')\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "write a function in python that takes in a string and returns a list containing its individual words.",
-            "make a python function that accepts a string and outputs a list of its constituent words",
-            "write a python function that accepts a string and returns its words as a list",
-            "write a python function that accepts a string and outputs a list of its constituent words",
-            "create a python function that accepts a string and outputs a list of its constituent words",
-            "create an algorithm in python that takes a string as input and returns a list of words from that string.",
-            "write a python function that accepts a string and outputs its words as a list"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef string_to_list(s):\n    return s.split(' ')\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -182469,28 +180948,6 @@
     },
     {
         "input": [
-            "optimize a simple python program for finding the sum of two numbers. the program should take two numbers as an input and return the sum as an output.",
-            "write a python optimized function that accepts two numbers and returns their sum",
-            "write a python function that accepts two numbers and returns their sum, optimizing for performance and simplicity.",
-            "write a python function that accepts two numbers as input and returns their sum, optimizing for performance and readability.",
-            "write a python function that accepts two numbers and returns their sum"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) && cat << 'EOF' > \"$TMP_FILE\"\n\ndef add_numbers(num1, num2):\n    '''\n    Function to add two numbers \n    '''\n    return num1 + num2 \n\n# Driver code \nprint(add_numbers(15, 7))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" && termy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "create a string function in python to convert all words in a string to uppercase.",
             "write a python function that converts all words in a given string to uppercase",
             "create a python function that converts all words in a given string to uppercase",
@@ -182839,27 +181296,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) && cat << 'EOF' > \"$TMP_FILE\"\n\nfrom sklearn.neighbors import KNeighborsClassifier\n\n# creating 3x3 data\nX = [[1, 2, 3],\n     [4, 5, 6],\n     [7, 8, 9]]\n\n# creating output\ny = [1,2,3]\n\n# creating and fitting KNN model \nmodel = KNeighborsClassifier(n_neighbors=3)\nmodel.fit(X, y)\n\n# predicting an example\ntest = [[1,2,3]]\nresult = model.predict(test)\nprint(result)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" && termy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "create a python function to find the longest word in a given sentence.",
-            "make a python function that identifies the longest word in a provided sentence.",
-            "create a python function that identifies the longest word in a provided sentence",
-            "write a python function that accepts a sentence and returns the longest word"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) && cat << 'EOF' > \"$TMP_FILE\"\n\ndef longest_word(sentence):\n    words = sentence.split()\n    longest_word = \"\"\n    for word in words:\n        if len(word) > len(longest_word):\n            longest_word = word\n    return longest_word\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" && termy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -183583,27 +182019,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) && cat << 'EOF' > \"$TMP_FILE\"\n\ndef partition_list(list_a, size):\n    return [list_a[i * size:(i + 1) * size] for i in range((len(list_a) + size - 1) // size )] \n    \npartition_list(list_a, size)\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" && termy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "develop a python algorithm to validate a given palindrome string.",
-            "write a python function to check if a provided string is a palindrome",
-            "create a python function to check if a string is a palindrome",
-            "create a python function to check if a provided string is a palindrome"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) && cat << 'EOF' > \"$TMP_FILE\"\n\ndef isPalindrome(s):\n    i = 0\n    j = len(s) - 1\n    while i < j:\n        if s[i] != s[j]:\n            return False\n        i += 1\n        j -= 1\n    return True\n    \n# Driver code \ns = \"level\"\n    \nif isPalindrome(s):\n    print(\"Yes\")\nelse:\n    print(\"No\")\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" && termy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
@@ -185480,26 +183895,6 @@
     },
     {
         "input": [
-            "develop an algorithm to find the largest palindrome in a given string using python.",
-            "write a python algorithm that identifies the largest palindrome within a provided string",
-            "create a python algorithm that identifies the largest palindrome within a provided string"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) && cat << 'EOF' > \"$TMP_FILE\"\n\ndef find_largest_palindrome(string):\n    palindrome = ''\n    for i in range(len(string)):\n        for j in range(i + 1, len(string)):\n            substring = string[i:j + 1]\n            if substring == substring[::-1] and len(substring) > len(palindrome):\n                palindrome = substring\n\n    return palindrome\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" && termy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "implement a gradient descent optimizer in python.",
             "create a gradient descent optimizer in python",
             "implement a gradient descent optimization algorithm in python",
@@ -186169,27 +184564,6 @@
     },
     {
         "input": [
-            "create a bubble sort algorithm in python.",
-            "write a bubble sort algorithm in python",
-            "implement a bubble sort algorithm in python",
-            "implement bubble sort in python"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) && cat << 'EOF' > \"$TMP_FILE\"\n\ndef bubble_sort(nums):\n    # Repeat until the array is sorted\n    sorted_array = False\n    while not sorted_array:\n        sorted_array = True\n        for i in range(len(nums) - 1):\n            if nums[i] > nums[i + 1]:\n                # If the next element is greater, swap them\n                nums[i], nums[i + 1] = nums[i + 1], nums[i]\n                sorted_array = False\n    # Return the sorted array\n    return nums\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" && termy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "create a python function to generated permutations of a given list of numbers.",
             "make a python function that produces permutations for an input list of numbers",
             "create a python function that generates permutations for a provided list of numbers",
@@ -186720,4 +185094,4 @@
             }
         ]
     }
-]   
+]
