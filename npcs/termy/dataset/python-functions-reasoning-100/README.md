@@ -26,4 +26,4 @@ The paraphrases generation was done using [granite-4.1 3B](https://www.ibm.com/g
 
 The [dataset_python-functions-reasoning-100.json](npcs/termy/dataset/python-functions-reasoning-100/dataset_python-functions-reasoning-100.json) file is licensed under [AGPL-3.0](LICENSE).
 
-Apache license 2.0 published by [notbadai](https://huggingface.co/notbadai) on [Huggingface](https://huggingface.co/datasets/notbadai/python_functions_reasoning).
+The original source dataset is licensed under Apache license 2.0 published by [notbadai](https://huggingface.co/notbadai) on [Huggingface](https://huggingface.co/datasets/notbadai/python_functions_reasoning).
