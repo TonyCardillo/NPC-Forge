@@ -8215,28 +8215,6 @@
     },
     {
         "input": [
-            "implement an algorithm in python to remove duplicate elements from a given list.",
-            "write a python algorithm that eliminates duplicate elements from a list",
-            "implement a python algorithm that eliminates duplicate elements from a provided list",
-            "write a python algorithm that eliminates duplicate items from a list",
-            "write a python function that processes a list and returns a version without duplicate elements"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef removeDuplicates(list): \n    uniqueList = []  \n    for item in list: \n        if item not in uniqueList: \n            uniqueList.append(item) \n    return uniqueList \n\nprint(removeDuplicates([1,4,4,4,5,5,5,6,7]))\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "create a python program to reverse a list without using the reverse() method.",
             "write a python program that reverses a list without utilizing the reverse() method.",
             "write a python program that reverses a list without utilizing the reverse() method",
@@ -68002,28 +67980,6 @@
     },
     {
         "input": [
-            "create a function to calculate the sum of two values in python.",
-            "write a python function to compute the sum of two values",
-            "create a python function that computes the sum of two numbers",
-            "create a python function to compute the sum of two numbers",
-            "write a python function that accepts two values and returns their sum"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef add_two_numbers(x, y):\n    sum = x + y\n    return sum\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
             "write a function to check if the common elements between two given lists are in the same order or not.",
             "make a function that determines if common elements in two lists maintain the same order",
             "develop a function that determines whether common elements in two lists maintain the same order",
@@ -93556,26 +93512,6 @@
                 "name": "run_in_terminal",
                 "arguments": {
                     "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef even_odd_classification(arr):\n    evens = []\n    odds = []\n\n    for i in arr:\n        if i % 2 == 0:\n            evens.append(i)\n        else:\n            odds.append(i)\n    \n    return evens, odds\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
-                    "explanation": "Writes Python script in a temp file and updates context.",
-                    "goal": "Python source code generation",
-                    "mode": "sync"
-                }
-            }
-        ]
-    },
-    {
-        "input": [
-            "design a python program for bubble sort",
-            "create a python implementation of bubble sort algorithm",
-            "implement a python program that performs bubble sort algorithm"
-        ],
-        "output": "<||completion||>",
-        "permission": "yolo",
-        "tools": [
-            {
-                "name": "run_in_terminal",
-                "arguments": {
-                    "command": "TMP_FILE=$(mktemp /tmp/termy_script_XXXXXX.py) &&\ncat << 'EOF' > \"$TMP_FILE\"\n\ndef bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n-i-1):\n            if arr[j] > arr[j+1]:\n                # swap elements\n                arr[j], arr[j+1] = arr[j+1], arr[j]\n\nEOF\ntermy_set_context 'active_file' \"$TMP_FILE\" &&\ntermy_set_context 'active_content' \"$(cat \"$TMP_FILE\")\"",
                     "explanation": "Writes Python script in a temp file and updates context.",
                     "goal": "Python source code generation",
                     "mode": "sync"
