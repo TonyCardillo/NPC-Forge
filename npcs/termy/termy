@@ -2,146 +2,21 @@
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import sys
 import tty
 import termios
 import subprocess
-import urllib.request
 from pathlib import Path
 from FlintNPC import load_json
+from FlintNPC import load_json
 
-TERMY_BANNER = r"""
- _____ ____  _____ __  __      
-|_   _|  __|| ___ \  ||  |      
-  | | | |__ | |_/ /      |_   _ 
-  | | |  __||    /| |\/| | | | |
-  | | | |__ | |\ \| |  | | |_| |
-  |_| |____||_| \_\_|  |_|___  |
-                           __| |
- Giovanni Blu Mitolo 2026 |____|
- 
-A cynic, deterministic terminal assistant.
-"""
+from connectors.NPCForgeOllamaClient import NPCForgeOllamaClient
+from connectors.NPCForgeClient import NPCForgeClient
+from connectors.NPCForgeLocalClient import NPCForgeLocalClient
+from tui.NPCForgeTUI import NPCForgeTUI, BOLD, GRAY, GREEN, RED, RESET, YELLOW
 
-# ANSI Color Codes & UI Elements
-RED = "\033[31m"
-GREEN = "\033[32m"
-LIGHT_GRAY = "\033[37m"
-GRAY = "\033[90m"
-YELLOW = "\033[33m"
-CYAN = "\033[36m"
-BOLD = "\033[1m"
-UNDERLINE = "\033[4m"
-RESET = "\033[0m"
-CLEAR_LINE = "\033[2K\r"
-
-def get_single_key() -> str:
-    """Read a single key from the terminal without waiting for Enter."""
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    try:
-        tty.setraw(sys.stdin.fileno())
-        ch = sys.stdin.read(1)
-        if ch == "\x1b":
-            ch += sys.stdin.read(2)
-    finally: termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return ch
-
-
-def prompt_interactive_choice() -> bool:
-    """Show interactive menu with arrow keys and y/n input."""
-    options = ["Yes", "No"]
-    current_idx = 0
-    sys.stderr.write("\033[?25l")
-    sys.stderr.flush()
-
-    try:
-        while True:
-            render_str = f"Execute:{RESET} "
-            for idx, opt in enumerate(options):
-                if idx == current_idx:
-                    render_str += f" {BOLD}▶{RESET} {opt}  "
-                else: render_str += f"   {opt}  "
-
-            sys.stderr.write(f"{CLEAR_LINE}{render_str}")
-            sys.stderr.flush()
-            key = get_single_key()
-
-            if key.lower() in {"y", "e"}:
-                sys.stderr.write(CLEAR_LINE)
-                return True
-            if key.lower() in {"n", "q", "\x03"}:
-                sys.stderr.write(CLEAR_LINE)
-                return False
-            elif key == "\x1b[D": current_idx = 0
-            elif key == "\x1b[C": current_idx = 1
-            elif key in {"\r", "\n", " "}:
-                sys.stderr.write(CLEAR_LINE)
-                return current_idx == 0
-    finally:
-        sys.stderr.write("\033[?25h")
-        sys.stderr.flush()
-
-def try_http_call(
-    query: str, npc_name: str = "termy", timeout: float = 10.0
-) -> dict | None:
-    """Call the running NPC Flask server via HTTP API gateway (fast path)."""
-    try:
-        payload = {"message": query}
-        data = json.dumps(payload).encode("utf-8")
-
-        url = f"http://127.0.0.1:5000/api/chat/{npc_name}"
-        req = urllib.request.Request(
-            url,
-            data=data,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-
-        with urllib.request.urlopen(req, timeout=timeout) as response:
-            if response.status == 200:
-                result = json.loads(response.read().decode("utf-8"))
-                return result
-            else:
-                sys.stderr.write(f"{YELLOW}⚠ Server returned HTTP {response.status} for query '{query}'{RESET}\n")
-                return None
-    except Exception as e:
-        # Catches anything else (e.g., socket timeouts)
-        sys.stderr.write(f"{YELLOW}⚠ Unexpected error during HTTP call: {e}{RESET}\n")
-        return None
-
-
-def fallback_local_call(query: str, npc_name: str = "termy") -> dict:
-    """Fallback: Load registry directly from local module context (offline execution mode)."""
-    
-    CURRENT_BOT_DIR = Path(os.path.realpath(__file__)).parent
-    FORGE_ROOT_DIR = str(CURRENT_BOT_DIR.parent.parent)
-    
-    if FORGE_ROOT_DIR not in sys.path: 
-        sys.path.insert(0, FORGE_ROOT_DIR)
-
-    try:
-        from registry import get_npc_engine
-
-        engine = get_npc_engine(npc_name)
-        if engine is None:
-            raise RuntimeError(f"NPC Engine Profile '{npc_name}' not found.")
-
-        result = engine.process_messages(query)
-        return result
-
-    except Exception as e:
-        import traceback
-        traceback.print_exc(file=sys.stderr)
-        return {
-            "response": f"Error: {e}",
-            "status": "rejected",
-            "error": str(e),
-        }
-
-
+tui = NPCForgeTUI()
 
 def run_cli() -> int:
     usage_text = '\n termy [OPTIONS] "hello"\n termy [OPTIONS] hello\n echo "hello" | termy [OPTIONS]\n termy -y < test.termy\n'
@@ -165,13 +40,16 @@ def run_cli() -> int:
     # Pass --yes flag through environment so all subprocess calls inherit it
     if args.yes: os.environ["TERMY_YES"] = "1"
 
-    CURRENT_BOT_DIR = os.path.dirname(os.path.realpath(__file__))
-
     # Try HTTP call to the Flask Gateway first
-    result = try_http_call(user_input, npc_name=args.npc)
+    client = NPCForgeClient(url="http://127.0.0.1:5000", timeout=10.0)
+    result = client.request(args.npc, user_input)
+    
     if result is None:
-        # sys.stderr.write(f"{YELLOW}⚠  Server offline, bootstrapping local in-memory fallback...{RESET}\n")
-        result = fallback_local_call(user_input, npc_name=args.npc)
+        CURRENT_BOT_DIR = Path(os.path.realpath(__file__)).parent
+        FORGE_ROOT_DIR = str(CURRENT_BOT_DIR.parent.parent)
+        sys.stderr.write(f"NPC-Forge server is {RED}offline{RESET}, starting local fallback...\n")
+        client = NPCForgeLocalClient(FORGE_ROOT_DIR, CURRENT_BOT_DIR)
+        result = client.request(args.npc, user_input)
         
     # Extract dynamic response attributes from the payload
     response = result.get("response", "")
@@ -260,76 +138,99 @@ def run_cli() -> int:
 
     # Display related intents after response if rejected (deduplicated)
     related = result.get("related", [])
-    if status == "rejected" and related:
-        print(f"Related intents:\n")
+    llm_config = config.get("llm", {})
+    llm_enabled = llm_config.get("enabled", False)
+    llm_model = llm_config.get("model", "")
+
+        # Show menu if there are related intents OR if the LLM fallback is enabled
+    if status == "rejected" and (related or llm_enabled):
+        related_intents = [intent["input"][0] for intent in related]
+        choice = 0
         
-        seen_categories = set()
-        displayed = 0
-        related_list = []
-        for intent in related:
-            if displayed >= config.get("suggestions"): break
-            if isinstance(intent, dict):
-                category = str(intent.get("category", ""))
-                if category in seen_categories: continue
-                seen_categories.add(category)                
-                inputs = intent.get("input", [])
-                clean_input = inputs[0] 
-                explanation = ""
-                tools = intent.get("tools", [])
-                if tools and isinstance(tools, list) and tools[0]:
-                    tool = tools[0]
-                    if isinstance(tool, dict) and "arguments" in tool:
-                        explanation = tool["arguments"].get("explanation", "")
+        if len(related) > 0 or llm_enabled:
+            MENU1 = f"Choose related {GREEN}{BOLD}1-{len(related)}{RESET} Ask {llm_model} {GREEN}{BOLD}a{RESET} Quit {GREEN}{BOLD}q{RESET}"
+            MENU2 = f"Press {GREEN}{BOLD}a{RESET} to ask {llm_model} or {GREEN}{BOLD}q{RESET} to quit"
+            MENU3 = f"Digit {GREEN}{BOLD}1-{len(related)}{RESET} or {GREEN}{BOLD}q{RESET} to quit"
+
+            if len(related) > 0 and llm_enabled:
+                menu_text = MENU1
+            elif llm_enabled:
+                menu_text = MENU2
+            else:
+                menu_text = MENU3
                 
-                displayed += 1
-                related_list.append((displayed, clean_input, explanation, intent))
-                if explanation:
-                    print(f"{displayed}) {clean_input} {GRAY}- {explanation}{RESET}")
-                else: print(f"{displayed}) {clean_input}")
-        print()
-
-        def get_single_char():
-            """Read a single character without waiting for a backspace."""
+            choice = tui.multi_choice("Select an intent", related_intents, menu_text, 'a')
             
-            # Quit if not tty when the file is finished
-            if not sys.stdin.isatty():
-                ch = sys.stdin.read(1)
-                return ch if ch else 'q'
-            
-            fd = sys.stdin.fileno()
-            old_settings = termios.tcgetattr(fd)
-            try:
-                tty.setraw(sys.stdin.fileno())
-                ch = sys.stdin.read(1)
-            finally:
-                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-            return ch
+            # Safely determine if LLM was selected (prevents ValueError if choice is 'a' or 'q')
+            llm_selected = False
+            if isinstance(choice, int):
+                llm_selected = choice > len(related)
+            elif choice == 'a':
+                llm_selected = True
 
-        # Interactive prompt for related intents
-        if related_list:
-            prompt_text = f"digit 1 to {len(related_list)} or q to quit"
-            print(f"{prompt_text}:", end=' ', flush=True)
-            try:
-                user_choice = get_single_char().lower()
-                print(user_choice) 
-                if user_choice == 'q': return 0
+            # Handle numeric related intent selection
+            if isinstance(choice, int) and choice > 0 and choice <= len(related):
                 try:
-                    choice_num = int(user_choice)
-                    if 1 <= choice_num <= len(related_list):
-                        selected_input = related_list[choice_num - 1][1]
-                        # Recursively call termy with the selected intent's input
-                        subprocess.run(
-                            [sys.argv[0], selected_input],
-                            executable=sys.argv[0]
-                        )
+                    res = subprocess.run(
+                        [sys.argv[0], related_intents[choice - 1]],
+                        executable=sys.argv[0]
+                    )
+                    return res.returncode
+                except KeyboardInterrupt:
+                    print(f"\n\n{YELLOW}Execution cancelled.{RESET}\n")
+                    return 130
+                except Exception as exc:
+                    print(f"\n\nFailed to execute recursive call: {exc}\n")
+                    return 1
+            elif choice == 'q':
+                return 0
+                                
+        try:
+            if llm_enabled and llm_selected:
+                print(f"\n{GRAY}Dataset entry generation requested to {llm_model}{RESET}")
+                
+                try:
+                    ollama_client = NPCForgeOllamaClient(llm_config)
+                    generated_intent = ollama_client.craft_intent(
+                        user_input, 
+                        str(CURRENT_BOT_DIR / "dataset"),
+                        f"dataset_{os.environ.get('USER', 'user')}.json"
+                    )
+                    
+                    if generated_intent:
+                        print(f"\n{GREEN}Dataset entry stored successfully!{RESET}")
+                        try:
+                            tool_args = generated_intent["tools"][0]["arguments"]
+                            command = tool_args.get("command", "")
+                            description = tool_args.get("explanation", "")    
+                            permission = generated_intent["permission"]
+                        except (KeyError, IndexError, TypeError):
+                            print(f"{RED}TERMy Exception: Invalid tool structure generated by LLM.{RESET}")
+                            return 1
+
+                        if not command or not command.strip():
+                            print(f"{RED}Generated command is empty. Nothing to execute.{RESET}")
+                            return 1
+                        
+                        print(f"\n{GREEN}{BOLD}{command}{RESET}{GRAY}\n\nDescription: {description.strip()}\n{RESET}")
+                        
+                        # SUCCESS: We updated 'command' and 'description'. 
+                        # We intentionally DO NOT execute here. We let it fall through 
+                        # to the standard execution path below to avoid code duplication.
                     else:
-                        print(f"Invalid choice. Please enter a number between 1 and {len(related_list)}.")
-                except ValueError:
-                    print(f"Invalid choice. Please enter a number between 1 and {len(related_list)}.")
-            except (EOFError, KeyboardInterrupt):
-                print()
-                return 130
-            
+                        print(f"{RED}TERMy failed to obtain a valid script from {llm_model}.{RESET}")
+                        return 1
+                except ImportError as e:
+                    print(f"{RED}TERMy ImportError {e}{RESET}")
+                    return 1
+                except Exception as e:
+                    print(f"{RED}TERMy Exception {e}{RESET}")
+                    return 1
+
+        except (EOFError, KeyboardInterrupt):
+            print()
+            return 130
+
     if command:
         scripts_dir = CURRENT_BOT_DIR / "scripts"
         sources = []
@@ -340,7 +241,8 @@ def run_cli() -> int:
                 if file.suffix == ".sh":
                     sources.append(f"source {file}")
         
-        if sources: command = f"{' && '.join(sources)} && {command}"
+        if sources: 
+            command = f"{' && '.join(sources)} && {command}"
     
         if permission == "yolo":
             try:
@@ -363,7 +265,7 @@ def run_cli() -> int:
                 print(f"Failed to execute command: {exc}\n")
                 return 1
 
-        if args.yes or os.environ.get("TERMY_YES") == "1" or prompt_interactive_choice():
+        if args.yes or os.environ.get("TERMY_YES") == "1" or tui.confirm():
             try:
                 res = subprocess.run(
                     command, 
@@ -379,6 +281,7 @@ def run_cli() -> int:
             except Exception as exc:
                 print(f"Failed to execute command: {exc}\n")
                 return 1
+                
     return 0
 
 
