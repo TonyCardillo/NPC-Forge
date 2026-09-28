@@ -17,10 +17,10 @@ BOLD       = "\033[1m"
 UNDERLINE  = "\033[4m"
 CLEAR_LINE = "\033[2K\r"
 
-class NPCForgeTUI:
+class TuiTools:
 
     def keypress(self) -> str:
-        """Read a single key from the terminal without waiting for Enter."""
+        """Reads a single key from the terminal without waiting for enter."""
         fd = sys.stdin.fileno()
         old_settings = termios.tcgetattr(fd)
         try:
@@ -76,38 +76,38 @@ class NPCForgeTUI:
         Reads a single char execution choice and fires a recursive subprocess call.
         """
         
-        print(f"{prompt}:\n")
+        if choices: print(f"{prompt}:\n")
             
         i = 1
         for c in choices:
             print(f"{i}) {GRAY}{c}{RESET}")
             i += 1
-        print()
         
-        if not choices: return 0
+        if choices: print()
+        
         max_range = len(choices)
         print(menu, end=' ', flush=True)
 
         try:
-            # Get character and normalize it
-            raw_choice = self.keypress()
-            choice = raw_choice.lower().strip()           
-            
-            # Print the sanitized selection to screen for UI feedback
-            print(choice if choice else raw_choice.strip())
+            while True:
+                raw_choice = self.keypress()
+                choice = raw_choice.lower().strip()           
+                
+                print(choice if choice else raw_choice.strip())
 
-            if choice == additional: return max_range + 1
-            
-            if (
-                choice == 'q' or raw_choice == '\x03' or 
-                not int(choice) or int(choice) > max_range
-            ): return 0
-            
-            try:
-                return int(choice)
-            except ValueError:
-                print(f"Invalid choice. Please enter a number between 1 and {max_range}.")
-                return 0
+                if choice == str(additional).lower(): return max_range + 1
+                if choice == 'q' or raw_choice == '\x03' or choice == '': return 0
+                
+                if not choice.isdigit():
+                    print(f"\n{RED}Invalid choice!{RESET}\n")
+                    continue
+                    
+                numeric_choice = int(choice)
+                if numeric_choice < 1 or numeric_choice > max_range:
+                    print(f"\n{RED}Invalid choice!{RESET}\n")
+                    continue
+                    
+                return numeric_choice
 
         except (EOFError, KeyboardInterrupt):
             print()

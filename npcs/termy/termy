@@ -4,33 +4,53 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-import tty
-import termios
 import subprocess
 from pathlib import Path
+
 from FlintNPC import load_json
 from FlintNPC import load_json
+from providers.ollama import OllamaProvider
+from providers.api import ApiProvider
+from providers.local import LocalProvider
+from tui.tools import TuiTools, BOLD, GRAY, GREEN, RED, RESET, YELLOW
 
-from connectors.NPCForgeOllamaClient import NPCForgeOllamaClient
-from connectors.NPCForgeClient import NPCForgeClient
-from connectors.NPCForgeLocalClient import NPCForgeLocalClient
-from tui.NPCForgeTUI import NPCForgeTUI, BOLD, GRAY, GREEN, RED, RESET, YELLOW
-
-tui = NPCForgeTUI()
+tui = TuiTools()
 
 def run_cli() -> int:
     usage_text = '\n termy [OPTIONS] "hello"\n termy [OPTIONS] hello\n echo "hello" | termy [OPTIONS]\n termy -y < test.termy\n'
+    
     parser = argparse.ArgumentParser(
-        description="TERMy deterministic terminal assistant and plain English to Bash transpiler.",
+        description="TERMy - Terminal assistant and plain English to Bash transpiler.",
         usage=usage_text,
     )
-    parser.add_argument("query", nargs="*", help="Prompt input string.")
-    parser.add_argument("--npc", default="termy", help="Target NPC instance (default: termy)")
-    parser.add_argument("-y", "--yes", action="store_true", help="Automatically answer yes to prompts (skip confirmation)")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Show debugging information")
+    
+    parser.add_argument(
+        "query", 
+        nargs="*", 
+        help="Prompt input string."
+    )
+    
+    parser.add_argument(
+        "--npc", 
+        default="termy", 
+        help="Target NPC instance (default: termy)"
+    )
+    
+    parser.add_argument(
+        "-y", "--yes", 
+        action="store_true", 
+        help="Automatically answer yes to prompts (skip confirmation)"
+    )
+    
+    parser.add_argument(
+        "-v", "--verbose", 
+        action="store_true", 
+        help="Show debugging information"
+    )
+    
+    args = parser.parse_args()
     
     print()
-    args = parser.parse_args()
 
     if not sys.stdin.isatty(): user_input = sys.stdin.read().strip()
     elif args.query: user_input = " ".join(args.query).strip()
@@ -41,57 +61,54 @@ def run_cli() -> int:
     if args.yes: os.environ["TERMY_YES"] = "1"
 
     # Try HTTP call to the Flask Gateway first
-    client = NPCForgeClient(url="http://127.0.0.1:5000", timeout=10.0)
+    client = ApiProvider(url="http://127.0.0.1:5000", timeout=10.0)
     result = client.request(args.npc, user_input)
     
     if result is None:
         CURRENT_BOT_DIR = Path(os.path.realpath(__file__)).parent
         FORGE_ROOT_DIR = str(CURRENT_BOT_DIR.parent.parent)
-        sys.stderr.write(f"NPC-Forge server is {RED}offline{RESET}, starting local fallback...\n")
-        client = NPCForgeLocalClient(FORGE_ROOT_DIR, CURRENT_BOT_DIR)
+        sys.stderr.write(
+            f"NPC-Forge server is {RED}offline{RESET}, "
+            f"starting local fallback...\n"
+        )
+        client = LocalProvider(FORGE_ROOT_DIR, CURRENT_BOT_DIR)
         result = client.request(args.npc, user_input)
-        
-    # Extract dynamic response attributes from the payload
+
+    emoji = result.get("emoji", "")
+    if emoji == "😑": emoji = ""
+            
     response = result.get("response", "")
     status = str(result.get("status", "rejected")).lower()
     confidence = result.get("confidence", 0.0)
-    tools_list = result.get("tools", [])
-    emoji = result.get("emoji", "😑")
-    
-    if emoji == "😑": emoji = "" 
+    tools = result.get("tools", [])
+    command = ""
+    description = ""
 
     CURRENT_BOT_DIR = Path(os.path.realpath(__file__)).parent
-    config = load_json(CURRENT_BOT_DIR, "config.json")
-    
     home_dir = os.path.expanduser("~")
     config_path = os.path.join(home_dir, ".local/share/termy/")
+    config = load_json(CURRENT_BOT_DIR, "config.json")
     context = load_json(config_path, "config.json")    
         
-    # Simple mapping of metadata status parameters
     permission = result.get("permission", "ask")
     thinking = result.get("thinking", "")
     
     # Confidence color coding representation output
-    conf_color = GREEN if confidence > 0.7 else (YELLOW if confidence > 0.5 else RED)
-    conf_pct = f"{confidence * 100:.2f}%"
+    conf_color = GREEN if confidence > 0.7 else (
+        YELLOW if confidence > 0.5 else RED
+    )
     
     meta = (
         f"{GREEN}{BOLD}{config.get('npc_name', '')}{RESET} | "
         f"{status} | "
-        f"Confidence: {conf_color}{conf_pct}{RESET}\n"
+        f"Confidence: {conf_color}{confidence * 100:.2f}{RESET}\n"
     )
     
     if args.verbose: print(meta)
-    
     if thinking: print(f"{GRAY}Thinking: " + thinking + RESET + "\n")
-
-    # Skip related intents display here - moved to after response
-
-    command = ""
-    description = ""
     
-    if tools_list:
-        for tool_group in tools_list:
+    if tools:
+        for tool_group in tools:
             if not tool_group: continue
             if isinstance(tool_group, dict):
                 tool_group = [tool_group]
@@ -106,7 +123,9 @@ def run_cli() -> int:
                     command += tool_args["command"]
                 
                 if "explanation" in tool_args or "description" in result:
-                    description += " " + tool_args.get("explanation", result.get("description", ""))
+                    description += " " + tool_args.get(
+                        "explanation", result.get("description", "")
+                    )
 
     if response: 
         print(f"Response: {response} {emoji}\n")
@@ -120,7 +139,9 @@ def run_cli() -> int:
                     stdout=subprocess.DEVNULL, 
                     stderr=subprocess.DEVNULL
                 )
-                clean_response = "'" + response.replace('"', '').replace("'", "") + "'"
+                clean_response = (
+                    "'" + response.replace('"', '').replace("'", "") + "'"
+                )
                 subprocess.Popen(
                     [config.get("tts", ""), clean_response],
                     stdout=subprocess.DEVNULL,
@@ -136,39 +157,27 @@ def run_cli() -> int:
     if command:
         print(f"{GREEN}{BOLD}{command}{RESET}{description}")
 
-    # Display related intents after response if rejected (deduplicated)
+        # Display related intents after response if rejected (deduplicated)
     related = result.get("related", [])
     llm_config = config.get("llm", {})
     llm_enabled = llm_config.get("enabled", False)
     llm_model = llm_config.get("model", "")
 
-        # Show menu if there are related intents OR if the LLM fallback is enabled
+    # Show menu if there are related intents OR if the LLM fallback is enabled
     if status == "rejected" and (related or llm_enabled):
-        related_intents = [intent["input"][0] for intent in related]
         choice = 0
+        llm_selected = False
         
-        if len(related) > 0 or llm_enabled:
-            MENU1 = f"Choose related {GREEN}{BOLD}1-{len(related)}{RESET} Ask {llm_model} {GREEN}{BOLD}a{RESET} Quit {GREEN}{BOLD}q{RESET}"
-            MENU2 = f"Press {GREEN}{BOLD}a{RESET} to ask {llm_model} or {GREEN}{BOLD}q{RESET} to quit"
-            MENU3 = f"Digit {GREEN}{BOLD}1-{len(related)}{RESET} or {GREEN}{BOLD}q{RESET} to quit"
-
-            if len(related) > 0 and llm_enabled:
-                menu_text = MENU1
-            elif llm_enabled:
-                menu_text = MENU2
+        if len(related) > 0:
+            related_intents = [intent["input"][0] for intent in related]
+            
+            if llm_enabled:
+                menu_text = f"Choose related {GREEN}{BOLD}1-{len(related)}{RESET} Ask {llm_model} {GREEN}{BOLD}a{RESET} Quit {GREEN}{BOLD}q{RESET}\n"
             else:
-                menu_text = MENU3
+                menu_text = f"Digit {GREEN}{BOLD}1-{len(related)}{RESET} or {GREEN}{BOLD}q{RESET} to quit\n"
                 
             choice = tui.multi_choice("Select an intent", related_intents, menu_text, 'a')
             
-            # Safely determine if LLM was selected (prevents ValueError if choice is 'a' or 'q')
-            llm_selected = False
-            if isinstance(choice, int):
-                llm_selected = choice > len(related)
-            elif choice == 'a':
-                llm_selected = True
-
-            # Handle numeric related intent selection
             if isinstance(choice, int) and choice > 0 and choice <= len(related):
                 try:
                     res = subprocess.run(
@@ -182,55 +191,58 @@ def run_cli() -> int:
                 except Exception as exc:
                     print(f"\n\nFailed to execute recursive call: {exc}\n")
                     return 1
-            elif choice == 'q':
-                return 0
-                                
-        try:
-            if llm_enabled and llm_selected:
-                print(f"\n{GRAY}Dataset entry generation requested to {llm_model}{RESET}")
+            elif choice > len(related_intents) and llm_enabled: 
+                llm_selected = True
+            elif not choice: return 0
                 
-                try:
-                    ollama_client = NPCForgeOllamaClient(llm_config)
-                    generated_intent = ollama_client.craft_intent(
-                        user_input, 
-                        str(CURRENT_BOT_DIR / "dataset"),
-                        f"dataset_{os.environ.get('USER', 'user')}.json"
-                    )
-                    
-                    if generated_intent:
-                        print(f"\n{GREEN}Dataset entry stored successfully!{RESET}")
-                        try:
-                            tool_args = generated_intent["tools"][0]["arguments"]
-                            command = tool_args.get("command", "")
-                            description = tool_args.get("explanation", "")    
-                            permission = generated_intent["permission"]
-                        except (KeyError, IndexError, TypeError):
-                            print(f"{RED}TERMy Exception: Invalid tool structure generated by LLM.{RESET}")
-                            return 1
+        elif llm_enabled:
+            print(f"No related intents found. Let's ask to {GREEN}{llm_model}{RESET}?\n")
+            choice = tui.confirm()
+            if choice: llm_selected = True
 
-                        if not command or not command.strip():
-                            print(f"{RED}Generated command is empty. Nothing to execute.{RESET}")
-                            return 1
-                        
-                        print(f"\n{GREEN}{BOLD}{command}{RESET}{GRAY}\n\nDescription: {description.strip()}\n{RESET}")
-                        
-                        # SUCCESS: We updated 'command' and 'description'. 
-                        # We intentionally DO NOT execute here. We let it fall through 
-                        # to the standard execution path below to avoid code duplication.
-                    else:
-                        print(f"{RED}TERMy failed to obtain a valid script from {llm_model}.{RESET}")
+        # Execute LLM generation if selected
+        if llm_enabled and llm_selected:
+            print(f"{GRAY}Dataset entry generation requested!{RESET}")
+            
+            try:
+                ollama_client = OllamaProvider(llm_config)
+                generated_intent = ollama_client.craft_intent(
+                    user_input, 
+                    str(CURRENT_BOT_DIR / "dataset"),
+                    f"dataset_{os.environ.get('USER', 'user')}.json"
+                )
+                
+                if generated_intent:
+                    print(f"\n{GREEN}Dataset entry stored successfully!{RESET}")
+                    try:
+                        tool_args = generated_intent["tools"][0]["arguments"]
+                        command = tool_args.get("command", "")
+                        description = tool_args.get("explanation", "")    
+                        # Safely get permission, defaulting to "ask"
+                        permission = generated_intent.get("permission", "ask")
+                    except (KeyError, IndexError, TypeError):
+                        print(f"{RED}TERMy Exception: Invalid tool structure generated by LLM.{RESET}")
                         return 1
-                except ImportError as e:
-                    print(f"{RED}TERMy ImportError {e}{RESET}")
-                    return 1
-                except Exception as e:
-                    print(f"{RED}TERMy Exception {e}{RESET}")
-                    return 1
 
-        except (EOFError, KeyboardInterrupt):
-            print()
-            return 130
+                    if not command or not command.strip():
+                        print(f"{RED}Generated command is empty. Nothing to execute.{RESET}")
+                        return 1
+                    
+                    print(f"\n{GREEN}{BOLD}{command}{RESET}{GRAY}\n\nDescription: {description.strip()}\n{RESET}")
+                    
+                else:
+                    print(f"{RED}TERMy failed to obtain a valid script from {llm_model}.{RESET}")
+                    return 1
+            except ImportError as e:
+                print(f"{RED}TERMy ImportError {e}{RESET}")
+                return 1
+            except Exception as e:
+                print(f"{RED}TERMy Exception {e}{RESET}")
+                return 1
 
+    # ==========================================
+    # STANDARD EXECUTION PATH
+    # ==========================================
     if command:
         scripts_dir = CURRENT_BOT_DIR / "scripts"
         sources = []
@@ -244,7 +256,7 @@ def run_cli() -> int:
         if sources: 
             command = f"{' && '.join(sources)} && {command}"
     
-        if permission == "yolo":
+        if permission == "yolo" or args.yes or os.environ.get("TERMY_YES") == "1" or tui.confirm():
             try:
                 res = subprocess.run(
                     command, 
@@ -259,31 +271,14 @@ def run_cli() -> int:
                     sys.stderr.write(f"{RED}Command failed, exit code: {e.returncode}{RESET}\n\n")
                 return e.returncode
             except KeyboardInterrupt:
-                if args.verbose: print(f"{YELLOW}Execution cancelled.{RESET}\n")
-                return 130
-            except Exception as exc:
-                print(f"Failed to execute command: {exc}\n")
-                return 1
-
-        if args.yes or os.environ.get("TERMY_YES") == "1" or tui.confirm():
-            try:
-                res = subprocess.run(
-                    command, 
-                    shell=True, 
-                    executable="/bin/bash",
-                    check=True    
-                )
-                print()
-                return res.returncode
-            except KeyboardInterrupt:
-                print("Execution cancelled.\n")
+                if args.verbose: 
+                    print(f"{YELLOW}Execution cancelled.{RESET}\n")
                 return 130
             except Exception as exc:
                 print(f"Failed to execute command: {exc}\n")
                 return 1
                 
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(run_cli())

@@ -1,11 +1,18 @@
+
 import json
 import sys
 import urllib.request
 
-class NPCForgeClient:
+from providers.base import BaseProvider 
 
-    def __init__(self, url: str = "http://127.0.0.1:5000", timeout: float = 10.0):
-        """Initializes a new instance of the NPCForgeClient."""
+class ApiProvider(BaseProvider):
+
+    def __init__(
+        self, 
+        url: str = "http://127.0.0.1:5000", 
+        timeout: float = 10.0
+    ):
+        """Initializes a new instance of the ApiProvider."""
         self.base_url = url.rstrip("/")
         self.timeout = timeout
 
@@ -20,7 +27,7 @@ class NPCForgeClient:
             self.timeout = timeout
 
     def request(self, npc_name: str, query: str) -> dict | None:
-        """Sends an HTTP POST query request using the proven working urllib logic."""
+        """Sends an HTTP POST request towards the NPC-Forge API server."""
         try:
             payload = {"message": query}
             data = json.dumps(payload).encode("utf-8")
@@ -38,7 +45,10 @@ class NPCForgeClient:
                     result = json.loads(response.read().decode("utf-8"))
                     return result
                 else:
-                    sys.stderr.write(f"NPC-Forge returned HTTP {response.status} for query '{query}'\n")
+                    sys.stderr.write(
+                        f"NPC-Forge returned HTTP {response.status}"
+                        f"for query '{query}'\n"
+                    )
                     return None
                     
         except Exception as e:

@@ -1,12 +1,14 @@
-# src/llm_connector.py
+
 import json
 import re
 import os
 import urllib.request
+
 from pathlib import Path
 from typing import Optional
+from providers.base import BaseProvider 
 
-class NPCForgeOllamaClient:
+class OllamaProvider(BaseProvider):
 
     def __init__(self, config: object):
         """Initializes a new independent instance of the LLMConnector."""
@@ -15,7 +17,7 @@ class NPCForgeOllamaClient:
         self.model = config.get("model", "")
         
     def request(self, prompt: str) -> str:
-        """Executes a synchronous HTTP POST request to an OpenAI-compatible /api/chat endpoint."""
+        """Sends HTTP POST request to NPC-Forge API /api/chat endpoint."""
         data = {
             "model": self.model,
             "messages": [{"role": "user", "content": prompt}],
@@ -23,10 +25,8 @@ class NPCForgeOllamaClient:
             "options": {"temperature": 0.7, "repeat_penalty": 1.2}
         }
 
-        # Encode payload into binary chunk bytes
         binary_data = json.dumps(data).encode("utf-8")
 
-        # Explicit headers ensure stability with local proxies and strict LLM servers
         headers = {
             "Content-Type": "application/json",
             "Content-Length": str(len(binary_data))
