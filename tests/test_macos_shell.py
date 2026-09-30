@@ -4,14 +4,17 @@ tools, not only under GNU/Linux.
 """
 import importlib.machinery
 import importlib.util
+import json
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "npcs" / "termy" / "scripts"
+SYSTEM_DATASET = ROOT / "npcs" / "termy" / "dataset" / "dataset_system.json"
 BASH = "/bin/bash"
 STUBS = "termy_say() { :; }; termy_set_context() { :; }; tput() { :; };"
 
@@ -26,7 +29,7 @@ gap = load_linux_gap()
 
 def run_bash(script, stdin=""):
     return subprocess.run(  # noqa: S603
-        [BASH, "-c", script], input=stdin, capture_output=True, text=True
+        [BASH, "-c", script], input=stdin, capture_output=True, text=True, timeout=60
     )
 
 def python_wrapper_line():
@@ -75,6 +78,53 @@ class TestHelpersOnBash32(unittest.TestCase):
                     res = run_bash(script)
                     self.assertEqual(res.returncode, 0, res.stderr)
                     self.assertEqual(res.stdout.strip(), "ok")
+
+OPTIONAL_TOOLS = {"pstree", "watch"}  # brew install pstree watch
+
+READ_ONLY_SYSTEM_INTENTS = [
+    "give me info about my motherboard",
+    "daemon status",
+    "show memory usage",
+    "show gpu information",
+    "show info about my drives",
+    "show connected usb devices",
+    "show me system logs",
+    "show me kernel logs",
+    "show me auth logs",
+    "what is this cpu",
+    "check the current internal temperature of the CPU",
+    "find which processes are consuming the most RAM",
+    "check battery status",
+    "kernel modules dependency view",
+    "display history of reboots",
+    "How much RAM is free right now?",
+    "Show memory usage in gigabytes.",
+    "Print the percentage of memory currently in use.",
+]
+
+def system_commands():
+    """Maps the first input of each dataset_system.json entry to its command."""
+    entries = json.loads(SYSTEM_DATASET.read_text(encoding="utf-8"))
+    return {e["input"][0]: t["arguments"]["command"] for e in entries for t in e.get("tools") or []}
+
+class TestSystemDataset(unittest.TestCase):
+    def test_system_dataset_has_no_linux_problems_invariant(self):
+        helpers = gap.helper_functions()
+        for intent, command in system_commands().items():
+            with self.subTest(intent=intent):
+                issues = gap.classify(command, helpers)
+                self.assertFalse(issues["linux-only"] | issues["gnu-flags"] | issues["bash4"])
+                self.assertLessEqual(issues["not-installed"], OPTIONAL_TOOLS)
+
+    @unittest.skipUnless(sys.platform == "darwin", "runs macOS system commands")
+    def test_read_only_system_commands_run_on_macos_invariant(self):
+        commands = system_commands()
+        for intent in READ_ONLY_SYSTEM_INTENTS:
+            with self.subTest(intent=intent):
+                res = run_bash(f"{STUBS} {commands[intent]}")
+                self.assertEqual(res.returncode, 0, res.stderr)
+                self.assertTrue(res.stdout.strip())
+                self.assertNotIn("command not found", res.stderr)
 
 if __name__ == "__main__":
     unittest.main()

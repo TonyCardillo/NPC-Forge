@@ -19,8 +19,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "termy_say -s 'Reading motherboard info...' && printf 'Manufacturer: %s\nModel: %s\n' \"$(cat /sys/class/dmi/id/board_vendor 2>/dev/null || echo 'Unknown')\" \"$(cat /sys/class/dmi/id/board_name 2>/dev/null || echo 'Unknown')\" && printf ''",
-                    "explanation": "Prints information about the motherboard.",
+                    "command": "termy_say -s 'Reading motherboard info...' && printf 'Manufacturer: %s\nModel: %s\n' 'Apple' \"$(sysctl -n hw.model)\" && printf ''",
+                    "explanation": "Reads the Mac model identifier with sysctl.",
                     "goal": "Print motherboard info",
                     "mode": "sync"
                 }
@@ -50,8 +50,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "systemctl --user status || systemctl status",
-                    "explanation": "Checks the status of system services.",
+                    "command": "launchctl list",
+                    "explanation": "Lists launchd jobs for the current user.",
                     "goal": "Provide system services information",
                     "mode": "sync"
                 }
@@ -82,8 +82,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "read -p \"Enter package name: \" PKG && sudo apt-get update && sudo apt-get install -y \"$PKG\"",
-                    "explanation": "Installs a package using apt-get.",
+                    "command": "read -p \"Enter package name: \" PKG && brew install \"$PKG\"",
+                    "explanation": "Installs a package with Homebrew.",
                     "goal": "Install package",
                     "mode": "sync"
                 }
@@ -171,8 +171,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "read -p \"Enter package name: \" PKG && sudo apt-get remove \"$PKG\" -y",
-                    "explanation": "Removes a package using apt-get.",
+                    "command": "read -p \"Enter package name: \" PKG && brew uninstall \"$PKG\"",
+                    "explanation": "Removes a package with Homebrew.",
                     "goal": "Package deletion",
                     "mode": "sync"
                 }
@@ -193,14 +193,17 @@
             "upgrade dependencies",
             "refresh repositories",
             "upgrade all packages",
-            "latest security patches"
+            "latest security patches",
+            "update mac",
+            "update macos",
+            "update my mac"
         ],
         "tools": [
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "sudo apt update && sudo apt upgrade -y",
-                    "explanation": "Updates and upgrades all packages on the system.",
+                    "command": "brew update && brew upgrade && softwareupdate --list",
+                    "explanation": "Upgrades Homebrew packages and lists available macOS updates.",
                     "goal": "Upgrade all packages",
                     "mode": "sync"
                 }
@@ -483,8 +486,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT_TXT=$(free -h) &&\nOUTPUT_VOICE=$(free -h | awk 'NR==2 {print $3}') &&\nprintf \"\\r\n🧠 Memory usage:\\n%s\\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Used memory is $OUTPUT_VOICE\"",
-                    "explanation": "Displays the memory usage of the system.",
+                    "command": "OUTPUT_TXT=$(top -l 1 -s 0 | grep PhysMem) &&\nOUTPUT_VOICE=$(top -l 1 -s 0 | grep PhysMem | awk '{print $2}') &&\nprintf \"\\r\\n🧠 Memory usage:\\n%s\\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Used memory is $OUTPUT_VOICE\"",
+                    "explanation": "Reads physical memory usage with top.",
                     "goal": "Display memory usage",
                     "mode": "sync"
                 }
@@ -509,8 +512,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "if command -v nvidia-smi > /dev/null 2>&1; then\n OUTPUT_TXT=$(nvidia-smi) &&\n OUTPUT_VOICE=$(nvidia-smi --query-gpu=name --format=csv,noheader)\nelse\n OUTPUT_TXT=$(lspci -vnn | grep -A 12 -i vga) &&\n OUTPUT_VOICE=$(lspci | grep -i vga | cut -d: -f3 | xargs)\nfi &&\nprintf \"\\r\n🖥️ GPU information:\\n%s\\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Graphics card detected is $OUTPUT_VOICE\"",
-                    "explanation": "Displays the GPU information using nvidia-smi if available, otherwise falls back to lspci for AMD/Intel.",
+                    "command": "OUTPUT_TXT=$(system_profiler SPDisplaysDataType) &&\nOUTPUT_VOICE=$(system_profiler SPDisplaysDataType | awk -F': ' '/Chipset Model/ {print $2; exit}') &&\nprintf \"\\r\\n🖥️ GPU information:\\n%s\\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Graphics card detected is $OUTPUT_VOICE\"",
+                    "explanation": "Reads GPU details with system_profiler.",
                     "goal": "Display GPU information",
                     "mode": "sync"
                 }
@@ -550,14 +553,16 @@
             "refresh package list",
             "run apt-get update",
             "upgrade apt packages",
-            "update linux packages"
+            "update linux packages",
+            "update brew packages",
+            "update homebrew packages"
         ],
         "tools": [
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "printf \"\\r\n📦 Updating apt packages...\\n\" &&\ntermy_say -s \"Updating package list, password may be required\" &&\nOUTPUT_TXT=$(sudo apt update 2>&1) &&\nprintf \"\\n%s\\n\\n\" \"$OUTPUT_TXT\" &&\nif echo \"$OUTPUT_TXT\" | grep -q \"can be upgraded\"; then\n COUNT=$(echo \"$OUTPUT_TXT\" | grep \"can be upgraded\" | awk '{print $1}') &&\n termy_say -s \"Package list refreshed. You have $COUNT packages available for upgrade\";\nelse\n termy_say -s \"System packages are already up to date\";\nfi",
-                    "explanation": "Updates apt package lists.",
+                    "command": "printf \"\\r\\n📦 Updating Homebrew packages...\\n\" &&\ntermy_say -s \"Updating package list\" &&\nbrew update &&\nCOUNT=$(brew outdated | wc -l | tr -d ' ') &&\nif [ \"$COUNT\" -gt 0 ]; then\n brew outdated &&\n termy_say -s \"Package list refreshed. You have $COUNT packages available for upgrade\";\nelse\n termy_say -s \"Homebrew packages are already up to date\";\nfi",
+                    "explanation": "Refreshes Homebrew and lists outdated packages.",
                     "goal": "Update apt packages",
                     "mode": "sync"
                 }
@@ -623,7 +628,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "HEADER=$(printf \"\\033[1m%-15s %-10s %-10s %-5s\\033[22m\" \"Drive\" \"Used\" \"Available\" \"Use%\") &&\nBODY=$(df -h --local | awk 'NR>1 {printf \"%-15s %-10s %-10s %-5s\\n\", $1, $3, $4, \"\\033[1m\" $5 \"\\033[22m\"}') &&\nMAIN_USAGE=$(df -h / | awk 'NR==2 {print $5}') &&\nprintf \"\\r\\n💾 %s\\n%s\\n\" \"$HEADER\" \"$BODY\" &&\ntermy_say -s \"Main drive usage is at $MAIN_USAGE\"",
+                    "command": "HEADER=$(printf \"\\033[1m%-15s %-10s %-10s %-5s\\033[22m\" \"Drive\" \"Used\" \"Available\" \"Use%\") &&\nBODY=$(df -h -l | awk 'NR>1 {printf \"%-15s %-10s %-10s %-5s\\n\", $1, $3, $4, \"\\033[1m\" $5 \"\\033[22m\"}') &&\nMAIN_USAGE=$(df -h / | awk 'NR==2 {print $5}') &&\nprintf \"\\r\\n💾 %s\\n%s\\n\" \"$HEADER\" \"$BODY\" &&\ntermy_say -s \"Main drive usage is at $MAIN_USAGE\"",
                     "explanation": "Displays detailed information about disk usage, including drive names, used space, available space, and usage percentage.",
                     "goal": "Display disk space details",
                     "mode": "sync"
@@ -648,8 +653,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT_TXT=$(\n if command -v lsusb > /dev/null 2>&1; then\n  lsusb | awk '{for(i=7;i<=NF;i++) printf \"%s \", $i; print \"\"}' | sed '/^$/d' | awk '{print \"- \\033[1m\" $0 \"\\033[22m\"}';\n else\n  printf \"- \\033[1mlsusb command not available\\033[22m\\n\";\n fi\n) &&\nCOUNT=$(printf \"%s\\n\" \"$OUTPUT_TXT\" | grep -c '^- ') &&\nprintf \"\\r\\n🔌 \\033[1mConnected USB Devices:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Found $COUNT connected U S B devices\"",
-                    "explanation": "Displays a list of connected USB devices with their details.",
+                    "command": "OUTPUT_TXT=$(ioreg -p IOUSB -w 0 | sed -n 's/.*+-o \\(.*\\)  <class.*/\\1/p' | grep -vE '^Root$|XHCI' | sed 's/@.*//' | awk '{print \"- \\033[1m\" $0 \"\\033[22m\"}') &&\nCOUNT=$(printf \"%s\\n\" \"$OUTPUT_TXT\" | grep -c '^- ') ;\nprintf \"\\r\\n🔌 \\033[1mConnected USB Devices:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Found $COUNT connected U S B devices\"",
+                    "explanation": "Lists USB devices from the IOUSB registry plane.",
                     "goal": "List connected USB devices",
                     "mode": "sync"
                 }
@@ -672,8 +677,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "termy_say -s \"Displaying system logs, password may be required\" &&\nOUTPUT_TXT=$(sudo journalctl -p 3 -n 20 --no-pager 2>&1 || sudo tail -n 20 /var/log/syslog 2>&1) &&\nprintf \"\\r\\n📋 \\033[1mRecent System Errors:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\"",
-                    "explanation": "Displays the last 20 error logs from the system journal or syslog using sudo privileges.",
+                    "command": "termy_say -s \"Displaying system errors from the last 10 minutes\" &&\nOUTPUT_TXT=$(log show --last 10m --predicate 'messageType == error' --style compact 2>&1 | tail -n 20) &&\nprintf \"\\r\\n📋 \\033[1mRecent System Errors:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\"",
+                    "explanation": "Shows the last 20 error entries from the unified log (last 10 minutes).",
                     "goal": "Display system logs",
                     "mode": "sync"
                 }
@@ -696,8 +701,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "termy_say -s \"Displaying kernel logs, password may be required\" &&\nOUTPUT_TXT=$(sudo dmesg | tail -n 20 2>&1 || sudo journalctl -k -n 20 --no-pager 2>&1) &&\nprintf \"\\r\\n🧠 \\033[1mRecent Kernel Logs:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\"",
-                    "explanation": "Displays the last 20 kernel logs using sudo privileges.",
+                    "command": "termy_say -s \"Displaying kernel logs from the last 10 minutes\" &&\nOUTPUT_TXT=$(log show --last 10m --predicate 'sender == \"kernel\"' --style compact 2>&1 | tail -n 20) &&\nprintf \"\\r\\n🧠 \\033[1mRecent Kernel Logs:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\"",
+                    "explanation": "Shows the last 20 kernel entries from the unified log (last 10 minutes).",
                     "goal": "Display kernel logs",
                     "mode": "sync"
                 }
@@ -720,8 +725,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "termy_say -s \"Displaying authentication logs, password may be required\" &&\nOUTPUT_TXT=$(sudo tail -n 20 /var/log/auth.log 2>&1 || sudo journalctl -u ssh -n 20 --no-pager 2>&1) &&\nprintf \"\\r\\n🔐 \\033[1mRecent Auth Logs:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\"",
-                    "explanation": "Displays the last 20 authentication logs from the system auth log or journal using sudo privileges.",
+                    "command": "termy_say -s \"Displaying authentication logs from the last hour\" &&\nOUTPUT_TXT=$(log show --last 1h --predicate 'process == \"sshd\" OR process == \"sudo\" OR process == \"authd\"' --style compact 2>&1 | tail -n 20) &&\nprintf \"\\r\\n🔐 \\033[1mRecent Auth Logs:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\"",
+                    "explanation": "Shows the last 20 sshd, sudo and authd entries from the unified log (last hour).",
                     "goal": "Display auth logs",
                     "mode": "sync"
                 }
@@ -750,8 +755,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "MODEL=$(lscpu | grep 'Model name' | sed 's/Model name:[[:space:]]*//' | xargs) &&\nCORES=$(lscpu | grep -E '^CPU\\(s\\):' | awk '{print $2}') &&\nDETAILS=$(lscpu | grep -E \"Core\\(s\\) per socket|Thread\\(s\\) per core|L[1-4] cache\" | sed 's/[[:space:]]*:[[:space:]]*/: /') &&\nif [ -n \"$MODEL\" ]; then\n printf \"\\033[1mModel:\\033[22m %s\\n\\033[1mCores:\\033[22m %s\\n%s\\n\" \"$MODEL\" \"$CORES\" \"$DETAILS\" &&\n termy_say -s \"CPU model is $MODEL with $CORES cores\";\nelse\n printf \"\\r\\n⛔ CPU information not readable on this system.\\n\" &&\n termy_say -s \"CPU information not readable\";\nfi",
-                    "explanation": "Displays the CPU information using lscpu.",
+                    "command": "MODEL=$(sysctl -n machdep.cpu.brand_string) &&\nCORES=$(sysctl -n hw.physicalcpu) &&\nDETAILS=$(printf \"Logical CPUs: %s\\nL1 data cache: %s bytes\\nL2 cache: %s bytes\" \"$(sysctl -n hw.logicalcpu)\" \"$(sysctl -n hw.l1dcachesize)\" \"$(sysctl -n hw.l2cachesize)\") &&\nprintf \"\\033[1mModel:\\033[22m %s\\n\\033[1mCores:\\033[22m %s\\n%s\\n\" \"$MODEL\" \"$CORES\" \"$DETAILS\" &&\ntermy_say -s \"CPU model is $MODEL with $CORES cores\"",
+                    "explanation": "Reads CPU model, cores and cache sizes with sysctl.",
                     "goal": "Output CPU information",
                     "mode": "sync"
                 }
@@ -783,8 +788,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT=$(sensors 2>/dev/null | awk '/Core 0/ {print $3}' | tr -d '+') &&\nif [ -z \"$OUTPUT\" ] && [ -f /sys/class/thermal/thermal_zone0/temp ]; then\n OUTPUT=$(awk '{print $1/1000 \"°C\"}' /sys/class/thermal/thermal_zone0/temp)\nfi &&\nif [ -n \"$OUTPUT\" ]; then\n printf \"CPU Temperature: \\033[1m%s\\033[22m\\n\" \"$OUTPUT\" &&\n termy_say -s \"CPU temperature is $OUTPUT\";\nelse\n printf \"\\r\\n⛔ Thermal sensors not readable on this system.\\n\" &&\n termy_say -s \"Thermal sensors not readable\";\nfi",
-                    "explanation": "Displays the current internal temperature of the CPU using lm-sensors or sysfs thermal zones.",
+                    "command": "printf \"\\r\\nmacOS does not expose the CPU temperature without extra tools.\\nThermal state:\\n%s\\n\" \"$(pmset -g therm)\" &&\ntermy_say -s \"CPU temperature is not readable, showing thermal state\"",
+                    "explanation": "Shows the macOS thermal state with pmset, because macOS has no built-in CPU temperature reading.",
                     "goal": "Check CPU temperature",
                     "mode": "sync"
                 }
@@ -809,7 +814,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "BODY=$(ps aux --sort=-%mem | head -n 6 | awk 'NR>1 {printf \"PID: %-7s RAM: \\033[1m%-5s\\033[22m Command: %s\\n\", $2, $4\"%\", $11}') &&\nTOP_PROC=$(ps aux --sort=-%mem | head -n 2 | awk 'NR>1 {print $11}' | awk -F/ '{print $NF}') &&\nprintf \"\\r\\n🐏 \\033[1mTop 5 RAM Consuming Processes:\\033[22m\\n%s\\n\" \"$BODY\" &&\ntermy_say -s \"Top memory consuming process is $TOP_PROC\"",
+                    "command": "BODY=$(ps aux -m | head -n 6 | awk 'NR>1 {printf \"PID: %-7s RAM: \\033[1m%-5s\\033[22m Command: %s\\n\", $2, $4\"%\", $11}') &&\nTOP_PROC=$(ps aux -m | head -n 2 | awk 'NR>1 {print $11}' | awk -F/ '{print $NF}') &&\nprintf \"\\r\\n🐏 \\033[1mTop 5 RAM Consuming Processes:\\033[22m\\n%s\\n\" \"$BODY\" &&\ntermy_say -s \"Top memory consuming process is $TOP_PROC\"",
                     "explanation": "Displays the top 5 processes consuming the most RAM, including their PID, RAM usage percentage, and command name.",
                     "goal": "Display top memory consuming processes",
                     "mode": "sync"
@@ -1359,8 +1364,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "termy_say -s \"Checking battery status\" &&\nprintf \"\\r\\nResult: \\n\" &&\n(\n upower -e 2>/dev/null | grep -A 5 \"battery\" ||\n acpi -b 2>/dev/null ||\n cat /sys/class/power_supply/BAT*/uevent 2>/dev/null |\n grep -E \"ENERGY|CAPACITY\" |\n awk -F= '{print $2}'\n) &&\nprintf \"\"",
-                    "explanation": "Queries upower, acpi, or sysfs to retrieve and display the current battery percentage and charging status.",
+                    "command": "termy_say -s \"Checking battery status\" &&\nprintf \"\\r\\nResult: \\n\" &&\npmset -g batt",
+                    "explanation": "Reads battery status with pmset.",
                     "goal": "Display the current battery status and power statistics",
                     "mode": "sync"
                 }
@@ -1416,8 +1421,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "termy_say -s \"Monitoring USB ports\" &&\nprintf \"\\r\\n\" &&\nudevadm monitor --udev --subsystem-match=usb |\ngawk '/add/ { system(\"termy_say -s \\\"USB device attached\\\"\") }' &&\nprintf \"\"",
-                    "explanation": "Monitors the udev subsystem for newly attached USB devices and uses termy_say to announce the insertion aloud.",
+                    "command": "termy_say -s \"Monitoring USB ports\" &&\nprintf \"\\r\\n\" &&\nPREV=$(ioreg -p IOUSB -w 0 | sed -n 's/.*+-o \\(.*\\)  <class.*/\\1/p' | grep -vE '^Root$|XHCI' | sed 's/@.*//' | wc -l) &&\nwhile sleep 2; do\n NOW=$(ioreg -p IOUSB -w 0 | sed -n 's/.*+-o \\(.*\\)  <class.*/\\1/p' | grep -vE '^Root$|XHCI' | sed 's/@.*//' | wc -l);\n if [ \"$NOW\" -gt \"$PREV\" ]; then termy_say -s \"USB device attached\"; fi;\n PREV=$NOW;\ndone",
+                    "explanation": "Polls the IOUSB registry every 2 seconds and speaks when a USB device is added.",
                     "goal": "Monitor USB insertions and trigger vocal alerts",
                     "mode": "sync"
                 }
@@ -1445,8 +1450,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "termy_say -s \"Analyzing kernel module dependencies\" &&\nprintf \"\\r\\n\" &&\nlsmod |\nawk 'NR>1 && $4!=\"-\" {print $1; split($4,a,\",\"); for(i in a) print \" -> used by:\", a[i]; print \"\"}' &&\nprintf \"\"",
-                    "explanation": "Parses the lsmod output using awk to identify loaded kernel modules with active dependencies, displaying them in a clean, hierarchical format.",
+                    "command": "termy_say -s \"Listing loaded kernel extensions\" &&\nprintf \"\\r\\n\" &&\nkmutil showloaded 2>/dev/null",
+                    "explanation": "Lists loaded kernel extensions and what they link against, with kmutil.",
                     "goal": "Display loaded kernel modules and their dependency tree",
                     "mode": "sync"
                 }
@@ -1499,8 +1504,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "termy_say -s \"Displaying system reboot history\" &&\nprintf \"\\r\\n\" &&\njournalctl --list-boots &&\nprintf \"\"",
-                    "explanation": "Uses journalctl to query the system logs and displays a chronological list of all recorded system boots and reboots.",
+                    "command": "termy_say -s \"Displaying system reboot history\" &&\nprintf \"\\r\\n\" &&\nlast reboot &&\nprintf \"\"",
+                    "explanation": "Lists past reboots with last.",
                     "goal": "List past system boots and reboot times",
                     "mode": "sync"
                 }
@@ -1625,7 +1630,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "free -h",
+                    "command": "top -l 1 -s 0 | grep PhysMem",
                     "explanation": "The command 'free -h' displays the current amount of free RAM in a human-readable format.",
                     "goal": "Provide the user with the current free RAM amount as reported by the 'free -h' command.",
                     "mode": "sync"
@@ -1644,7 +1649,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "journalctl -b",
+                    "command": "log show --last boot --style compact | less",
                     "explanation": "The command journalctl -b shows all journal entries since the last boot.",
                     "goal": "Display journal entries from the current boot session back to the previous boot.",
                     "mode": "sync"
@@ -1663,7 +1668,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "free -g",
+                    "command": "top -l 1 -s 0 | grep PhysMem",
                     "explanation": "The command 'free -g' displays memory usage in gigabytes.",
                     "goal": "Show memory usage in gigabytes.",
                     "mode": "sync"
@@ -1720,7 +1725,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "free | awk '/Mem/ {printf \"%.1f%%\\n\", $3/$2*100}'",
+                    "command": "vm_stat | awk -v total=\"$(sysctl -n hw.memsize)\" '/page size of/ {ps=$8} /Pages active/ {a=$3} /Pages wired down/ {w=$4} /occupied by compressor/ {c=$5} END {printf \"%.1f%%\\n\", (a+w+c)*ps/total*100}'",
                     "explanation": "The command uses 'free' to display memory statistics, then 'awk' processes the output to calculate the percentage of memory currently in use by dividing the used memory (field $3) by total memory (field $2) and multiplying by 100, formatting the result to one decimal place.",
                     "goal": "Print the percentage of memory currently in use.",
                     "mode": "sync"
@@ -1739,7 +1744,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "journalctl -k -p err",
+                    "command": "log show --last 1h --predicate 'sender == \"kernel\" AND messageType == error' --style compact",
                     "explanation": "The command journalctl -k -p err filters kernel journal messages with priority error or worse.",
                     "goal": "Display kernel messages from the journal with priority error or worse.",
                     "mode": "sync"
