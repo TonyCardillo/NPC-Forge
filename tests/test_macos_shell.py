@@ -119,12 +119,33 @@ def commands_by_intent(file_name):
     entries = json.loads((DATASET / file_name).read_text(encoding="utf-8"))
     return {e["input"][0]: t["arguments"]["command"] for e in entries for t in e.get("tools") or []}
 
+PORTED_FILES = [
+    "dataset_system.json",
+    "dataset_network.json",
+    "dataset_files.json",
+    "templates_files.json",
+    "templates_nl2bash.json",
+]
+
+def file_commands(file_name):
+    return list(gap.commands_in(json.loads((DATASET / file_name).read_text(encoding="utf-8"))))
+
+def find_command(file_name, text):
+    """Returns the one command in a dataset file that contains the given text."""
+    (command,) = [c for c in file_commands(file_name) if text in c]
+    return command
+
+def fill_slots(command, slots):
+    for name, value in slots.items():
+        command = command.replace(f"<||{name}||>", value)
+    return command
+
 class TestPortedDatasets(unittest.TestCase):
     def test_ported_datasets_have_no_linux_problems_invariant(self):
         helpers = gap.helper_functions()
-        for file_name in READ_ONLY_INTENTS:
-            for intent, command in commands_by_intent(file_name).items():
-                with self.subTest(file=file_name, intent=intent):
+        for file_name in PORTED_FILES:
+            for command in file_commands(file_name):
+                with self.subTest(file=file_name, command=command[:60]):
                     issues = gap.classify(command, helpers)
                     self.assertFalse(issues["linux-only"] | issues["gnu-flags"] | issues["bash4"])
                     self.assertLessEqual(issues["not-installed"], OPTIONAL_TOOLS)
@@ -139,6 +160,38 @@ class TestPortedDatasets(unittest.TestCase):
                     self.assertEqual(res.returncode, 0, res.stderr)
                     self.assertTrue(res.stdout.strip())
                     self.assertNotIn("command not found", res.stderr)
+
+# (dataset file, text in the command, slots, file name, content before, content after, stdin)
+FILE_EDIT_CASES = [
+    ("templates_files.json", "s/\\r$//", {"file": "f.txt"}, "f.txt", "a\r\nb\r\n", "a\nb\n", ""),
+    ("templates_files.json", "s/.$//", {"url": "f.txt"}, "f.txt", "abc\n", "ab\n", ""),
+    ("templates_files.json", "s/\\t/", {"file": "f.txt", "indents": "2"}, "f.txt", "x\ty\n", "x  y\n", ""),
+    ("templates_nl2bash.json", "1s/^/hi", {}, "a.py", "print(1)\n", "hi\nprint(1)\n", ""),
+    ("dataset_files.json", 'sed -i', {}, "f.txt", "foo foo\n", "bar bar\n", "f.txt\nfoo\nbar\n"),
+]
+
+class TestFileCommandsOnBsd(unittest.TestCase):
+    def run_in(self, folder, command, stdin=""):
+        script = f'source "{SCRIPTS / "termy.sh"}"; {STUBS} {command}'
+        return subprocess.run(  # noqa: S603
+            [BASH, "-c", script], input=stdin, capture_output=True, text=True, timeout=60, cwd=folder
+        )
+
+    def test_file_edit_commands_on_bsd_example(self):
+        for file_name, text, slots, target, before, after, stdin in FILE_EDIT_CASES:
+            with self.subTest(file=file_name, text=text), tempfile.TemporaryDirectory() as tmp:
+                (Path(tmp) / target).write_text(before)
+                res = self.run_in(tmp, fill_slots(find_command(file_name, text), slots), stdin)
+                self.assertEqual(res.returncode, 0, res.stderr)
+                self.assertEqual((Path(tmp) / target).read_text(), after)
+
+    def test_python_def_names_on_bsd_example(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "src.py").write_text("  def foo(x):\n\tdef _bar2 ( ):\nclass A:\n")
+            command = find_command("templates_files.json", "def")
+            res = self.run_in(tmp, fill_slots(command, {"file": "src.py"}))
+            self.assertEqual(res.returncode, 0, res.stderr)
+            self.assertEqual(res.stdout, "foo\n_bar2\n")
 
 if __name__ == "__main__":
     unittest.main()

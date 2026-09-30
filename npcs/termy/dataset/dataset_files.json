@@ -442,7 +442,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "termy_question \"File to search\" file &&\ntermy_question \"Search term: \" search &&\ntermy_question \"Replace with: \" replace &&\ntermy_say -s \"Replacing text in file\" &&\nprintf \"\\r\\n\" &&\nsed -i \"s|$search|$replace|g\" \"$file\" &&\necho -e \"Replaced all '\\033[1m$search\\033[22m' with '\\033[1m$replace\\033[22m'\" &&\nprintf \"\"",
+                    "command": "termy_question \"File to search\" file &&\ntermy_question \"Search term: \" search &&\ntermy_question \"Replace with: \" replace &&\ntermy_say -s \"Replacing text in file\" &&\nprintf \"\\r\\n\" &&\nsed -i '' \"s|$search|$replace|g\" \"$file\" &&\necho -e \"Replaced all '\\033[1m$search\\033[22m' with '\\033[1m$replace\\033[22m'\" &&\nprintf \"\"",
                     "explanation": "Prompts for a file path, search pattern, and replacement string, then uses sed to perform an in-place substitution.",
                     "goal": "Perform global search and replace inside a file",
                     "mode": "sync"

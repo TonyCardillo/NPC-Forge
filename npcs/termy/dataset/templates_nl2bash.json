@@ -123,7 +123,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "find . -name '*.py' -exec sed -i '1s/^/hi\n/' {} +",
+                    "command": "find . -name '*.py' -exec sed -i '' '1s/^/hi\\\n/' {} +",
                     "explanation": "Adds <||string||> on top of each .py file in the current directory",
                     "goal": "Add <||string||> on top of each .py file in the current directory",
                     "mode": "sync"
