@@ -66,6 +66,10 @@ class TestCommandNames(unittest.TestCase):
         command = 'case "$u" in\n  km) bc -l ;;\n  q|Q) exit ;;\n  *) echo no ;;\nesac'
         self.assertEqual(gap.command_names(command), {"bc", "exit", "echo"})
 
+    def test_command_names_ignore_nested_arithmetic_example(self):
+        command = "r=$((RANDOM * RANDOM % (max_ms + 1))) && sleep 1"
+        self.assertEqual(gap.command_names(command), {"sleep"})
+
     def test_command_names_invariant_under_spacing_invariant(self):
         rng = random.Random(0)  # noqa: S311
         for command in COMMANDS:
@@ -112,6 +116,10 @@ class TestClassify(unittest.TestCase):
     def test_classify_example(self):
         issues = gap.classify("sudo apt-get install x && free -h && cat /proc/cpuinfo", helpers={"termy_say"})
         self.assertEqual(issues["linux-only"], {"apt-get", "free", "/proc/"})
+
+    def test_classify_treats_termy_as_installed_example(self):
+        issues = gap.classify("termy what time is it", helpers=set())
+        self.assertFalse(any(issues.values()))
 
     def test_classify_skips_builtins_and_helpers_example(self):
         issues = gap.classify("termy_say hi && echo ok && cd /tmp", helpers={"termy_say"})

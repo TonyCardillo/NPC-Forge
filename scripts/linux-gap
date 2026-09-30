@@ -33,6 +33,7 @@ LINUX_ONLY_TOOLS = {
     "blkid", "dmidecode", "lshw", "sensors", "lsmod", "modprobe", "useradd",
     "usermod", "adduser", "groupadd", "chage", "mkfs", "inxi", "hwinfo",
 }
+TERMY_COMMANDS = {"termy"}
 LINUX_PATHS = ("/proc/", "/sys/", "/etc/os-release", "/var/log/syslog", "/dev/shm")  # noqa: S108
 GNU_FLAGS = {
     "sed -i": r"\bsed\s+(?:-\w+\s+)*-[A-Za-z]*i\s+(?!''|\"\")",
@@ -69,7 +70,7 @@ SINGLE_QUOTED = re.compile(r"'[^']*'")
 DOUBLE_QUOTED = re.compile(r"\"(?:[^\"\\$]|\\.|\$(?!\())*\"")
 COMMENT = re.compile(r"(?m)(^|\s)#.*$")
 PARAMETER = re.compile(r"\$\{[^{}]*\}")
-ARITHMETIC = re.compile(r"\$?\(\([^()]*\)\)")
+ARITHMETIC = re.compile(r"\$?\(\((?:[^()]|\([^()]*\))*\)\)")
 BRACE_LIST = re.compile(r"\{[^{}\s]*,[^{}\s]*\}")
 CASE_PATTERN = re.compile(r"(?m)(^|;;|\bin\b)\s*[^\s;&|()]+(?:\s*\|\s*[^\s;&|()]+)*\s*\)")
 SEPARATOR = re.compile(r"\|\||&&|\$\(|[|;&\n(){}`]")
@@ -132,7 +133,7 @@ def is_installed(name: str) -> bool:
 def classify(command: str, helpers: set) -> dict:
     """Groups the likely macOS problems in one command by kind."""
     defined = set(FUNCTION_DEF.findall(command))
-    names = command_names(command) - BUILTINS - helpers - defined
+    names = command_names(command) - BUILTINS - TERMY_COMMANDS - helpers - defined
     paths = {path for path in LINUX_PATHS if path in strip_heredocs(command)}
     linux_only = {name for name in names if name in LINUX_ONLY_TOOLS} | paths
     return {
