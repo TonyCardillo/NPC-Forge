@@ -18,25 +18,15 @@ NC='\033[0m'
 
 FORGE_DIR="$HOME/.local/share/npc-forge"
 BIN_DIR="$HOME/.local/bin"
-SERVICE_DIR="$HOME/.config/systemd/user"
-SERVICE_FILE="$SERVICE_DIR/npc-forge.service"
 SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # uninstall if requested
 if [ "${1:-}" == "--uninstall" ]; then
-    echo -e "${RED}🧹 Removing NPC-Forge Framework and User Service...${NC}"
-    
-    # Stops and disables user's Systemd service if present
-    if systemctl --user list-unit-files | grep -q "npc-forge.service"; then
-        echo -e "${YELLOW}Stopping Systemd user service...${NC}"
-        systemctl --user stop npc-forge.service 2>/dev/null || true
-        systemctl --user disable npc-forge.service 2>/dev/null || true
-    fi
+    echo -e "${RED}🧹 Removing NPC-Forge Framework...${NC}"
 
-    # Removes service file if present
-    rm -f "$SERVICE_FILE"
-    systemctl --user daemon-reload 2>/dev/null || true
-    
+    # Stops the on-demand server if it is running
+    pkill -f "server.py --unix $FORGE_DIR/run/server.sock" 2>/dev/null || true
+
     # Removes npc-forge binary
     rm -f "$BIN_DIR/npc-forge"
     
@@ -67,6 +57,13 @@ echo -e "${GREEN}🙋 Installing for user: $(whoami)${NC}\n"
 # Check for Python 3
 if ! command -v python3 >/dev/null 2>&1; then
     echo -e "${RED}⛔ Error: Python 3 is not installed or not in PATH.${NC}\n"
+    exit 1
+fi
+
+# The engine uses Python 3.10 syntax; macOS ships Python 3.9 in /usr/bin
+if ! python3 -c "import sys; sys.exit(sys.version_info < (3, 10))"; then
+    echo -e "${RED}⛔ Error: Python 3.10 or newer is required, found $(python3 --version).${NC}\n"
+    echo -e "${YELLOW}Install it with: brew install python${NC}\n"
     exit 1
 fi
 
@@ -153,72 +150,28 @@ if __name__ == "__main__":
 EOF
 chmod +x "$BIN_DIR/npc-forge"
 
-echo -e "${BLUE} Configuring User Service...${NC}"
-
-if command -v systemctl >/dev/null 2>&1; then
-    echo -e "\n${GREEN}😲 Systemd detected, configuring systemd service...${NC}\n"
-    mkdir -p "$SERVICE_DIR"
-
-    cat << EOF > "$SERVICE_FILE"
-[Unit]
-Description=NPC-Forge System Registry Server Gateway
-After=network.target
-
-[Service]
-Type=simple
-WorkingDirectory=$FORGE_DIR
-ExecStart=$FORGE_DIR/venv/bin/python3 $FORGE_DIR/server.py
-StandardOutput=append:$FORGE_DIR/npc_forge.log
-StandardError=append:$FORGE_DIR/npc_forge.log
-Restart=always
-RestartSec=3
-
-[Install]
-WantedBy=default.target
-EOF
-
-    systemctl --user daemon-reload
-    systemctl --user enable npc-forge.service 2>/dev/null || true
-    systemctl --user restart npc-forge.service
-    SERVICE_RUNNING=1
-else
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        echo -e "${YELLOW}macOS detected. Systemd is not available.${NC}\n"
-    else
-        echo -e "${YELLOW}Systemd not found. Service will not start automatically.${NC}\n"
-    fi
-    SERVICE_RUNNING=0
-fi
-
 # $PATH automatic configuration
 
 echo -e "${BLUE} Verifying environment \$PATH...${NC}"
 hash -r
 
-DETECTED_SHELL=$(basename "$SHELL")
+PATH_LINE='export PATH="$HOME/.local/bin:$PATH"'
 RC_FILE=""
-
-if [ "$DETECTED_SHELL" == "bash" ]; then
-    RC_FILE="$HOME/.bashrc"
-elif [ "$DETECTED_SHELL" == "zsh" ]; then
-    RC_FILE="$HOME/.zshrc"
-fi
+case "$(basename "$SHELL")" in
+    zsh) RC_FILE="$HOME/.zshrc" ;;
+    bash) RC_FILE="$HOME/.bash_profile" ;;
+esac
 
 if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
-    if [ -n "$RC_FILE" ] && [ -f "$RC_FILE" ]; then
+    if [ -z "$RC_FILE" ]; then
+        echo -e "${YELLOW}⚙ Add $BIN_DIR to your \$PATH (fish: fish_add_path $BIN_DIR)${NC}"
+    elif ! grep -qF "$PATH_LINE" "$RC_FILE" 2>/dev/null; then
         echo -e "${YELLOW}⚙ Adding $BIN_DIR to your \$PATH in $RC_FILE...${NC}"
-        echo "" >> "$RC_FILE"
-        echo "# NPC-Forge user binaries path" >> "$RC_FILE"
-        echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> "$RC_FILE"
-        export PATH="$BIN_DIR:$PATH"
+        printf '\n# NPC-Forge user binaries path\n%s\n' "$PATH_LINE" >> "$RC_FILE"
     fi
+    echo -e "${YELLOW}Open a new terminal to use the npc-forge command.${NC}"
 fi
 
 echo -e "\n${GREEN}✅ npc-forge installed successfully in user space${NC}\n"
-if [ "$SERVICE_RUNNING" -eq 1 ]; then
-    echo -e "Server service is now running in background via Systemd."
-    echo -e "\nYou can now use the ${YELLOW}npc-forge${NC} command\n"
-else
-    echo -e "${YELLOW}Note: Since Systemd is not available, you need to run the server manually:${NC}"
-    echo -e "${YELLOW}Run 'npc-forge server' in a separate terminal before using the tools.${NC}\n"
-fi
+echo -e "The server starts on demand when you use an NPC, and stops when idle."
+echo -e "To start it now, run: ${YELLOW}npc-forge serve${NC}\n"
