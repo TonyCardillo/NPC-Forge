@@ -86,6 +86,16 @@ class TestFlagChecks(unittest.TestCase):
     def test_bsd_sed_in_place_not_flagged_example(self):
         self.assertNotIn("sed -i", gap.gnu_flags("sed -i '' 's/a/b/' file"))
 
+    def test_gnu_netstat_flags_flagged_example(self):
+        for command in ("netstat -tulpn", "netstat -tunlp", "netstat -un", "netstat -np"):
+            with self.subTest(command=command):
+                self.assertIn("netstat -u/-p", gap.gnu_flags(command))
+
+    def test_bsd_netstat_not_flagged_example(self):
+        for command in ("netstat -tn", "netstat -an -p tcp", "netstat -rn", "netstat -i", "netstat -s"):
+            with self.subTest(command=command):
+                self.assertNotIn("netstat -u/-p", gap.gnu_flags(command))
+
     def test_bash4_features_flagged_example(self):
         self.assertIn("declare -A", gap.bash4_features("declare -A counts; counts[x]=1"))
         self.assertIn("mapfile", gap.bash4_features("mapfile -t lines < f"))

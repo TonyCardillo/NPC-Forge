@@ -45,6 +45,10 @@ GNU_FLAGS = {
     "base64 -w": r"\bbase64\b[^\n;&|]*\s-w\b",
     "hostname -I": r"\bhostname\s+-I\b",
     "ps --sort": r"\bps\b[^\n;&|]*--sort",
+    "netstat -u/-p": (
+        r"\bnetstat\s+(?:-\w+\s+(?:tcp\s+|udp\s+)?)*"
+        r"-(?:[A-Za-z]*u[A-Za-z]*|[A-Za-z]*p[A-Za-z]+|[A-Za-z]*p(?=\s*(?:$|[|;&)\n]|-)))"
+    ),
     "GNU long option": r"\b(?:ls|du|df|cp|mv|head|tail|cut|touch|mkdir|readlink)\s+(?:[^\n;&|]*\s)?--[a-z]",
 }
 BASH4 = {
