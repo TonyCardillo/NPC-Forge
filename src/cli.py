@@ -10,6 +10,7 @@ from datetime import datetime
 
 from FlintNPC import load_json, load_json_recursive
 from logger import log_file_path
+import on_demand
 
 RED = "\033[31m"
 GREEN = "\033[32m"
@@ -19,35 +20,29 @@ RESET = "\033[0m"
 # Standard XDG Directory for local user
 FORGE_DATA_DIR = Path.home() / ".local" / "share" / "npc-forge"
 LOG_FILE_PATH = log_file_path
-SERVICE_NAME = "npc-forge.service"
-
-def run_systemctl_user(action: str):
-    """Executes systemctl commands as user with no root privileges"""
-    try:
-        subprocess.run(["systemctl", "--user", action, SERVICE_NAME], check=True)
-        print(f"{GREEN}[NPC-FORGE]{RESET} Systemd user daemon '{action}' triggered successfully.")
-    except subprocess.CalledProcessError:
-        print(f"{RED}[NPC-FORGE]{RESET} Error executing systemctl --user {action}.")
+def serve():
+    """Starts the on-demand server now, if it is not running."""
+    path = on_demand.socket_path()
+    if on_demand.is_server_live(path):
+        print(f"{YELLOW}[NPC-FORGE]{RESET} Server is already running on {GREEN}{path}{RESET}.")
+        return
+    on_demand.start_server()
+    if not on_demand.wait_until(lambda: on_demand.is_server_live(path), timeout=15):
+        print(f"{RED}[NPC-FORGE]{RESET} Server did not start. See {LOG_FILE_PATH}")
         sys.exit(1)
+    idle = on_demand.idle_seconds()
+    print(f"{GREEN}[NPC-FORGE]{RESET} Server started on {GREEN}{path}{RESET}, stops after {idle}s idle.")
 
-def is_service_active() -> bool:
-    """Verifies if the user's Systemd service is active."""
-    try:
-        res = subprocess.run(
-            ["systemctl", "--user", "is-active", SERVICE_NAME],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
-        return res.stdout.strip() == "active"
-    except Exception:
-        return False
+def stop():
+    if on_demand.stop_server():
+        print(f"{GREEN}[NPC-FORGE]{RESET} Server stopped.")
+    else:
+        print(f"{YELLOW}[NPC-FORGE]{RESET} Server is not running.")
 
 def stream_logs():
-    """Streams logs using the native Linux tail utility. Starts the service if it is offline."""
-    if not is_service_active():
-        print(f"{YELLOW}[NPC-FORGE]{RESET} Service is offline. Bootstrapping gateway in background...")
-        run_systemctl_user("start")
+    """Streams the log file with tail. Starts the server if it is not running."""
+    if not on_demand.is_server_live(on_demand.socket_path()):
+        serve()
 
     if not LOG_FILE_PATH.exists():
         LOG_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -197,10 +192,10 @@ def print_help():
     npc-forge <command> [options]
 
 {YELLOW}Commands:{RESET}
-    {GREEN}serve, start{RESET}   Start the background NPC registry gateway service (systemd)
-    {GREEN}stop{RESET}           Stop the background registry service
-    {GREEN}restart, reboot{RESET} Restart the background registry service
-    {GREEN}logs, watch{RESET}    Stream live logs from the systemd server daemon
+    {GREEN}serve, start{RESET}   Start the on-demand server now (it stops itself when idle)
+    {GREEN}stop{RESET}           Stop the on-demand server
+    {GREEN}restart, reboot{RESET} Restart the on-demand server
+    {GREEN}logs, watch{RESET}    Stream live server logs
     {GREEN}list{RESET}           List all locally installed NPCs and their capabilities
     {GREEN}create <name>{RESET}  Scaffold a new NPC profile from the example template
     {GREEN}install <path>{RESET} Install an NPC profile from a local directory
@@ -323,9 +318,11 @@ def main():
         
     cmd = sys.argv[1].lower().strip()
     
-    if cmd in ["serve", "start"]: run_systemctl_user("start")
-    elif cmd == "stop": run_systemctl_user("stop")
-    elif cmd in ["reboot", "restart"]: run_systemctl_user("restart")
+    if cmd in ["serve", "start"]: serve()
+    elif cmd == "stop": stop()
+    elif cmd in ["reboot", "restart"]:
+        stop()
+        serve()
     elif cmd in ["logs", "watch"]: stream_logs()
     elif cmd in ["test", "tests"]: run_framework_tests()
     elif cmd == "list": list_installed_npcs()
