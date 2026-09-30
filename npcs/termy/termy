@@ -16,6 +16,26 @@ from tui.tools import TuiTools, BOLD, GRAY, GREEN, RED, RESET, YELLOW
 
 tui = TuiTools()
 
+def print_dry_run(result: dict, command: str, description: str) -> int:
+    """Prints what TERMy matched and would run, without running it."""
+    confidence = result.get("confidence", 0.0) * 100
+    print(f"{YELLOW}Dry run: nothing was executed{RESET}\n")
+    print(f"Status: {result.get('status', 'rejected')} | Confidence: {confidence:.2f}\n")
+    if result.get("response"):
+        print(f"Response: {result['response']}\n")
+    if command:
+        permission = result.get("permission", "ask")
+        runs = "runs without asking" if permission == "yolo" else "asks first"
+        print(f"Permission: {permission} ({runs})\n")
+        print(f"{GREEN}{BOLD}{command}{RESET}")
+    if description.strip():
+        print(f"{GRAY}\nDescription: {description.strip()}{RESET}")
+    related = [intent["input"][0] for intent in result.get("related", [])]
+    if related:
+        print(f"\nRelated: {', '.join(related)}")
+    print()
+    return 0
+
 def run_cli() -> int:
     usage_text = '\n termy [OPTIONS] "hello"\n termy [OPTIONS] hello\n echo "hello" | termy [OPTIONS]\n termy -y < test.termy\n'
     
@@ -42,6 +62,12 @@ def run_cli() -> int:
         help="Automatically answer yes to prompts (skip confirmation)"
     )
     
+    parser.add_argument(
+        "-n", "--dry-run",
+        action="store_true",
+        help="Show the matched command without running it"
+    )
+
     parser.add_argument(
         "-v", "--verbose", 
         action="store_true", 
@@ -126,6 +152,10 @@ def run_cli() -> int:
                     description += " " + tool_args.get(
                         "explanation", result.get("description", "")
                     )
+
+    # Return before TTS, the related-intents menu, LLM generation and execution
+    if args.dry_run:
+        return print_dry_run(result, command, description)
 
     if response: 
         print(f"Response: {response} {emoji}\n")
