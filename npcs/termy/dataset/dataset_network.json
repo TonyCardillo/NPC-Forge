@@ -66,7 +66,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT_TXT=$(ip a) &&\nOUTPUT_VOICE=$(ip -br link show up | awk '{print $1}' | paste -sd, -) &&\nprintf \"🌐 Network interfaces:\n\n%s\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Active network interfaces are $OUTPUT_VOICE\" &&\ntermy_set_context 'active_network_interfaces' \"$OUTPUT_VOICE\"",
+                    "command": "OUTPUT_TXT=$(ifconfig) &&\nOUTPUT_VOICE=$(ifconfig -lu | tr ' ' ',') &&\nprintf \"🌐 Network interfaces:\\n\\n%s\\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Active network interfaces are $OUTPUT_VOICE\" &&\ntermy_set_context 'active_network_interfaces' \"$OUTPUT_VOICE\"",
                     "explanation": "Displays and caches network interfaces for auto-switch workflows.",
                     "goal": "Display network interfaces",
                     "mode": "sync"
@@ -116,7 +116,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "termy_say -s \"Please enter the port number\" &&\nprintf \"🌐 Enter port number: \" &&\nread -r target_port &&\nif [ -n \"$target_port\" ]; then\n printf \"\nChecking port %s...\n\n\" \"$target_port\" &&\n if command -v ss > /dev/null 2>&1; then\n  ss -lntp \"sport = :$target_port\";\n else\n  lsof -i :\"$target_port\";\n fi &&\n printf \"\\nAnalysis for port \\033[1m%s\\033[22m completed.\\n\" \"$target_port\" &&\n termy_say -s \"Port analysis completed\";\nelse\n printf \"⛔ Port number cannot be empty.\\n\" &&\n termy_say -s \"Operation cancelled\";\nfi",
+                    "command": "termy_say -s \"Please enter the port number\" &&\nprintf \"🌐 Enter port number: \" &&\nread -r target_port &&\nif [ -n \"$target_port\" ]; then\n printf \"\\nChecking port %s...\\n\\n\" \"$target_port\" &&\n { lsof -nP -i :\"$target_port\" || printf \"No process is using port %s.\\n\" \"$target_port\"; } &&\n printf \"\\nAnalysis for port \\033[1m%s\\033[22m completed.\\n\" \"$target_port\" &&\n termy_say -s \"Port analysis completed\";\nelse\n printf \"⛔ Port number cannot be empty.\\n\" &&\n termy_say -s \"Operation cancelled\";\nfi",
                     "explanation": "Checks if a specified port is open and displays the process using it.",
                     "goal": "Check port status",
                     "mode": "sync"
@@ -138,7 +138,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "OUTPUT_TXT=$(ss -tuln | awk 'NR>1 {split($4, a, \":\");\nprint a[length(a)]}' | sort -nu | awk '{print \"- Port: \\033[1m\" $1 \"\\033[22m\"}') &&\nCOUNT=$(echo \"$OUTPUT_TXT\" | grep -c 'Port:') &&\nprintf \"🌐 \\033[1mActive Listening Ports:\n\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Found $COUNT active listening ports\"",
+                    "command": "OUTPUT_TXT=$({ netstat -an -p tcp | awk '$6==\"LISTEN\" {print $4}'; netstat -an -p udp | awk 'NR>2 && $5==\"*.*\" {print $4}'; } | awk '{n=split($1,a,\".\"); if (a[n] ~ /^[0-9]+$/) print a[n]}' | sort -nu | awk '{print \"- Port: \\033[1m\" $1 \"\\033[22m\"}') &&\nCOUNT=$(echo \"$OUTPUT_TXT\" | grep -c 'Port:') ;\nprintf \"🌐 \\033[1mActive Listening Ports:\\033[22m\\n%s\\n\" \"$OUTPUT_TXT\" &&\ntermy_say -s \"Found $COUNT active listening ports\"",
                     "explanation": "Displays a list of active listening network ports.",
                     "goal": "List active listening ports",
                     "mode": "sync"
@@ -214,8 +214,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "netstat -tulpn",
-                    "explanation": "The command 'netstat -tulpn' displays listening network connections and their associated ports on the machine.",
+                    "command": "lsof -nP -iTCP -sTCP:LISTEN -iUDP",
+                    "explanation": "The command 'lsof -nP -iTCP -sTCP:LISTEN -iUDP' lists listening TCP sockets and bound UDP sockets with their programs. Without sudo, it shows only your own processes.",
                     "goal": "Show which services are listening on the machine and on which ports.",
                     "mode": "sync"
                 }
@@ -271,8 +271,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "netstat -tunlp",
-                    "explanation": "The command netstat -tunlp lists all listening TCP sockets along with the associated process ID and program name.",
+                    "command": "lsof -nP -iTCP -sTCP:LISTEN -iUDP",
+                    "explanation": "The command 'lsof -nP -iTCP -sTCP:LISTEN -iUDP' lists listening TCP sockets and bound UDP sockets with their programs. Without sudo, it shows only your own processes.",
                     "goal": "Display every listening socket and its corresponding process.",
                     "mode": "sync"
                 }
@@ -309,8 +309,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "ss -tp state time-wait",
-                    "explanation": "The command ss -tp state time-wait lists all network connections that are in the TIME-WAIT state, which is a TCP state used after a connection is closed.",
+                    "command": "netstat -an -p tcp | awk 'NR<=2 || $6==\"TIME_WAIT\"'",
+                    "explanation": "The command netstat -an -p tcp, filtered with awk, lists all TCP connections in the TIME_WAIT state, which is a TCP state used after a connection is closed.",
                     "goal": "List connections stuck in TIME-WAIT.",
                     "mode": "sync"
                 }
@@ -347,8 +347,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "ss -tulnp",
-                    "explanation": "The command 'ss -tulnp' lists all listening TCP and UDP sockets along with the associated program (process) names.",
+                    "command": "lsof -nP -iTCP -sTCP:LISTEN -iUDP",
+                    "explanation": "The command 'lsof -nP -iTCP -sTCP:LISTEN -iUDP' lists listening TCP sockets and bound UDP sockets with their programs. Without sudo, it shows only your own processes.",
                     "goal": "Display the listening TCP and UDP sockets and their corresponding programs.",
                     "mode": "sync"
                 }
@@ -385,8 +385,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "hostname -I",
-                    "explanation": "The command 'hostname -I' prints all the IP addresses assigned to the current host.",
+                    "command": "ifconfig | awk '($1==\"inet\" && $2!=\"127.0.0.1\") || ($1==\"inet6\" && $2 !~ /^(fe80|::1)/) {print $2}' | paste -sd ' ' -",
+                    "explanation": "The command reads ifconfig and prints every IPv4 and global IPv6 address of this host, without loopback and link-local addresses.",
                     "goal": "Print all the IP addresses assigned to this host.",
                     "mode": "sync"
                 }
@@ -404,8 +404,8 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "netstat -tulpn",
-                    "explanation": "The command 'netstat -tulpn' lists all listening network ports along with the owning processes (programs).",
+                    "command": "lsof -nP -iTCP -sTCP:LISTEN -iUDP",
+                    "explanation": "The command 'lsof -nP -iTCP -sTCP:LISTEN -iUDP' lists listening TCP sockets and bound UDP sockets with their programs. Without sudo, it shows only your own processes.",
                     "goal": "Show which programs are listening on which ports.",
                     "mode": "sync"
                 }
