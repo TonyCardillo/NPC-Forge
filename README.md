@@ -1,3 +1,5 @@
+> [!NOTE]
+> This is an unofficial macOS fork of [gioblu/NPC-Forge](https://github.com/gioblu/NPC-Forge), modified since 2026-09-29. macOS support is in progress. For the official Linux/WSL version, use the upstream repository. This fork keeps the original [AGPL-3.0](LICENSE) license.
 
 [![NPC-Forge Discord](https://img.shields.io/badge/Join-Discord-%235865F2.svg)](https://discord.gg/84zTNDzjD)
 ## NPC-Forge
