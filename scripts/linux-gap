@@ -1,0 +1,226 @@
+#!/usr/bin/env python3
+"""
+Read-only report of TERMy commands that are likely to fail on macOS.
+It is a heuristic, so the numbers are estimates.
+Usage: linux-gap [--details]
+"""
+import json
+import re
+import shutil
+import sys
+from collections import Counter
+from functools import lru_cache
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+TERMY = ROOT / "npcs" / "termy"
+
+LEADING = {"if", "then", "else", "elif", "while", "until", "do", "!", "time"}
+RESERVED = {"fi", "case", "esac", "for", "select", "done", "in", "function", "[[", "]]", "{", "}"}
+PREFIXES = {"sudo", "env", "nohup", "exec", "command", "builtin"}
+BUILTINS = {
+    "echo", "printf", "read", "cd", "local", "export", "return", "set", "unset",
+    "shift", "source", ".", "eval", "exec", "exit", "trap", "wait", "break",
+    "continue", "declare", "typeset", "let", "pushd", "popd", "type", "command",
+    "alias", "hash", "kill", "test", "[", "true", "false", "getopts", "umask",
+    "ulimit", "builtin", "readonly", "shopt", "mapfile", "readarray", "disown", "jobs",
+}
+LINUX_ONLY_TOOLS = {
+    "apt", "apt-get", "apt-cache", "dpkg", "dnf", "yum", "pacman", "snap", "zypper",
+    "systemctl", "journalctl", "service", "ip", "ss", "iwconfig", "iw", "nmcli",
+    "iptables", "ufw", "ethtool", "xdg-open", "xclip", "xsel", "notify-send",
+    "gsettings", "wmctrl", "xdotool", "free", "lsblk", "lscpu", "lsusb", "lspci",
+    "blkid", "dmidecode", "lshw", "sensors", "lsmod", "modprobe", "useradd",
+    "usermod", "adduser", "groupadd", "chage", "mkfs", "inxi", "hwinfo",
+}
+LINUX_PATHS = ("/proc/", "/sys/", "/etc/os-release", "/var/log/syslog", "/dev/shm")  # noqa: S108
+GNU_FLAGS = {
+    "sed -i": r"\bsed\s+(?:-\w+\s+)*-[A-Za-z]*i\s+(?!''|\"\")",
+    "mktemp suffix": r"\bmktemp\b[^\n;&|)]*?X{3,}[^X\s\"')]",
+    "date -d": r"\bdate\b[^\n;&|]*\s(?:-d|--date)\b",
+    "stat -c": r"\bstat\b[^\n;&|]*\s(?:-c|--format|--printf)\b",
+    "find -printf": r"\bfind\b[^\n;&|]*\s-printf\b",
+    "grep -P": r"\bgrep\s+(?:-\w+\s+)*-[A-Za-z]*P",
+    "xargs -r": r"\bxargs\s+(?:-\w+\s+)*-[A-Za-z]*r\b",
+    "base64 -w": r"\bbase64\b[^\n;&|]*\s-w\b",
+    "hostname -I": r"\bhostname\s+-I\b",
+    "ps --sort": r"\bps\b[^\n;&|]*--sort",
+    "GNU long option": r"\b(?:ls|du|df|cp|mv|head|tail|cut|touch|mkdir|readlink)\s+(?:[^\n;&|]*\s)?--[a-z]",
+}
+BASH4 = {
+    "declare -A": r"\b(?:declare|local|typeset)\s+-[a-zA-Z]*A",
+    "mapfile": r"\b(?:mapfile|readarray)\b",
+    "case modification": r"\$\{\w+(?:,,|\^\^)\}",
+    "&>>": r"&>>",
+    "|&": r"\|&",
+    "globstar": r"\bglobstar\b",
+    "coproc": r"\bcoproc\b",
+    "nameref": r"\b(?:declare|local)\s+-n\b",
+    "wait -n": r"\bwait\s+-n\b",
+}
+
+HEREDOC = re.compile(r"(<<-?[ \t]*(['\"]?)(\w+)\2[^\n]*)\n.*?^[ \t]*\3[ \t]*$", re.S | re.M)
+SLOT = re.compile(r"<\|\|\w+\|\|>")
+SINGLE_QUOTED = re.compile(r"'[^']*'")
+DOUBLE_QUOTED = re.compile(r"\"(?:[^\"\\$]|\\.|\$(?!\())*\"")
+COMMENT = re.compile(r"(?m)(^|\s)#.*$")
+PARAMETER = re.compile(r"\$\{[^{}]*\}")
+ARITHMETIC = re.compile(r"\$?\(\([^()]*\)\)")
+BRACE_LIST = re.compile(r"\{[^{}\s]*,[^{}\s]*\}")
+CASE_PATTERN = re.compile(r"(?m)(^|;;|\bin\b)\s*[^\s;&|()]+(?:\s*\|\s*[^\s;&|()]+)*\s*\)")
+SEPARATOR = re.compile(r"\|\||&&|\$\(|[|;&\n(){}`]")
+ASSIGNMENT = re.compile(r"^\w+(?:\[[^\]]*\])?\+?=")
+NAME = re.compile(r"^(?:\[|[A-Za-z_][\w.+-]*)$")
+FUNCTION_DEF = re.compile(r"(?m)^\s*(?:function\s+)?([A-Za-z_]\w*)\s*\(\)")
+
+
+def strip_heredocs(command: str) -> str:
+    return HEREDOC.sub(r"\1", SLOT.sub("X", command))
+
+
+def strip_quotes(command: str) -> str:
+    return DOUBLE_QUOTED.sub('""', SINGLE_QUOTED.sub("''", command))
+
+
+def strip_expansions(command: str) -> str:
+    """Removes comments and expansions, whose words are not commands."""
+    text = CASE_PATTERN.sub(r"\1\n", COMMENT.sub(r"\1", command))
+    for pattern in (PARAMETER, ARITHMETIC, BRACE_LIST):
+        text = pattern.sub("0", text)
+    return text
+
+
+def segment_names(segment: str) -> list:
+    """Returns the command names that start one shell segment."""
+    words, names = segment.split(), []
+    while words and (words[0] in LEADING or words[0] in PREFIXES or ASSIGNMENT.match(words[0])):
+        if words[0] in PREFIXES:
+            names.append(words[0])
+        words.pop(0)
+    if words and words[0] not in RESERVED and NAME.match(words[0]):
+        names.append(words[0])
+    return names
+
+
+def command_names(command: str) -> set:
+    text = strip_expansions(strip_quotes(strip_heredocs(command)))
+    return {name for segment in SEPARATOR.split(text) for name in segment_names(segment)}
+
+
+def matching_labels(patterns: dict, command: str) -> set:
+    text = strip_heredocs(command)
+    return {label for label, pattern in patterns.items() if re.search(pattern, text)}
+
+
+def gnu_flags(command: str) -> set:
+    return matching_labels(GNU_FLAGS, command)
+
+
+def bash4_features(command: str) -> set:
+    return matching_labels(BASH4, command)
+
+
+@lru_cache(maxsize=None)
+def is_installed(name: str) -> bool:
+    return shutil.which(name) is not None
+
+
+def classify(command: str, helpers: set) -> dict:
+    """Groups the likely macOS problems in one command by kind."""
+    defined = set(FUNCTION_DEF.findall(command))
+    names = command_names(command) - BUILTINS - helpers - defined
+    paths = {path for path in LINUX_PATHS if path in strip_heredocs(command)}
+    linux_only = {name for name in names if name in LINUX_ONLY_TOOLS} | paths
+    return {
+        "linux-only": linux_only,
+        "gnu-flags": gnu_flags(command),
+        "bash4": bash4_features(command),
+        "not-installed": {name for name in names - LINUX_ONLY_TOOLS if not is_installed(name)},
+    }
+
+
+def commands_in(node):
+    """Yields every tool command string in a parsed JSON dataset."""
+    if isinstance(node, dict):
+        command = node.get("command")
+        if isinstance(command, str):
+            yield command
+        for value in node.values():
+            yield from commands_in(value)
+    elif isinstance(node, list):
+        for value in node:
+            yield from commands_in(value)
+
+
+def dataset_commands():
+    """Yields (group, file name, command) for every command in the TERMy dataset."""
+    dataset = TERMY / "dataset"
+    for path in sorted(dataset.rglob("*.json")):
+        group = "python snippets" if path.parent != dataset else "shell commands"
+        for command in commands_in(json.loads(path.read_text(encoding="utf-8"))):
+            yield group, path.name, command
+
+
+def helper_functions() -> set:
+    scripts = (TERMY / "scripts").glob("*.sh")
+    return {name for path in scripts for name in FUNCTION_DEF.findall(path.read_text())}
+
+
+def summarize(rows: list) -> dict:
+    """Counts commands with each kind of problem, and each problem."""
+    kinds, problems = Counter(), Counter()
+    for issues in rows:
+        kinds["total"] += 1
+        kinds["clean"] += not any(issues.values())
+        for kind, found in issues.items():
+            kinds[kind] += bool(found)
+            problems.update(f"{kind}: {item}" for item in found)
+    return {"kinds": kinds, "problems": problems}
+
+
+def print_summary(title: str, summary: dict):
+    kinds = summary["kinds"]
+    print(f"\n{title}: {kinds['total']} commands, {kinds['clean']} with no problem found")
+    for kind in ("linux-only", "gnu-flags", "bash4", "not-installed"):
+        print(f"  {kind:<14} {kinds[kind]:>6}")
+    for problem, count in summary["problems"].most_common(15):
+        print(f"    {count:>6}  {problem}")
+
+
+def print_by_file(rows_by_file: dict):
+    print("\nShell commands by file (commands with a problem / total):")
+    ranked = sorted(rows_by_file.items(), key=lambda item: -sum(any(i.values()) for i in item[1]))
+    for name, rows in ranked:
+        print(f"  {sum(any(i.values()) for i in rows):>4} / {len(rows):<4} {name}")
+
+
+def print_details(details: list):
+    print("\nDetails:")
+    for name, command, issues in details:
+        found = "; ".join(f"{kind}: {', '.join(sorted(items))}" for kind, items in issues.items() if items)
+        print(f"  {name}: {found}\n      {command.splitlines()[0][:100]}")
+
+
+def main() -> int:
+    helpers = helper_functions()
+    groups, by_file, details = {}, {}, []
+    for group, name, command in dataset_commands():
+        issues = classify(command, helpers)
+        groups.setdefault(group, []).append(issues)
+        if group == "shell commands":
+            by_file.setdefault(name, []).append(issues)
+            if any(issues.values()):
+                details.append((name, command, issues))
+    scripts = [classify(path.read_text(), helpers) for path in sorted((TERMY / "scripts").glob("*.sh"))]
+    print("TERMy macOS gap report (heuristic estimates)")
+    for group, rows in groups.items():
+        print_summary(group.capitalize(), summarize(rows))
+    print_summary("Helper scripts (loaded before every command)", summarize(scripts))
+    print_by_file(by_file)
+    if "--details" in sys.argv:
+        print_details(details)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
