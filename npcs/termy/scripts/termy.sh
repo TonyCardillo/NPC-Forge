@@ -56,9 +56,9 @@ termy_say() {
 
     # Execute TTS
     local current_mode=$(termy_get_context "tts")
-    if [ "$current_mode" = "on" ] && command -v espeak-ng >/dev/null 2>&1; then
-        pkill espeak-ng >/dev/null 2>&1
-        espeak-ng "$raw_text" >/dev/null 2>&1 &
+    if [ "$current_mode" = "on" ] && command -v say >/dev/null 2>&1; then
+        pkill -x say >/dev/null 2>&1
+        say "$raw_text" &
     fi
 
     # Print in terminal

@@ -1,6 +1,6 @@
 {
   "npc_name": "TERMy",
-  "tts": "espeak-ng",
+  "tts": "say",
   "creator": "Giovanni Blu Mitolo",
   "sentence_threshold": 0.6668,
   "word_threshold": 0.751,

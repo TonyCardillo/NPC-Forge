@@ -217,5 +217,38 @@ class TestTimeCommandsOnMacos(unittest.TestCase):
         self.assertIn("Time's up", res.stdout)
         self.assertIn("notified", res.stdout)
 
+class TestVoiceOnMacos(unittest.TestCase):
+    def test_termy_say_speaks_with_say_example(self):
+        stubs = 'termy_get_context() { echo on; }; say() { echo "SAID:$*"; };'
+        script = f'source "{SCRIPTS / "termy.sh"}"; {stubs} termy_say -s "hello there"; wait'
+        res = run_bash(script)
+        self.assertEqual(res.returncode, 0, res.stderr)
+        self.assertIn("SAID:hello there", res.stdout)
+
+    def test_termy_config_speaks_with_say_example(self):
+        config = json.loads((ROOT / "npcs" / "termy" / "config.json").read_text())
+        self.assertEqual(config["tts"], "say")
+
+    def test_termy_setup_installs_nothing_example(self):
+        # the installer links termy.py next to termy, which is the repo here
+        self.addCleanup((ROOT / "npcs" / "termy" / "termy.py").unlink, missing_ok=True)
+        with tempfile.TemporaryDirectory() as tmp:
+            home, bin_dir = Path(tmp) / "home", Path(tmp) / "bin"
+            forge = home / ".local" / "share" / "npc-forge"
+            (forge / "npcs").mkdir(parents=True)
+            (forge / "npcs" / "termy").symlink_to(ROOT / "npcs" / "termy")
+            bin_dir.mkdir()
+            marker = Path(tmp) / "brew-called"
+            (bin_dir / "brew").write_text(f'#!/bin/sh\ntouch "{marker}"\n')
+            (bin_dir / "brew").chmod(0o755)
+            res = subprocess.run(  # noqa: S603
+                [BASH, str(ROOT / "npcs" / "termy" / "setup.sh")],
+                env={"HOME": str(home), "PATH": f"{bin_dir}:/usr/bin:/bin"},
+                capture_output=True, text=True, timeout=60,
+            )
+            self.assertEqual(res.returncode, 0, res.stdout + res.stderr)
+            self.assertFalse(marker.exists())
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -46,33 +46,6 @@ if [ ! -d "$TERMY_DIR" ]; then
     exit 1
 fi
 
-echo -e "${YELLOW}[TERMy]${RESET} Checking for espeak-ng dependency..."
-if ! command -v espeak-ng >/dev/null 2>&1; then
-    echo -e "${YELLOW}[TERMy] ${GREEN}espeak-ng${RESET} not found. Attempting to install..."
-    
-    if command -v apt-get >/dev/null 2>&1; then
-        echo -e "${YELLOW}[TERMy] ${RESET}Debian/Ubuntu detected. Running: sudo apt update && sudo apt install -y espeak-ng${RESET}\n"
-        sudo apt-get update && sudo apt-get install -y espeak-ng
-        echo -e ""
-    elif command -v dnf >/dev/null 2>&1; then
-        echo -e "${YELLOW}[TERMy] ${RESET}Fedora/RHEL detected. Running: sudo dnf install -y espeak-ng${RESET}\n"
-        sudo dnf install -y espeak-ng
-        echo -e ""
-    elif command -v pacman >/dev/null 2>&1; then
-        echo -e "${YELLOW}[TERMy] ${RESET}Arch Linux detected. Running: sudo pacman -S --noconfirm espeak-ng${RESET}\n"
-        sudo pacman -S --noconfirm espeak-ng
-        echo -e ""
-    elif command -v brew >/dev/null 2>&1; then
-        echo -e "${YELLOW}[TERMy] ${RESET}macOS (Homebrew) detected. Running: brew install espeak-ng${RESET}\n"
-        brew install espeak-ng
-        echo -e ""
-    else
-        echo -e "${RED}⛔ Could not detect package manager. Please install espeak-ng manually.${RESET}\n"
-    fi
-else
-    echo -e "${YELLOW}[TERMy] ${GREEN}espeak-ng ${RESET}is already installed."
-fi
-
 echo -e "${YELLOW}[TERMy]${RESET} Linking termy.py entry point..."
 ln -sfn "$TERMY_DIR/termy" "$TERMY_DIR/termy.py"
 
