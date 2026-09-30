@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""
+Runs TERMy from this repo in dry-run mode: no install, no server, and
+nothing is ever executed. Usage: termy-dev <prompt>
+"""
+import importlib.machinery
+import importlib.util
+import logging
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+TERMY = ROOT / "npcs" / "termy" / "termy"
+sys.path[:0] = [str(ROOT / "src"), str(TERMY.parent)]
+
+import registry  # noqa: E402
+from logger import logger  # noqa: E402
+
+
+def hide_terminal_logs():
+    """Keeps engine logs in the log file only."""
+    for handler in list(logger.handlers):
+        if not isinstance(handler, logging.FileHandler):
+            logger.removeHandler(handler)
+
+def load_termy():
+    loader = importlib.machinery.SourceFileLoader("termy", str(TERMY))
+    module = importlib.util.module_from_spec(importlib.util.spec_from_loader("termy", loader))
+    loader.exec_module(module)
+    return module
+
+def main() -> int:
+    hide_terminal_logs()
+    registry.REGISTRY_DIR = ROOT  # use the repo dataset, not ~/.local/share
+    termy = load_termy()
+    termy.ApiProvider.request = lambda *_: None  # skip any running server
+    sys.argv = ["termy", "--dry-run", *sys.argv[1:]]
+    return termy.run_cli()
+
+if __name__ == "__main__":
+    raise SystemExit(main())
