@@ -128,6 +128,7 @@ PORTED_FILES = [
     "dataset_formats.json",
     "dataset_games.json",
     "dataset_http.json",
+    "dataset_time.json",
 ]
 
 def file_commands(file_name):
@@ -173,18 +174,19 @@ FILE_EDIT_CASES = [
     ("dataset_files.json", 'sed -i', {}, "f.txt", "foo foo\n", "bar bar\n", "f.txt\nfoo\nbar\n"),
 ]
 
-class TestFileCommandsOnBsd(unittest.TestCase):
-    def run_in(self, folder, command, stdin=""):
-        script = f'source "{SCRIPTS / "termy.sh"}"; {STUBS} {command}'
-        return subprocess.run(  # noqa: S603
-            [BASH, "-c", script], input=stdin, capture_output=True, text=True, timeout=60, cwd=folder
-        )
+def run_termy_shell(command, stdin="", folder=None, stubs=""):
+    """Runs a dataset command with TERMy helpers loaded and side effects stubbed."""
+    script = f'source "{SCRIPTS / "termy.sh"}"; {STUBS} {stubs} {command}'
+    return subprocess.run(  # noqa: S603
+        [BASH, "-c", script], input=stdin, capture_output=True, text=True, timeout=60, cwd=folder
+    )
 
+class TestFileCommandsOnBsd(unittest.TestCase):
     def test_file_edit_commands_on_bsd_example(self):
         for file_name, text, slots, target, before, after, stdin in FILE_EDIT_CASES:
             with self.subTest(file=file_name, text=text), tempfile.TemporaryDirectory() as tmp:
                 (Path(tmp) / target).write_text(before)
-                res = self.run_in(tmp, fill_slots(find_command(file_name, text), slots), stdin)
+                res = run_termy_shell(fill_slots(find_command(file_name, text), slots), stdin, tmp)
                 self.assertEqual(res.returncode, 0, res.stderr)
                 self.assertEqual((Path(tmp) / target).read_text(), after)
 
@@ -192,9 +194,28 @@ class TestFileCommandsOnBsd(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             (Path(tmp) / "src.py").write_text("  def foo(x):\n\tdef _bar2 ( ):\nclass A:\n")
             command = find_command("templates_files.json", "def")
-            res = self.run_in(tmp, fill_slots(command, {"file": "src.py"}))
+            res = run_termy_shell(fill_slots(command, {"file": "src.py"}), folder=tmp)
             self.assertEqual(res.returncode, 0, res.stderr)
             self.assertEqual(res.stdout, "foo\n_bar2\n")
+
+@unittest.skipUnless(sys.platform == "darwin", "runs macOS commands")
+class TestTimeCommandsOnMacos(unittest.TestCase):
+    def test_unix_timestamp_converts_example(self):
+        res = run_termy_shell(find_command("dataset_time.json", "unix timestamp"), "34128000\n")
+        self.assertEqual(res.returncode, 0, res.stderr)
+        self.assertIn("1971", res.stdout)
+
+    def test_calendar_shows_month_example(self):
+        res = run_termy_shell(find_command("dataset_time.json", "Current Calendar"))
+        self.assertEqual(res.returncode, 0, res.stderr)
+        self.assertIn("Su Mo Tu", res.stdout)
+
+    def test_timer_sends_notification_example(self):
+        stub = "osascript() { echo notified; };"
+        res = run_termy_shell(find_command("dataset_time.json", "Countdown Finished"), "0\n1\n", stubs=stub)
+        self.assertEqual(res.returncode, 0, res.stderr)
+        self.assertIn("Time's up", res.stdout)
+        self.assertIn("notified", res.stdout)
 
 if __name__ == "__main__":
     unittest.main()
