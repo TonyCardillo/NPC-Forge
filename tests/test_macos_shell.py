@@ -79,7 +79,7 @@ class TestHelpersOnBash32(unittest.TestCase):
                     self.assertEqual(res.returncode, 0, res.stderr)
                     self.assertEqual(res.stdout.strip(), "ok")
 
-OPTIONAL_TOOLS = {"pstree", "watch"}  # brew install pstree watch
+OPTIONAL_TOOLS = {"pstree", "watch", "qrencode", "yt-dlp", "chocolate-doom"}  # all in Homebrew
 
 READ_ONLY_INTENTS = {
     "dataset_system.json": [
@@ -125,6 +125,9 @@ PORTED_FILES = [
     "dataset_files.json",
     "templates_files.json",
     "templates_nl2bash.json",
+    "dataset_formats.json",
+    "dataset_games.json",
+    "dataset_http.json",
 ]
 
 def file_commands(file_name):

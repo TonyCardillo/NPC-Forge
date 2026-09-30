@@ -68,7 +68,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "if command -v chocolate-doom >/dev/null 2>&1; then\n chocolate-doom\nelse\n sudo apt update &&\n sudo apt install chocolate-doom -y &&\n termy_say -s 'I have installed doom, I will run it for you now...' &&\n chocolate-doom\nfi",
+                    "command": "if command -v chocolate-doom >/dev/null 2>&1; then\n chocolate-doom\nelse\n brew install chocolate-doom &&\n termy_say -s 'I have installed doom, I will run it for you now...' &&\n chocolate-doom\nfi",
                     "explanation": "Installs chocolate-doom (source port that accurately reproduces the experience of Doom as it was played in the 1990s) if not present, or runs it.",
                     "goal": "Running Doom",
                     "mode": "sync"

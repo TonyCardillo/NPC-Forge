@@ -156,7 +156,7 @@
             {
                 "name": "run_in_terminal",
                 "arguments": {
-                    "command": "read -p \"🔗 YouTube Link: \" ytlink &&\nif ! command -v yt-dlp >/dev/null 2>&1; then\n termy_say -s \"Installing missing package\" &&\n printf \"\\r\\n📦 Installing yt-dlp, please wait...\\n\" &&\n sudo apt update -y >/dev/null 2>&1 &&\n sudo apt install -y yt-dlp >/dev/null 2>&1\nfi &&\ntermy_say -s \"Downloading YouTube audio\" &&\nprintf \"\\r\\n\" &&\nyt-dlp --extract-audio --audio-format mp3 --audio-quality 0 -o \"%(title)s.%(ext)s\" \"$ytlink\" &&\nprintf \"\"",
+                    "command": "read -p \"🔗 YouTube Link: \" ytlink &&\nif ! command -v yt-dlp >/dev/null 2>&1; then\n termy_say -s \"Installing missing package\" &&\n printf \"\\r\\n📦 Installing yt-dlp, please wait...\\n\" &&\n brew install yt-dlp >/dev/null 2>&1\nfi &&\ntermy_say -s \"Downloading YouTube audio\" &&\nprintf \"\\r\\n\" &&\nyt-dlp --extract-audio --audio-format mp3 --audio-quality 0 -o \"%(title)s.%(ext)s\" \"$ytlink\" &&\nprintf \"\"",
                     "explanation": "Prompts for a YouTube URL, automatically installs yt-dlp via apt if it is missing from the system, and then extracts the high-quality MP3 track.",
                     "goal": "Install yt-dlp if missing and download YouTube video as MP3",
                     "mode": "sync"
