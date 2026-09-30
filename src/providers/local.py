@@ -3,7 +3,7 @@ import sys
 import traceback
 
 from pathlib import Path
-from registry import load_npc
+from registry import get_npc_engine
 from providers.base import BaseProvider 
 
 class LocalProvider(BaseProvider):
@@ -19,7 +19,7 @@ class LocalProvider(BaseProvider):
             The server itself uses this function to respond to requests.  
         """
         try:
-            engine = load_npc(npc_name)
+            engine = get_npc_engine(npc_name)
             if engine is None:
                 raise RuntimeError(
                     f"NPC Engine Profile '{npc_name}' not found."
