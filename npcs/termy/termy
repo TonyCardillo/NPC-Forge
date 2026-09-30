@@ -10,7 +10,7 @@ from pathlib import Path
 from FlintNPC import load_json
 from FlintNPC import load_json
 from providers.ollama import OllamaProvider
-from providers.api import ApiProvider
+import on_demand
 from providers.local import LocalProvider
 from tui.tools import TuiTools, BOLD, GRAY, GREEN, RED, RESET, YELLOW
 
@@ -86,19 +86,10 @@ def run_cli() -> int:
     # Pass --yes flag through environment so all subprocess calls inherit it
     if args.yes: os.environ["TERMY_YES"] = "1"
 
-    # Try HTTP call to the Flask Gateway first
-    client = ApiProvider(url="http://127.0.0.1:5000", timeout=10.0)
-    result = client.request(args.npc, user_input)
-    
-    if result is None:
-        CURRENT_BOT_DIR = Path(os.path.realpath(__file__)).parent
-        FORGE_ROOT_DIR = str(CURRENT_BOT_DIR.parent.parent)
-        sys.stderr.write(
-            f"NPC-Forge server is {RED}offline{RESET}, "
-            f"starting local fallback...\n"
-        )
-        client = LocalProvider(FORGE_ROOT_DIR, CURRENT_BOT_DIR)
-        result = client.request(args.npc, user_input)
+    # Use the on-demand server when it runs; otherwise answer locally and start it
+    CURRENT_BOT_DIR = Path(os.path.realpath(__file__)).parent
+    local = LocalProvider(str(CURRENT_BOT_DIR.parent.parent), CURRENT_BOT_DIR)
+    result = on_demand.ask(args.npc, user_input, local, start=not args.dry_run)
 
     emoji = result.get("emoji", "")
     if emoji == "😑": emoji = ""

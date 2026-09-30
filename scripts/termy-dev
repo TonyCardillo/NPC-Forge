@@ -33,7 +33,7 @@ def main() -> int:
     hide_terminal_logs()
     registry.REGISTRY_DIR = ROOT  # use the repo dataset, not ~/.local/share
     termy = load_termy()
-    termy.ApiProvider.request = lambda *_: None  # skip any running server
+    termy.on_demand.UnixSocketProvider.request = lambda *_: None  # skip any running server
     sys.argv = ["termy", "--dry-run", *sys.argv[1:]]
     return termy.run_cli()
 

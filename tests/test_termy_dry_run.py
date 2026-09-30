@@ -56,6 +56,9 @@ def sample_prompts():
 
 
 class TestTermyDryRun(unittest.TestCase):
+    def setUp(self):
+        self.start_server = mock.MagicMock()
+
     def run_termy(self, argv, api_result=None):
         """Runs termy with every process-starting call replaced by a recorder."""
         run, popen = mock.MagicMock(), mock.MagicMock()
@@ -63,7 +66,8 @@ class TestTermyDryRun(unittest.TestCase):
         confirm = mock.MagicMock(side_effect=AssertionError("prompted"))
         out = io.StringIO()
         patches = [
-            mock.patch.object(termy.ApiProvider, "request", return_value=api_result),
+            mock.patch.object(termy.on_demand.UnixSocketProvider, "request", return_value=api_result),
+            mock.patch.object(termy.on_demand, "start_server", self.start_server),
             mock.patch.object(termy.subprocess, "run", run),
             mock.patch.object(termy.subprocess, "Popen", popen),
             mock.patch.object(termy.tui, "confirm", confirm),
@@ -97,6 +101,11 @@ class TestTermyDryRun(unittest.TestCase):
         self.assertEqual(calls, 0)
         self.assertNotIn("Permission", out)
 
+    def test_call_without_server_starts_it_once_example(self):
+        registry.REGISTRY_DIR = ROOT  # use the repo, not ~/.local/share
+        self.run_termy(["what", "time", "is", "it"])
+        self.start_server.assert_called_once()
+
     def test_dry_run_never_runs_commands_invariant(self):
         registry.REGISTRY_DIR = ROOT  # use the repo, not ~/.local/share
         for prompt in sample_prompts():
@@ -104,6 +113,7 @@ class TestTermyDryRun(unittest.TestCase):
                 code, calls, _ = self.run_termy(["--dry-run", prompt])
                 self.assertEqual(code, 0)
                 self.assertEqual(calls, 0)
+                self.start_server.assert_not_called()
 
 
 if __name__ == "__main__":
