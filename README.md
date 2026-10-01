@@ -1,6 +1,22 @@
 > [!NOTE]
 > This is an unofficial macOS fork of [gioblu/NPC-Forge](https://github.com/gioblu/NPC-Forge). For the official Linux/WSL version, use the upstream repository.
 
+### macOS quick start
+
+You need Python 3.10 or newer (`brew install python`).
+
+```bash
+git clone https://github.com/TonyCardillo/NPC-Forge.git
+cd NPC-Forge && ./setup.sh
+npc-forge install npcs/termy
+termy what time is it
+```
+
+- The server starts on demand on a private Unix socket and stops after 10 minutes without use. Set `NPC_FORGE_IDLE_SECONDS` to change this time.
+- Most TERMy commands run without asking. Use `termy -n <prompt>` to see the command without running it.
+- Voice mode uses the built-in `say` command.
+- To remove everything: `./setup.sh --uninstall`.
+
 [![NPC-Forge Discord](https://img.shields.io/badge/Join-Discord-%235865F2.svg)](https://discord.gg/84zTNDzjD)
 ## NPC-Forge
 
