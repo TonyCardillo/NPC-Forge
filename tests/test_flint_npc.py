@@ -234,8 +234,8 @@ class TestFalsePositiveResolution(unittest.TestCase):
 class TestKnownLimitations(unittest.TestCase):
     """
     Documents remaining false positives so regressions and future
-    fixes stay visible instead of silently disappearing. Both cases
-    share the same root cause: a short anchor token that is punctuation
+    fixes stay visible instead of silently disappearing. The cause:
+    a short anchor token that is punctuation
     only ("~", ".", "..") gets its real (high) IDF weight since it
     occurs in only one intent, but the user query spells the word out
     ("tilde", "dot", "dotdot") instead of typing the literal symbol, so
@@ -252,7 +252,7 @@ class TestKnownLimitations(unittest.TestCase):
         res = self.npc.process_message("what does the tilde represent")
         self.assertIn("user home directory", res["response"])
 
-    @unittest.expectedFailure
+    # Passes since TERMy skips the Python snippet sets (skip_datasets)
     def test_dot_dotdot_symbol_anchor_not_spelled_out_in_query(self):
         res = self.npc.process_message("what does dot and dotdot mean")
         self.assertIn("parent directory", res["response"])

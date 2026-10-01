@@ -4,5 +4,11 @@
   "creator": "Giovanni Blu Mitolo",
   "sentence_threshold": 0.6668,
   "word_threshold": 0.751,
-  "suggestions": 10
+  "suggestions": 10,
+  "skip_datasets": [
+    "python_ppqd",
+    "python-glaive-100",
+    "python-functions-reasoning-100",
+    "Tested-143k-Python-Alpaca-80"
+  ]
 }
