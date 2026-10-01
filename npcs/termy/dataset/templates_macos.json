@@ -1,0 +1,264 @@
+[
+    {
+        "intent": "macos_open_named",
+        "category": "macos_open_named",
+        "type": "template",
+        "structure": [
+            [
+                {
+                    "tag": "<||vocab_open||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||named_path||>",
+                    "type": "named_path",
+                    "required": true
+                }
+            ]
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "if [ -e '<||named_path||>' ]; then open -- '<||named_path||>'; else echo \"No file or folder named <||named_path||> here.\"; fi",
+                    "explanation": "Opens <||named_path||> with its default app, or a folder in Finder.",
+                    "goal": "Open a file",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "intent": "macos_kill_port",
+        "category": "macos_kill_port",
+        "type": "template",
+        "structure": [
+            [
+                {
+                    "tag": "<||vocab_delete||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||vocab_process||>",
+                    "type": "vocab",
+                    "required": false
+                },
+                {
+                    "tag": "<||vocab_port||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||port||>",
+                    "type": "port",
+                    "required": true
+                }
+            ]
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "port='<||port||>' && case \"$port\" in ''|*[!0-9]*) echo \"Not a port: $port\";; *) pids=$(lsof -ti tcp:\"$port\" -sTCP:LISTEN); if [ -n \"$pids\" ]; then kill $pids && echo \"Sent TERM to the process on port $port.\"; else echo \"Nothing is listening on port $port.\"; fi;; esac",
+                    "explanation": "Asks the process that listens on TCP port <||port||> to stop (SIGTERM).",
+                    "goal": "Stop the process on a port",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "intent": "macos_kill_pid",
+        "category": "macos_kill_pid",
+        "type": "template",
+        "structure": [
+            [
+                {
+                    "tag": "<||vocab_delete||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||vocab_process||>",
+                    "type": "vocab",
+                    "required": false
+                },
+                {
+                    "tag": "<||number||>",
+                    "type": "number",
+                    "required": true
+                }
+            ]
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "pid='<||number||>' && case \"$pid\" in ''|*[!0-9]*) echo \"Not a process ID: $pid\";; *) kill \"$pid\" && echo \"Sent TERM to process $pid.\";; esac",
+                    "explanation": "Asks process <||number||> to stop (SIGTERM).",
+                    "goal": "Stop a process",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "intent": "macos_unzip_named",
+        "category": "macos_unzip_named",
+        "type": "template",
+        "structure": [
+            [
+                {
+                    "tag": "<||vocab_unzip||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||vocab_file||>",
+                    "type": "vocab",
+                    "required": false
+                },
+                {
+                    "tag": "<||named_path||>",
+                    "type": "named_path",
+                    "required": true
+                }
+            ]
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "file='<||named_path||>' && unzip -q -- '<||named_path||>' -d \"${file%.zip}\" && echo \"Extracted to ${file%.zip}/\"",
+                    "explanation": "Extracts <||named_path||> into a folder with the same name.",
+                    "goal": "Unzip a file",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "intent": "macos_docx_named",
+        "category": "macos_docx_named",
+        "type": "template",
+        "structure": [
+            [
+                {
+                    "tag": "<||vocab_convert||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||named_path||>",
+                    "type": "named_path",
+                    "required": true
+                },
+                {
+                    "tag": "<||vocab_to||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": [
+                        "<||vocab_docx||>",
+                        "<||vocab_word||>"
+                    ],
+                    "type": "vocab",
+                    "required": true
+                }
+            ]
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "out='<||named_path||>' && out=\"${out%.*}.docx\" && pandoc -o \"$out\" -- '<||named_path||>' && echo \"Saved $out\"",
+                    "explanation": "Converts <||named_path||> to a Word document next to it, with pandoc.",
+                    "goal": "Convert to Word",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "intent": "macos_quit_app",
+        "category": "macos_quit_app",
+        "type": "template",
+        "structure": [
+            [
+                {
+                    "tag": "<||vocab_quit||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||word||>",
+                    "type": "word",
+                    "required": true
+                }
+            ]
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "app='<||word||>' && case \"$app\" in *[!A-Za-z0-9]*) echo \"Not a valid app name: $app\";; *) osascript -e \"quit app \\\"$app\\\"\";; esac",
+                    "explanation": "Asks the app <||word||> to quit, as with Cmd+Q.",
+                    "goal": "Quit an app",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "intent": "macos_force_quit_app",
+        "category": "macos_force_quit_app",
+        "type": "template",
+        "structure": [
+            [
+                {
+                    "tag": "<||vocab_force||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||vocab_quit||>",
+                    "type": "vocab",
+                    "required": true
+                },
+                {
+                    "tag": "<||word||>",
+                    "type": "word",
+                    "required": true
+                }
+            ]
+        ],
+        "output": "<||completion||>",
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "pkill -ix -- '<||word||>' && echo \"Force quit <||word||>.\" || echo \"No process named <||word||>.\"",
+                    "explanation": "Stops every process named <||word||> at once, ignoring case. Unsaved work is lost.",
+                    "goal": "Force quit an app",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    }
+]

@@ -28,6 +28,7 @@ from FlintNPC import FlintNPC  # noqa: E402
 
 DATASET = ROOT / "npcs" / "termy" / "dataset"
 MACOS = DATASET / "dataset_macos.json"
+TEMPLATES = DATASET / "templates_macos.json"
 WRITES = {
     "macos_git_commit_all",
     "macos_git_push",
@@ -39,6 +40,16 @@ WRITES = {
     "macos_markdown_to_docx",
     "macos_resize_image",
     "macos_unzip",
+    "macos_git_merge_into_main",
+    "macos_git_delete_branch",
+}
+TEMPLATE_WRITES = {
+    "macos_kill_pid",
+    "macos_kill_port",
+    "macos_unzip_named",
+    "macos_docx_named",
+    "macos_quit_app",
+    "macos_force_quit_app",
 }
 OPTIONAL_TOOLS = {"pandoc", "pdftotext"}
 
@@ -71,6 +82,34 @@ EXAMPLES = [
     ("unzip a file", "unzip"),
     ("take a screenshot", "screencapture -i"),
     ("lock my screen", "pmset displaysleepnow"),
+    ("push", "git push"),
+    ("commit this", "git commit"),
+    ("merge to main", "git merge"),
+    ("delete this branch", "git branch -d"),
+    ("what is my local ip", "ipconfig getifaddr"),
+]
+
+# Prompts with an argument, matched by templates_macos.json
+TEMPLATE_EXAMPLES = [
+    ("open arithmetic.f", "open -- 'arithmetic.f'"),
+    ("open arithmetic.f for me", "open -- 'arithmetic.f'"),
+    ("open notes/README.md", "open -- 'notes/README.md'"),
+    ("kill 91907", "pid='91907'"),
+    ("kill process 91907", "pid='91907'"),
+    ("kill the process on port 5000", "port='5000'"),
+    ("kill port 5000", "port='5000'"),
+    ("unzip archive.zip", "unzip -q -- 'archive.zip'"),
+    ("convert notes.md to docx", "-- 'notes.md'"),
+    ("convert notes.md to word", "-- 'notes.md'"),
+    ("quit mail", "app='mail'"),
+    ("force quit mail", "pkill -ix -- 'mail'"),
+]
+# (prompt, template it must not reach)
+NOT_TEMPLATES = [
+    ("open file README.md", "macos_open_named"),
+    ("kill the process on port 5000", "macos_kill_pid"),
+    ("open the readme", "macos_open_named"),
+    ("unzip an archive", "macos_unzip_named"),
 ]
 
 def blocks():
@@ -169,6 +208,28 @@ class TestMacosDataset(unittest.TestCase):
             expected = "ask" if block["category"] in WRITES else "yolo"
             self.assertEqual(block["permission"], expected, block["category"])
 
+    def test_my_template_prompts_fill_the_slots_example(self):
+        for prompt, expected in TEMPLATE_EXAMPLES:
+            with self.subTest(prompt=prompt):
+                result = self.ask(prompt)
+                self.assertEqual(result["status"], "template match")
+                self.assertIn(expected, command_of(result))
+
+    def test_other_prompts_do_not_reach_these_templates_example(self):
+        for prompt, intent in NOT_TEMPLATES:
+            with self.subTest(prompt=prompt):
+                self.assertNotEqual(self.matched_intent(prompt), intent)
+
+    def matched_intent(self, prompt):
+        structure, _ = self.npc.nlp.parse_structure(prompt, self.npc.sentence_threshold)
+        template = self.npc.nlp.match_structure(self.npc.templates, structure)
+        return template.get("intent") if template else None
+
+    def test_templates_that_change_things_ask_first_example(self):
+        for template in json.loads(TEMPLATES.read_text()):
+            expected = "ask" if template["intent"] in TEMPLATE_WRITES else "yolo"
+            self.assertEqual(template["permission"], expected, template["intent"])
+
     def test_commands_have_no_linux_problems_invariant(self):
         helpers = gap.helper_functions()
         for block in blocks():
@@ -179,7 +240,12 @@ class TestMacosDataset(unittest.TestCase):
 
 @unittest.skipUnless(sys.platform == "darwin", "runs macOS commands")
 class TestMacosCommandsRun(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.npc = FlintNPC("termy", log_level="CRITICAL")
+
     def setUp(self):
+        self.npc.active_context_map = {}
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         self.tmp = Path(tmp.name)
@@ -256,6 +322,54 @@ class TestMacosCommandsRun(unittest.TestCase):
 
     def test_port_lookup_with_no_listener_example(self):
         self.assertIn("Nothing is listening", self.run_command("macos_port_lookup", "1\n").stdout)
+
+    def run_prompt(self, prompt, stdin="", stubs=""):
+        res = run_termy_shell(command_of(self.npc.process_messages(prompt)), stdin, str(self.tmp), stubs)
+        self.assertEqual(res.returncode, 0, res.stderr)
+        return res
+
+    def test_open_named_file_example(self):
+        stubs = 'open() { printf "%s\\n" "$@" > opened.txt; };'
+        (self.tmp / "a.f").write_text("x")
+        self.run_prompt("open a.f", stubs=stubs)
+        self.assertEqual((self.tmp / "opened.txt").read_text(), "--\na.f\n")
+
+    def test_open_missing_file_says_so_example(self):
+        self.assertIn("No file or folder named nope.f", self.run_prompt("open nope.f").stdout)
+
+    def test_kill_named_pid_example(self):
+        proc = subprocess.Popen(["sleep", "30"])  # noqa: S603, S607
+        self.addCleanup(proc.kill)
+        self.run_prompt(f"kill {proc.pid}")
+        self.assertIsNotNone(proc.wait(timeout=5))
+
+    def test_kill_process_on_port_example(self):
+        server = (
+            "import socket, time; s = socket.socket(); s.bind(('127.0.0.1', 0)); s.listen(); "
+            "print(s.getsockname()[1], flush=True); time.sleep(30)"
+        )
+        proc = subprocess.Popen([sys.executable, "-c", server], stdout=subprocess.PIPE, text=True)  # noqa: S603
+        self.addCleanup(proc.kill)
+        port = proc.stdout.readline().strip()
+        self.run_prompt(f"kill the process on port {port}")
+        self.assertIsNotNone(proc.wait(timeout=5))
+
+    def test_unzip_named_file_example(self):
+        with zipfile.ZipFile(self.tmp / "pack.zip", "w") as z:
+            z.writestr("inner.txt", "hello")
+        self.run_prompt("unzip pack.zip")
+        self.assertEqual((self.tmp / "pack" / "inner.txt").read_text(), "hello")
+
+    @unittest.skipUnless(shutil.which("pandoc"), "needs pandoc")
+    def test_docx_named_file_example(self):
+        (self.tmp / "notes.md").write_text("# Title\n")
+        self.run_prompt("convert notes.md to docx")
+        self.assertTrue((self.tmp / "notes.docx").exists())
+
+    def test_quit_app_uses_applescript_example(self):
+        stubs = 'osascript() { printf "%s\\n" "$@" > script.txt; };'
+        self.run_prompt("quit mail", stubs=stubs)
+        self.assertEqual((self.tmp / "script.txt").read_text(), '-e\nquit app "mail"\n')
 
     def test_read_only_commands_run_example(self):
         for category in ("macos_uptime", "macos_python_processes"):

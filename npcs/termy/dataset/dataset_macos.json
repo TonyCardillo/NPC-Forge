@@ -6,7 +6,9 @@
             "commit all changes",
             "commit all my changes",
             "commit my changes",
-            "git commit all"
+            "git commit all",
+            "commit this",
+            "commit it"
         ],
         "tools": [
             {
@@ -28,7 +30,10 @@
             "push my commits",
             "git push",
             "push to the remote",
-            "push to github"
+            "push to github",
+            "push",
+            "push it",
+            "push the branch"
         ],
         "tools": [
             {
@@ -124,6 +129,50 @@
                     "command": "git switch main",
                     "explanation": "Switches to the main branch.",
                     "goal": "Switch to main",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "category": "macos_git_merge_into_main",
+        "input": [
+            "merge to main",
+            "merge into main",
+            "merge this branch into main",
+            "merge it",
+            "merge"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "branch=$(git branch --show-current) && if [ \"$branch\" = main ]; then echo \"You are on main already.\"; else git switch main && git merge \"$branch\"; fi",
+                    "explanation": "Switches to main, then merges the branch you were on into it.",
+                    "goal": "Merge into main",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "category": "macos_git_delete_branch",
+        "input": [
+            "delete this branch",
+            "delete the branch",
+            "delete a branch",
+            "delete branch",
+            "remove a git branch"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "git branch --list && termy_question \"Branch to delete\" branch && git branch -d \"$branch\"",
+                    "explanation": "Lists the branches, then deletes the branch you type. Git refuses if the branch is not merged.",
+                    "goal": "Delete a branch",
                     "mode": "sync"
                 }
             }
@@ -319,6 +368,28 @@
                     "command": "ls -ld .[!.]* 2>/dev/null || echo \"No hidden files here.\"",
                     "explanation": "Lists the hidden files and folders in the current folder.",
                     "goal": "Show hidden files",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_local_ip",
+        "input": [
+            "what is my local ip",
+            "my local ip address",
+            "show my local ip",
+            "what is my lan ip",
+            "find my local ip"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "ipconfig getifaddr en0 || ipconfig getifaddr en1 || echo \"No local IP address found.\"",
+                    "explanation": "Shows the IP address of this Mac on the local network (Wi-Fi or Ethernet).",
+                    "goal": "Show the local IP",
                     "mode": "sync"
                 }
             }
