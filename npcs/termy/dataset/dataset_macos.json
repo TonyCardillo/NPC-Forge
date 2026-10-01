@@ -1,0 +1,586 @@
+[
+    {
+        "category": "macos_git_commit_all",
+        "input": [
+            "commit everything",
+            "commit all changes",
+            "commit all my changes",
+            "commit my changes",
+            "git commit all"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "termy_question \"Commit message\" msg && git add -A && git commit -m \"$msg\"",
+                    "explanation": "Stages every change, then commits with the message you type.",
+                    "goal": "Commit all changes",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "category": "macos_git_push",
+        "input": [
+            "push my changes",
+            "push my commits",
+            "git push",
+            "push to the remote",
+            "push to github"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "git push",
+                    "explanation": "Pushes the current branch to its remote.",
+                    "goal": "Push commits",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "category": "macos_git_stash",
+        "input": [
+            "stash my changes",
+            "stash changes",
+            "git stash",
+            "put my changes aside"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "git stash push",
+                    "explanation": "Saves the uncommitted changes in the stash and cleans the working tree.",
+                    "goal": "Stash changes",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "category": "macos_git_stash_pop",
+        "input": [
+            "pop the stash",
+            "git stash pop",
+            "restore my stash",
+            "bring back my stashed changes",
+            "unstash my changes"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "git stash pop",
+                    "explanation": "Applies the newest stash and removes it from the stash list.",
+                    "goal": "Restore stashed changes",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "category": "macos_git_switch",
+        "input": [
+            "switch branch",
+            "switch to another branch",
+            "change git branch",
+            "checkout a branch",
+            "git switch"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "git branch --list && termy_question \"Branch\" branch && git switch \"$branch\"",
+                    "explanation": "Lists the branches, then switches to the branch you type.",
+                    "goal": "Switch branch",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "category": "macos_git_switch_main",
+        "input": [
+            "switch to main",
+            "switch to main branch",
+            "switch to the main branch",
+            "go back to main",
+            "checkout main"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "git switch main",
+                    "explanation": "Switches to the main branch.",
+                    "goal": "Switch to main",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "category": "macos_git_what_changed",
+        "input": [
+            "what changed in this repo",
+            "what changed",
+            "what did i change",
+            "summarize my changes",
+            "show changed files"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "git status --short && git diff --stat",
+                    "explanation": "Shows the changed files and the number of changed lines in each.",
+                    "goal": "Summarize changes",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_uv_sync",
+        "input": [
+            "uv sync",
+            "sync dependencies",
+            "sync the dependencies",
+            "install project dependencies",
+            "install the dependencies"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "uv sync",
+                    "explanation": "Installs the project dependencies from uv.lock into .venv.",
+                    "goal": "Sync dependencies",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "category": "macos_run_tests",
+        "input": [
+            "run the tests",
+            "run tests",
+            "run the test suite",
+            "run all tests",
+            "test this project"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "if [ -f Cargo.toml ]; then cargo test; elif [ -f package.json ]; then npm test; elif [ -f pyproject.toml ] && command -v uv >/dev/null 2>&1; then if uv run python -c \"import pytest\" >/dev/null 2>&1; then uv run pytest; else uv run python -m unittest discover -s tests; fi; else python3 -m unittest discover -s tests; fi",
+                    "explanation": "Runs the tests with cargo, npm, uv (pytest or unittest) or python3, from the project files in this folder.",
+                    "goal": "Run the tests",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_venv_hint",
+        "input": [
+            "activate the venv",
+            "activate venv",
+            "activate the virtual environment",
+            "source the venv",
+            "enter the venv"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "printf '%s' 'source .venv/bin/activate' | pbcopy && termy_say \"TERMy runs in a child shell, so it cannot change your shell. The activate command is on your clipboard: paste it and press Enter.\"",
+                    "explanation": "Copies the venv activate command to the clipboard, because a child shell cannot activate a venv in your shell.",
+                    "goal": "Help to activate the venv",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_open_finder",
+        "input": [
+            "open this folder in finder",
+            "open finder here",
+            "show this folder in finder",
+            "open the current folder",
+            "reveal in finder"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "open .",
+                    "explanation": "Opens the current folder in Finder.",
+                    "goal": "Open Finder",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_open_file",
+        "input": [
+            "open a file",
+            "open a file in its app",
+            "open something with its app"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "termy_question \"File to open\" file && open \"$file\"",
+                    "explanation": "Opens the file you type with its default app.",
+                    "goal": "Open a file",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_folder_size",
+        "input": [
+            "show the size of this folder",
+            "how big is this folder",
+            "size of this folder",
+            "folder size",
+            "how much space does this folder use"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "du -sh .",
+                    "explanation": "Shows the total size of the current folder.",
+                    "goal": "Show folder size",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_biggest_items",
+        "input": [
+            "what is taking space in this folder",
+            "what is using space in this folder",
+            "biggest items in this folder",
+            "largest items here",
+            "what takes up space here"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "du -sh -- * .[!.]* 2>/dev/null | sort -h | tail -n 15",
+                    "explanation": "Lists the 15 largest items in the current folder, the largest last.",
+                    "goal": "Find large items",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_hidden_files",
+        "input": [
+            "show hidden files",
+            "list hidden files",
+            "show dotfiles",
+            "list the dotfiles here"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "ls -ld .[!.]* 2>/dev/null || echo \"No hidden files here.\"",
+                    "explanation": "Lists the hidden files and folders in the current folder.",
+                    "goal": "Show hidden files",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_port_lookup",
+        "input": [
+            "what is using port",
+            "what is using a port",
+            "which process uses port",
+            "what is listening on port",
+            "who is on port"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "termy_question \"Port\" port && { lsof -nP -iTCP:\"$port\" -sTCP:LISTEN || echo \"Nothing is listening on port $port.\"; }",
+                    "explanation": "Shows the process that listens on the TCP port you type.",
+                    "goal": "Find the process on a port",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_uptime",
+        "input": [
+            "how long has my mac been up",
+            "uptime",
+            "how long since the last restart",
+            "when did my mac boot",
+            "system uptime"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "uptime",
+                    "explanation": "Shows how long the Mac has run since the last start, and the load averages.",
+                    "goal": "Show uptime",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_caffeinate",
+        "input": [
+            "keep my mac awake",
+            "keep the mac awake",
+            "do not let my mac sleep",
+            "stop my mac from sleeping",
+            "caffeinate"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "printf \"Keeping the Mac awake. Press Ctrl+C to stop.\\n\" && caffeinate -dimsu",
+                    "explanation": "Keeps the Mac and the display awake until you press Ctrl+C.",
+                    "goal": "Keep the Mac awake",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_paste",
+        "input": [
+            "paste the clipboard",
+            "show the clipboard",
+            "what is in my clipboard",
+            "print the clipboard",
+            "show clipboard contents"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "pbpaste",
+                    "explanation": "Prints the text on the clipboard.",
+                    "goal": "Show the clipboard",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_copy_file_to_clipboard",
+        "input": [
+            "copy this file to the clipboard",
+            "copy a file to the clipboard",
+            "copy file contents to the clipboard",
+            "put a file on the clipboard",
+            "copy the text of a file"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "termy_question \"File to copy\" file && pbcopy < \"$file\" && echo \"Copied $file to the clipboard.\"",
+                    "explanation": "Copies the text of the file you type to the clipboard.",
+                    "goal": "Copy a file to the clipboard",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_python_processes",
+        "input": [
+            "list running python processes",
+            "show python processes",
+            "which python processes are running",
+            "list python processes"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "pgrep -fl python || echo \"No Python processes are running.\"",
+                    "explanation": "Lists the running processes whose command line contains python.",
+                    "goal": "List Python processes",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_screenshot",
+        "input": [
+            "take a screenshot",
+            "screenshot",
+            "capture the screen",
+            "take a screen capture"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "out=\"$HOME/Desktop/screenshot-$(date +%Y%m%d-%H%M%S).png\" && screencapture -i \"$out\" && [ -f \"$out\" ] && echo \"Saved $out\"",
+                    "explanation": "Takes a screenshot of the area or window you select and saves it on the Desktop. Press Esc to cancel.",
+                    "goal": "Take a screenshot",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_lock_screen",
+        "input": [
+            "lock my screen",
+            "lock the screen",
+            "lock my mac",
+            "lock the mac"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "pmset displaysleepnow",
+                    "explanation": "Turns off the display now. The Mac locks if it asks for the password right after sleep.",
+                    "goal": "Lock the screen",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_markdown_to_docx",
+        "input": [
+            "convert markdown to docx",
+            "convert markdown to word",
+            "convert a markdown file to word",
+            "make a docx from markdown"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "termy_question \"Markdown file\" file && pandoc \"$file\" -o \"${file%.*}.docx\" && echo \"Saved ${file%.*}.docx\"",
+                    "explanation": "Converts the Markdown file you type to a Word document next to it, with pandoc.",
+                    "goal": "Convert Markdown to Word",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "category": "macos_pdf_text",
+        "input": [
+            "extract text from a pdf",
+            "pdf to text",
+            "get the text of a pdf",
+            "print the text of a pdf"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "termy_question \"PDF file\" file && pdftotext -layout \"$file\" -",
+                    "explanation": "Prints the text of the PDF you type, with its layout, using pdftotext.",
+                    "goal": "Extract PDF text",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "yolo"
+    },
+    {
+        "category": "macos_resize_image",
+        "input": [
+            "resize an image",
+            "make an image smaller",
+            "shrink an image",
+            "scale down an image"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "termy_question \"Image file\" file && termy_question \"Longest side in pixels\" px && out=\"${file%.*}-${px}px.${file##*.}\" && sips -Z \"$px\" \"$file\" --out \"$out\" >/dev/null && echo \"Saved $out\"",
+                    "explanation": "Makes a copy of the image with the longest side set to the pixels you type, with sips.",
+                    "goal": "Resize an image",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    },
+    {
+        "category": "macos_unzip",
+        "input": [
+            "unzip a file",
+            "extract a zip file",
+            "unzip an archive",
+            "open a zip file",
+            "decompress a zip"
+        ],
+        "tools": [
+            {
+                "name": "run_in_terminal",
+                "arguments": {
+                    "command": "termy_question \"Zip file\" file && unzip -q \"$file\" -d \"${file%.zip}\" && echo \"Extracted to ${file%.zip}/\"",
+                    "explanation": "Extracts the zip file you type into a folder with the same name.",
+                    "goal": "Unzip a file",
+                    "mode": "sync"
+                }
+            }
+        ],
+        "permission": "ask"
+    }
+]
