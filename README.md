@@ -15,6 +15,7 @@ termy what time is it
 - The server starts on demand on a private Unix socket and stops after 10 minutes without use. Set `NPC_FORGE_IDLE_SECONDS` to change this time.
 - Most TERMy commands run without asking. Use `termy -n <prompt>` to see the command without running it.
 - Voice mode uses the built-in `say` command.
+- TERMy does not load its four Python snippet sets, so it starts in about 0.02s. To use them, remove their names from `skip_datasets` in `npcs/termy/config.json`, then run `npc-forge install npcs/termy` and `npc-forge restart`.
 - To remove everything: `./setup.sh --uninstall`.
 
 Original README below!
