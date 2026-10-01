@@ -17,6 +17,8 @@ termy what time is it
 - Voice mode uses the built-in `say` command.
 - To remove everything: `./setup.sh --uninstall`.
 
+Original README below!
+
 [![NPC-Forge Discord](https://img.shields.io/badge/Join-Discord-%235865F2.svg)](https://discord.gg/84zTNDzjD)
 ## NPC-Forge
 
