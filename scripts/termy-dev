@@ -5,7 +5,6 @@ nothing is ever executed. Usage: termy-dev <prompt>
 """
 import importlib.machinery
 import importlib.util
-import logging
 import sys
 from pathlib import Path
 
@@ -14,14 +13,8 @@ TERMY = ROOT / "npcs" / "termy" / "termy"
 sys.path[:0] = [str(ROOT / "src"), str(TERMY.parent)]
 
 import registry  # noqa: E402
-from logger import logger  # noqa: E402
+from logger import hide_terminal_logs  # noqa: E402
 
-
-def hide_terminal_logs():
-    """Keeps engine logs in the log file only."""
-    for handler in list(logger.handlers):
-        if not isinstance(handler, logging.FileHandler):
-            logger.removeHandler(handler)
 
 def load_termy():
     loader = importlib.machinery.SourceFileLoader("termy", str(TERMY))

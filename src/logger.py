@@ -43,3 +43,9 @@ if not logger.handlers:
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
     logger.addHandler(stream_handler)
+
+def hide_terminal_logs():
+    """Keeps engine logs in the log file only."""
+    for handler in list(logger.handlers):
+        if not isinstance(handler, logging.FileHandler):
+            logger.removeHandler(handler)

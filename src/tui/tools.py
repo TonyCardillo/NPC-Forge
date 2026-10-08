@@ -39,7 +39,7 @@ class TuiTools:
 
         try:
             while True:
-                render_str = f"Execute:{RESET} "
+                render_str = f"  Run?{RESET} "
                 for idx, opt in enumerate(options):
                     if idx == current_idx:
                         render_str += f" {BOLD}▶{RESET} {opt}  "
