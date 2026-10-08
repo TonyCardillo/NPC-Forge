@@ -105,6 +105,12 @@ class FlintNPC:
         self.personality = load_json(dataset_dir, "personality.json") or []
         skip = self.config.get("skip_datasets", [])
         self.dataset = load_json_recursive(dataset_dir, "dataset_*.json", skip)
+        learned = self.config.get("learned_dataset")
+        if learned:
+            # Entries saved by the LLM fallback, kept outside the NPC folder
+            learned_path = os.path.expanduser(learned)
+            if os.path.exists(learned_path):
+                self.dataset += load_json(os.path.dirname(learned_path), os.path.basename(learned_path)) or []
         self.templates = load_json_recursive(dataset_dir, "templates_*.json", skip)
     
         v_lists = [
@@ -342,12 +348,14 @@ class FlintNPC:
 
         if best_context_score >= self.sentence_threshold:
             self.update_context(best_context_block)
-            return self.generate_response(
+            result = self.generate_response(
                 best_context_block, 
                 {}, 
                 best_context_score, 
                 "probabilistic match"
             )
+            result["ignored_words"] = self.ignored_rare_words(user_prompt_clean, best_context_block)
+            return result
 
         best_block, best_score = None, -1.0
         related_intents = []
@@ -389,10 +397,34 @@ class FlintNPC:
             
         if best_score >= self.sentence_threshold and best_block:
             self.update_context(best_block)
-            return self.generate_response(best_block, {}, best_score, "probabilistic match")
+            result = self.generate_response(best_block, {}, best_score, "probabilistic match")
+            result["ignored_words"] = self.ignored_rare_words(user_prompt_clean, best_block)
+            return result
 
         return self.generate_response(self.rejection, {}, 0.0, "rejected", related_intents)
     
+    def ignored_rare_words(self, prompt, block):
+        """
+        Returns the rare words of the prompt that no input of the matched
+        block uses. A match that ignores a rare word probably missed the
+        point of the prompt, so the caller can treat it as uncertain.
+        """
+        cutoff = float(self.config.get("rare_word_weight", 0.7))
+        words = {w for text in block.get("input", []) for w in str(text).lower().split()}
+        ignored = []
+        for token in prompt.lower().split():
+            if len(token) < 3 or self.nlp.weights.get(token, 0.0) < cutoff:
+                continue
+            tag = self.nlp._synonym_map.get(token)
+            if any(
+                token == w
+                or (tag and tag == self.nlp._synonym_map.get(w))
+                or self.nlp.levenshtein_similarity(token, w, self.word_threshold) >= self.word_threshold
+                for w in words
+            ): continue
+            ignored.append(token)
+        return ignored
+
     def process_messages(self, user_prompt: str):
         """
         
@@ -408,7 +440,7 @@ class FlintNPC:
         if not sub_prompts:
             return self.generate_response(self.rejection, {}, 0.0, "rejected")
 
-        responses_list, tools_list, desc_list, status_list = [], [], [], []
+        responses_list, tools_list, desc_list, status_list, ignored_list = [], [], [], [], []
         lowest_confidence = 1.0
         aggregated_sentiment = {k: 0 for k in self.sentiment}
 
@@ -432,6 +464,7 @@ class FlintNPC:
             if "tools" in res: tools_list.append(res["tools"])
             if "description" in res: desc_list.append(res["description"])
             if "status" in res: status_list.append(res["status"])
+            ignored_list += res.get("ignored_words", [])
             
             for key in aggregated_sentiment:
                 aggregated_sentiment[key] += self.sentiment.get(key, 0)
@@ -450,7 +483,8 @@ class FlintNPC:
             "response": concatenated_response,
             "confidence": lowest_confidence,
             "status": concatenated_status,
-            "sentiment": aggregated_sentiment
+            "sentiment": aggregated_sentiment,
+            "ignored_words": ignored_list
         })
         
         logger.info(f"[chatbot.py][{self.name}][process_messages] Output: '{concatenated_response}'")
