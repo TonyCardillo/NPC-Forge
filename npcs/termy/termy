@@ -8,19 +8,69 @@ import subprocess
 from pathlib import Path
 
 from FlintNPC import load_json
-from FlintNPC import load_json
-from providers.ollama import OllamaProvider
+import learned
 import on_demand
+from providers.lmstudio import LmStudioProvider
 from providers.local import LocalProvider
 from tui.tools import TuiTools, BOLD, GRAY, GREEN, RED, RESET, YELLOW
 
 tui = TuiTools()
 
-def print_dry_run(result: dict, command: str, description: str) -> int:
+def is_uncertain(result: dict, threshold: float) -> bool:
+    """True when TERMy has no match, or a probabilistic match it should not trust."""
+    status = str(result.get("status", "rejected")).lower()
+    if status == "rejected":
+        return True
+    if "probabilistic" not in status:
+        return False
+    return result.get("confidence", 0.0) < threshold or bool(result.get("ignored_words"))
+
+def uncertainty_note(result: dict) -> str:
+    if str(result.get("status", "rejected")).lower() == "rejected":
+        return "TERMy has no match."
+    ignored = result.get("ignored_words") or []
+    detail = f", ignored: {', '.join(ignored)}" if ignored else ""
+    return f"TERMy is not sure ({result.get('confidence', 0.0):.0%}{detail})."
+
+def with_helpers(command: str, scripts_dir: Path) -> str:
+    """Prefixes the command with the TERMy shell helpers."""
+    sources = [f"source {f}" for f in sorted(scripts_dir.iterdir()) if f.suffix == ".sh"] if scripts_dir.is_dir() else []
+    return " && ".join(sources + [command])
+
+def llm_fallback(llm_config: dict, config: dict, user_input: str, result: dict, scripts_dir: Path, yes: bool):
+    """Asks LM Studio for a command. Returns an exit code, or None when LM Studio is missing."""
+    provider = LmStudioProvider(llm_config)
+    print(f"{YELLOW}{uncertainty_note(result)} Asking {provider.model}...{RESET}\n")
+    if not provider.ensure_ready():
+        print(f"{GRAY}LM Studio is not installed, so TERMy cannot ask an LLM.{RESET}\n")
+        return None
+    suggestion = provider.suggest(user_input)
+    if not suggestion:
+        print(f"{RED}{provider.model} gave no command.{RESET}\n")
+        return 1
+    command, explanation = suggestion["command"], suggestion["explanation"]
+    print(f"{GREEN}{BOLD}{command}{RESET}{GRAY}\n\nDescription: {explanation}\n{RESET}")
+    if not (yes or tui.confirm()):
+        return 0
+    try:
+        res = subprocess.run(with_helpers(command, scripts_dir), shell=True, executable="/bin/bash")
+    except KeyboardInterrupt:
+        return 130
+    print()
+    if res.returncode == 0:
+        learned_path = os.path.expanduser(config.get("learned_dataset", "~/.local/share/termy/dataset_learned.json"))
+        learned.save_entry(learned_path, user_input, command, explanation)
+        on_demand.stop_server()  # the server loads the new entry on its next start
+        print(f"{GRAY}Saved: TERMy will answer this prompt by itself next time.{RESET}\n")
+    return res.returncode
+
+def print_dry_run(result: dict, command: str, description: str, note: str = "") -> int:
     """Prints what TERMy matched and would run, without running it."""
     confidence = result.get("confidence", 0.0) * 100
     print(f"{YELLOW}Dry run: nothing was executed{RESET}\n")
     print(f"Status: {result.get('status', 'rejected')} | Confidence: {confidence:.2f}\n")
+    if note:
+        print(f"{note} TERMy would ask the LLM.\n")
     if result.get("response"):
         print(f"Response: {result['response']}\n")
     if command:
@@ -144,9 +194,21 @@ def run_cli() -> int:
                         "explanation", result.get("description", "")
                     )
 
+    llm_config = config.get("llm", {})
+    uncertain = llm_config.get("enabled", False) and is_uncertain(
+        result, float(llm_config.get("uncertain_below", 0.8))
+    )
+
     # Return before TTS, the related-intents menu, LLM generation and execution
     if args.dry_run:
-        return print_dry_run(result, command, description)
+        return print_dry_run(result, command, description, uncertainty_note(result) if uncertain else "")
+
+    # No match or an uncertain match: ask the LLM; continue as before when LM Studio is missing
+    if uncertain:
+        yes = args.yes or os.environ.get("TERMY_YES") == "1"
+        code = llm_fallback(llm_config, config, user_input, result, CURRENT_BOT_DIR / "scripts", yes)
+        if code is not None:
+            return code
 
     if response: 
         print(f"Response: {response} {emoji}\n")
@@ -178,88 +240,26 @@ def run_cli() -> int:
     if command:
         print(f"{GREEN}{BOLD}{command}{RESET}{description}")
 
-        # Display related intents after response if rejected (deduplicated)
+    # No match: offer the related intents
     related = result.get("related", [])
-    llm_config = config.get("llm", {})
-    llm_enabled = llm_config.get("enabled", False)
-    llm_model = llm_config.get("model", "")
-
-    # Show menu if there are related intents OR if the LLM fallback is enabled
-    if status == "rejected" and (related or llm_enabled):
-        choice = 0
-        llm_selected = False
-        
-        if len(related) > 0:
-            related_intents = [intent["input"][0] for intent in related]
-            
-            if llm_enabled:
-                menu_text = f"Choose related {GREEN}{BOLD}1-{len(related)}{RESET} Ask {llm_model} {GREEN}{BOLD}a{RESET} Quit {GREEN}{BOLD}q{RESET}\n"
-            else:
-                menu_text = f"Digit {GREEN}{BOLD}1-{len(related)}{RESET} or {GREEN}{BOLD}q{RESET} to quit\n"
-                
-            choice = tui.multi_choice("Select an intent", related_intents, menu_text, 'a')
-            
-            if isinstance(choice, int) and choice > 0 and choice <= len(related):
-                try:
-                    res = subprocess.run(
-                        [sys.argv[0], related_intents[choice - 1]],
-                        executable=sys.argv[0]
-                    )
-                    return res.returncode
-                except KeyboardInterrupt:
-                    print(f"\n\n{YELLOW}Execution cancelled.{RESET}\n")
-                    return 130
-                except Exception as exc:
-                    print(f"\n\nFailed to execute recursive call: {exc}\n")
-                    return 1
-            elif choice > len(related_intents) and llm_enabled: 
-                llm_selected = True
-            elif not choice: return 0
-                
-        elif llm_enabled:
-            print(f"No related intents found. Let's ask to {GREEN}{llm_model}{RESET}?\n")
-            choice = tui.confirm()
-            if choice: llm_selected = True
-
-        # Execute LLM generation if selected
-        if llm_enabled and llm_selected:
-            print(f"{GRAY}Dataset entry generation requested!{RESET}")
-            
+    if status == "rejected" and related:
+        related_intents = [intent["input"][0] for intent in related]
+        menu_text = f"Digit {GREEN}{BOLD}1-{len(related)}{RESET} or {GREEN}{BOLD}q{RESET} to quit\n"
+        choice = tui.multi_choice("Select an intent", related_intents, menu_text, 'a')
+        if isinstance(choice, int) and 0 < choice <= len(related):
             try:
-                ollama_client = OllamaProvider(llm_config)
-                generated_intent = ollama_client.craft_intent(
-                    user_input, 
-                    str(CURRENT_BOT_DIR / "dataset"),
-                    f"dataset_{os.environ.get('USER', 'user')}.json"
+                res = subprocess.run(
+                    [sys.argv[0], related_intents[choice - 1]],
+                    executable=sys.argv[0]
                 )
-                
-                if generated_intent:
-                    print(f"\n{GREEN}Dataset entry stored successfully!{RESET}")
-                    try:
-                        tool_args = generated_intent["tools"][0]["arguments"]
-                        command = tool_args.get("command", "")
-                        description = tool_args.get("explanation", "")    
-                        # Safely get permission, defaulting to "ask"
-                        permission = generated_intent.get("permission", "ask")
-                    except (KeyError, IndexError, TypeError):
-                        print(f"{RED}TERMy Exception: Invalid tool structure generated by LLM.{RESET}")
-                        return 1
-
-                    if not command or not command.strip():
-                        print(f"{RED}Generated command is empty. Nothing to execute.{RESET}")
-                        return 1
-                    
-                    print(f"\n{GREEN}{BOLD}{command}{RESET}{GRAY}\n\nDescription: {description.strip()}\n{RESET}")
-                    
-                else:
-                    print(f"{RED}TERMy failed to obtain a valid script from {llm_model}.{RESET}")
-                    return 1
-            except ImportError as e:
-                print(f"{RED}TERMy ImportError {e}{RESET}")
+                return res.returncode
+            except KeyboardInterrupt:
+                print(f"\n\n{YELLOW}Execution cancelled.{RESET}\n")
+                return 130
+            except Exception as exc:
+                print(f"\n\nFailed to execute recursive call: {exc}\n")
                 return 1
-            except Exception as e:
-                print(f"{RED}TERMy Exception {e}{RESET}")
-                return 1
+        return 0
 
     # ==========================================
     # STANDARD EXECUTION PATH
