@@ -16,6 +16,7 @@ termy what time is it
 - Most TERMy commands run without asking. Use `termy -n <prompt>` to see the command without running it.
 - Voice mode uses the built-in `say` command.
 - TERMy does not load its four Python snippet sets, so it starts in about 0.02s. To use them, remove their names from `skip_datasets` in `npcs/termy/config.json`, then run `npc-forge install npcs/termy` and `npc-forge restart`.
+- When TERMy has no match, or is not sure of a match, it asks a local model in LM Studio (started on demand). It asks before it runs the answer, and saves an answer that runs in `~/.local/share/termy/dataset_learned.json`, so TERMy answers that prompt by itself next time. Set `llm.enabled` to `false` in `npcs/termy/config.json` to turn this off.
 - To remove everything: `./setup.sh --uninstall`.
 
 Original README below!
