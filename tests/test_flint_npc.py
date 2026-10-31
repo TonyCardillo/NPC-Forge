@@ -252,7 +252,7 @@ class TestKnownLimitations(unittest.TestCase):
         res = self.npc.process_message("what does the tilde represent")
         self.assertIn("user home directory", res["response"])
 
-    # Passes since TERMy skips the Python snippet sets (skip_datasets)
+    # Passes since the Python snippet sets were removed
     def test_dot_dotdot_symbol_anchor_not_spelled_out_in_query(self):
         res = self.npc.process_message("what does dot and dotdot mean")
         self.assertIn("parent directory", res["response"])

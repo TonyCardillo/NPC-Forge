@@ -158,12 +158,10 @@ def commands_in(node):
 
 
 def dataset_commands():
-    """Yields (group, file name, command) for every command in the TERMy dataset."""
-    dataset = TERMY / "dataset"
-    for path in sorted(dataset.rglob("*.json")):
-        group = "python snippets" if path.parent != dataset else "shell commands"
+    """Yields (file name, command) for every command in the TERMy dataset."""
+    for path in sorted((TERMY / "dataset").rglob("*.json")):
         for command in commands_in(json.loads(path.read_text(encoding="utf-8"))):
-            yield group, path.name, command
+            yield path.name, command
 
 
 def helper_functions() -> set:
@@ -208,18 +206,16 @@ def print_details(details: list):
 
 def main() -> int:
     helpers = helper_functions()
-    groups, by_file, details = {}, {}, []
-    for group, name, command in dataset_commands():
+    rows, by_file, details = [], {}, []
+    for name, command in dataset_commands():
         issues = classify(command, helpers)
-        groups.setdefault(group, []).append(issues)
-        if group == "shell commands":
-            by_file.setdefault(name, []).append(issues)
-            if any(issues.values()):
-                details.append((name, command, issues))
+        rows.append(issues)
+        by_file.setdefault(name, []).append(issues)
+        if any(issues.values()):
+            details.append((name, command, issues))
     scripts = [classify(path.read_text(), helpers) for path in sorted((TERMY / "scripts").glob("*.sh"))]
     print("TERMy macOS gap report (heuristic estimates)")
-    for group, rows in groups.items():
-        print_summary(group.capitalize(), summarize(rows))
+    print_summary("Shell commands", summarize(rows))
     print_summary("Helper scripts (loaded before every command)", summarize(scripts))
     print_by_file(by_file)
     if "--details" in sys.argv:

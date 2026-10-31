@@ -17,11 +17,9 @@ def load_json(path, name):
         logger.error(f"JSON file load error. Path: {os.path.join(path, name)} Error: {e}")
         return None
 
-def load_json_recursive(path, name, skip=()):
+def load_json_recursive(path, name):
     templates = []
     for f in glob.glob(os.path.join(path, "**", name), recursive=True):
-        # Skips files inside the named top-level folders of path
-        if os.path.relpath(f, path).split(os.sep)[0] in skip: continue
         data = load_json(os.path.dirname(f), os.path.basename(f))
         if isinstance(data, list): templates.extend(data)
         elif isinstance(data, dict): templates.append(data)
@@ -103,15 +101,14 @@ class FlintNPC:
 
     def load_data(self, dataset_dir):
         self.personality = load_json(dataset_dir, "personality.json") or []
-        skip = self.config.get("skip_datasets", [])
-        self.dataset = load_json_recursive(dataset_dir, "dataset_*.json", skip)
+        self.dataset = load_json_recursive(dataset_dir, "dataset_*.json")
         learned = self.config.get("learned_dataset")
         if learned:
             # Entries saved by the LLM fallback, kept outside the NPC folder
             learned_path = os.path.expanduser(learned)
             if os.path.exists(learned_path):
                 self.dataset += load_json(os.path.dirname(learned_path), os.path.basename(learned_path)) or []
-        self.templates = load_json_recursive(dataset_dir, "templates_*.json", skip)
+        self.templates = load_json_recursive(dataset_dir, "templates_*.json")
     
         v_lists = [
             "expletives", 

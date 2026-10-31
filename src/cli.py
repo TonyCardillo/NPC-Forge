@@ -240,11 +240,10 @@ def list_installed_npcs():
         creator = config.get("creator", "Unknown")
                 
         personality = load_json(dataset_dir, "personality.json") or []
-        skip = config.get("skip_datasets", [])
-        dataset = load_json_recursive(dataset_dir, "dataset_*.json", skip) or []
+        dataset = load_json_recursive(dataset_dir, "dataset_*.json") or []
         intent_count = len(personality + dataset)
         
-        templates = load_json_recursive(dataset_dir, "templates_*.json", skip) or []
+        templates = load_json_recursive(dataset_dir, "templates_*.json") or []
         templates_count = len(templates)
         
         vocabulary = load_json(vocab_dir, "vocabulary.json")

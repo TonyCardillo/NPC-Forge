@@ -5,7 +5,6 @@ tools, not only under GNU/Linux.
 import importlib.machinery
 import importlib.util
 import json
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -32,33 +31,9 @@ def run_bash(script, stdin=""):
         [BASH, "-c", script], input=stdin, capture_output=True, text=True, timeout=60
     )
 
-def python_wrapper_line():
-    """Returns the temp file line shared by every Python snippet entry."""
-    command = next(c for group, _, c in gap.dataset_commands() if group == "python snippets")
-    return command.splitlines()[0].removesuffix("&&").strip()
-
-def remove_temp_script(path):
-    """Removes only what the wrapper created: a termy_script_* folder or file."""
-    if path.parent.name.startswith("termy_script_"):
-        shutil.rmtree(path.parent)
-    elif path.name.startswith("termy_script_"):
-        path.unlink(missing_ok=True)
-
-class TestPythonWrapper(unittest.TestCase):
-    def test_python_wrapper_temp_files_are_unique_example(self):
-        script = f'{python_wrapper_line()} && : > "$TMP_FILE" && printf "%s" "$TMP_FILE"'
-        first, second = run_bash(script), run_bash(script)
-        try:
-            self.assertEqual(first.returncode, 0, first.stderr)
-            self.assertEqual(second.returncode, 0, second.stderr)
-            self.assertNotEqual(first.stdout, second.stdout)
-            self.assertTrue(first.stdout.endswith(".py"))
-        finally:
-            for res in (first, second):
-                remove_temp_script(Path(res.stdout))
-
+class TestDatasetCommands(unittest.TestCase):
     def test_no_dataset_command_uses_mktemp_suffix_invariant(self):
-        flagged = sum("mktemp suffix" in gap.gnu_flags(c) for _, _, c in gap.dataset_commands())
+        flagged = sum("mktemp suffix" in gap.gnu_flags(c) for _, c in gap.dataset_commands())
         self.assertEqual(flagged, 0)
 
 class TestHelpersOnBash32(unittest.TestCase):
